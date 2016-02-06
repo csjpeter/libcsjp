@@ -1,0 +1,24 @@
+#!/bin/bash
+
+PRJNAME_BASE=csjp
+PRJNAME=lib${PRJNAME_BASE}
+
+VERSION_MAJOR=0
+VERSION_MINOR=3
+VERSION_PATCH=0
+VERSION_API=${VERSION_MAJOR}.${VERSION_MINOR}
+VERSION=${VERSION_API}.${VERSION_PATCH}
+
+PKGNAME_BASE=${PRJNAME}${VERSION_API}
+
+PRJDESC="Experimental general base library for C++."
+PRJDESCRIPTION=" The purpose of this library to provide an alternative general\n\
+ purpose base library, which is platform independent, lightweight,\n\
+ easier to use and more productive than the standard C++ library.\n\
+ Note, this library is only an experiment for now."
+
+DEVELOPMENT_START_YEAR=2009
+
+AUTHOR="Peter Csaszar"
+EMAIL=csjpeter@gmail.com
+

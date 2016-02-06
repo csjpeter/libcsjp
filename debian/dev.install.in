@@ -1,0 +1,3 @@
+@TCROOT@@PREFIX@include
+@TCROOT@@PREFIX@lib/pkgconfig
+@TCROOT@@PREFIX@lib/@PRJNAME@@VERSION_API@.a

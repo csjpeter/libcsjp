@@ -1,0 +1,233 @@
+#!/bin/bash
+
+source config
+
+PKGNAME=@PKGNAME@
+
+DEBUG=no
+
+# param 1 : inflie
+# param 2 : outfile
+function generate ()
+{
+	cat $1 | sed \
+		-e "s|@PREFIX@|${PREFIX}|g" \
+		-e "s|@HOST_PREFIX@|${HOST_PREFIX}|g" \
+		-e "s|@TCROOT@|${TCROOT}|g" \
+		-e "s|@INCLUDES@|${INCLUDES}|g" \
+		-e "s|@CFLAGS@|${CFLAGS}|g" \
+		-e "s|@LDFLAGS@|${LDFLAGS}|g" \
+		-e "s|@LIBS@|${LIBS}|g" \
+		-e "s|@STATICS@|${STATICS}|g" \
+		-e "s|@CXX@|${CXX}|g" \
+		-e "s|@CC@|${CC}|g" \
+		-e "s|@CPP@|${CPP}|g" \
+		-e "s|@LD@|${LD}|g" \
+		-e "s|@STRIP@|${STRIP}|g" \
+		-e "s|@RANLIB@|${RANLIB}|g" \
+		-e "s|@OBJCOPY@|${OBJCOPY}|g" \
+		-e "s|@MOC@|${MOC}|g" \
+		-e "s|@PKGCONFIG@|${PKGCONFIG}|g" \
+		-e "s|@CONFIG@|${CONFIG}|g" \
+		-e "s|@HEADERDIR@|${HEADERDIR}|g" \
+		-e "s|@DOCDIR@|${DOCDIR}|g" \
+		-e "s|@PKGCONFIGDIR@|${PKGCONFIGDIR}|g" \
+		-e "s|@MAN_DIR@|${MAN_DIR}|g" \
+		> $2 || exit $?
+}
+
+function configure ()
+{
+	while ! test "x$1" = "x"; do
+		KEY=$(echo $1 | sed 's|=.*||g')
+		VALUE=$(echo $1 | sed 's|^[^=]*=||g')
+
+		case ${KEY} in
+			(--build)
+				! test "x${VALUE}" = "x" || {
+					echo "Missing build architecture value."
+					exit $?
+				}
+				BUILD_TOOLKIT="${VALUE}"
+			;;
+			(--host)
+				! test "x${VALUE}" = "x" || {
+					echo "Missing host architecture value."
+					exit $?
+				}
+				HOST_TOOLKIT="${VALUE}"
+			;;
+			(--target)
+				! test "x${VALUE}" = "x" || {
+					echo "Missing target architecture value."
+					exit $?
+				}
+				TARGET_TOOLKIT="${VALUE}"
+			;;
+			(--prefix)
+				PREFIX=$(echo ${VALUE} | sed 's|^/*||g')
+				prefix=$PREFIX # dh_auto_configure compatibility
+			;;
+			(--host-prefix)
+				HOST_PREFIX=$(echo ${VALUE} | sed 's|^/*||g')
+			;;
+			(--tcroot)
+				TCROOT="${VALUE}"
+			;;
+			(--multicultural)
+				CONFIG="${CONFIG} multicultural"
+			;;
+			(--debug)
+				CFLAGS="${CFLAGS} -fno-builtin -O0 -g3 -ggdb3 -DDEBUG"
+				DEBUG=yes
+			;;
+			(--desktop)
+				CFLAGS="${CFLAGS} -DDESKTOP"
+			;;
+			(--gnu-source)
+				CFLAGS="${CFLAGS} -D_GNU_SOURCE"
+			;;
+			(--non-gnu-source)
+				CFLAGS="${CFLAGS} -U_GNU_SOURCE"
+			;;
+			(--fpic)
+				CFLAGS="${CFLAGS} -fPIC"
+			;;
+			(--static)
+				CONFIG="${CONFIG} staticbuild"
+			;;
+			(--perfmode)
+				CFLAGS="${CFLAGS} -DPERFMODE"
+			;;
+			(--libs)
+				LIBS="${LIBS} ${VALUE}"
+			;;
+			(--cflags)
+				CFLAGS="${CFLAGS} ${VALUE}"
+			;;
+			(--ldflags)
+				LDFLAGS="${LDFLAGS} ${VALUE}"
+			;;
+			(--includedir)
+				INCLUDE_DIR=$(eval echo ${VALUE} | sed 's|^/*||g')
+			;;
+			(--mandir)
+				MAN_DIR=$(eval echo ${VALUE} | sed 's|^/*||g')
+			;;
+			(--infodir)
+				INFO_DIR=$(eval echo ${VALUE} | sed 's|^/*||g')
+			;;
+			(--sysconfdir)
+				SYSCONF_DIR=$(eval echo ${VALUE} | sed 's|^/*||g')
+			;;
+			(--localstatedir)
+				LOCALSTATE_DIR=$(eval echo ${VALUE} | sed 's|^/*||g')
+			;;
+			(--libexecdir)
+				LIBEXEC_DIR=$(eval echo ${VALUE} | sed 's|^/*||g')
+			;;
+			# Some option we want to accept but do nothing for them
+			(--disable-maintainer-mode)
+			;;
+			(--disable-dependency-tracking)
+			;;
+			(*)
+				echo "Invalid argument ($1) found on command line."
+				exit 1
+			;;
+		esac
+		shift
+	done
+}
+
+configure --prefix=usr
+configure @PRECONFIGURATION@
+configure $@
+
+! test ${DEBUG} = "no" || { CFLAGS="${CFLAGS} -O2" ; }
+
+CFLAGS="${CFLAGS} -Werror -Wall -Wextra -MMD -std=c++0x -D_ISOC99_SOURCE"
+# -pedantic-errors
+
+! test "x${HOST_TOOLKIT}" = "x" || { HOST_TOOLKIT=${BUILD_TOOLKIT} ; }
+! test "x${TARGET_TOOLKIT}" = "x" || { TARGET_TOOLKIT=${HOST_TOOLKIT} ; }
+
+test "x${TARGET_TOOLKIT}" = "x${BUILD_TOOLKIT}" && {
+	CXX=g++
+	CC=cc
+	CPP=cpp
+	LD=ld
+	STRIP=strip
+	OBJCOPY=objcopy
+	MOC=moc
+	RANLIB=ranlib
+	PKGCONFIG=pkg-config
+} || {
+	CXX=${TARGET_TOOLKIT}-g++
+	CC=${TARGET_TOOLKIT}-cc
+	CPP=${TARGET_TOOLKIT}-cpp
+	LD=${TARGET_TOOLKIT}-ld
+	STRIP=${TARGET_TOOLKIT}-strip
+	OBJCOPY=${TARGET_TOOLKIT}-objcopy
+	MOC=${TARGET_TOOLKIT}-moc
+	RANLIB=${TARGET_TOOLKIT}-ranlib
+	PKGCONFIG=${TARGET_TOOLKIT}-pkg-config
+}
+
+#echo "${CONFIG}" | grep multicultural && {
+	#CFLAGS="${CFLAGS} $(${PKGCONFIG} --cflags icu-uc)" || exit $?
+#}
+echo "${CONFIG}" | grep staticbuild && {
+	#LDFLAGS="${LDFLAGS} -static-libgcc -static-libstdc++"
+	echo "${CONFIG}" | grep multicultural && {
+		#STATICS="${STATICS} $(${PKGCONFIG} --libs icu-uc)" || exit $?
+		STATICS="${STATICS} -licuuc -licudata"
+	}
+} || {
+	echo "${CONFIG}" | grep multicultural && {
+		#LIBS="${LIBS} $(${PKGCONFIG} --libs icu-uc)" || exit $?
+		LIBS="${LIBS} -licuuc -licudata"
+	}
+}
+
+INCLUDES="${INCLUDES} -Isrc -Isrc/devel -Isrc/container -Isrc/core -Isrc/human"
+
+TCROOT="${TCROOT}"
+
+LDFLAGS="${LDFLAGS} -Wl,--as-needed"
+STATICS="${STATICS}"
+
+# Adjusting PREFIX and TCROOT if non-empty
+test "x${PREFIX}" = "x" || { PREFIX="${PREFIX}/" ; }
+test "x${HOST_PREFIX}" = "x" || { HOST_PREFIX="${HOST_PREFIX}/" ; }
+test "x${TCROOT}" = "x" || { TCROOT="${TCROOT}/" ; }
+
+test "x${INCLUDE_DIR}" = "x" && { INCLUDE_DIR=${TCROOT}${PREFIX}include ; }
+test "x${MAN_DIR}" = "x" && { MAN_DIR=${TCROOT}${PREFIX}share/man ; }
+test "x${INFO_DIR}" = "x" && { INFO_DIR=${TCROOT}${PREFIX}share/info ; }
+test "x${SYSCONF_DIR}" = "x" && { SYSCONF_DIR=${TCROOT}etc ; }
+test "x${LOCALSTATE_DIR}" = "x" && { LOCALSTATE_DIR=${TCROOT}var ; }
+test "x${LIBEXEC_DIR}" = "x" && { LIBEXEC_DIR=${TCROOT}${PREFIX}lib ; }
+
+HEADERDIR=${TCROOT}${PREFIX}include/${PRJNAME}${VERSION_API}
+DOCDIR=${TCROOT}${PREFIX}share/doc/${PKGNAME}
+
+PKGCONFIGDIR=${TCROOT}${PREFIX}lib/pkgconfig
+
+generate Makefile.in Makefile || exit $?
+generate doxyfile.in doxyfile || exit $?
+generate debian/${PKGNAME}.install.in debian/${PKGNAME}.install || exit $?
+generate debian/${PKGNAME}-dbg.install.in debian/${PKGNAME}-dbg.install || exit $?
+generate debian/${PKGNAME}-test.install.in debian/${PKGNAME}-test.install || exit $?
+generate debian/${PKGNAME}-dev.install.in debian/${PKGNAME}-dev.install || exit $?
+generate debian/${PKGNAME}-doc.install.in debian/${PKGNAME}-doc.install || exit $?
+generate debian/rules.in debian/rules || exit $?
+generate debian/${PKGNAME}.postinst.in debian/${PKGNAME}.postinst.in || exit $?
+generate debian/${PKGNAME}.postrm.in debian/${PKGNAME}.postrm.in || exit $?
+
+test -d ${PKGCONFIGDIR} || { mkdir -p ${PKGCONFIGDIR} || exit $? ; }
+generate pc.in ${PKGCONFIGDIR}/${PRJNAME}${VERSION_API}.pc || exit $?
+
+test -d ${MAN_DIR}/man1 || { mkdir -p ${MAN_DIR}/man1 || exit $? ; }
+generate test.man.in ${MAN_DIR}/man1/${PKGNAME}-test.1 || exit $?
+

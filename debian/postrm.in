@@ -1,0 +1,60 @@
+#!/bin/bash
+
+echo "--> $0 $@"
+
+function remove ()
+{
+	ldconfig -n /@TCROOT@@PREFIX@lib
+}
+
+function purge ()
+{
+	true
+}
+
+function upgrade ()
+{
+	true
+}
+
+function failed-upgrade ()
+{
+	true
+}
+
+function abort-install ()
+{
+	remove || return
+}
+
+function abort-upgrade ()
+{
+	true
+}
+
+CMD=$1
+
+case $CMD in
+	(remove)
+		remove || exit $?
+		;;
+	(purge)
+		purge || exit $?
+		;;
+	(upgrade)
+		upgrade $2 || exit $?
+		;;
+	(failed-upgrade)
+		failed-upgrade $2 || exit $?
+		;;
+	(abort-install)
+		abort-install || exit $?
+		;;
+	(abort-upgrade)
+		abort-upgrade $2 || exit $?
+		;;
+	(*)
+		echo "Unknown command received: $CMD"
+		exit 1;
+		;;
+esac

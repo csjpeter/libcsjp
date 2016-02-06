@@ -1,0 +1,3 @@
+@TCROOT@@PREFIX@bin
+@MAN_DIR@/man1/@PKGNAME@-test.1
+@MAN_DIR@/man1/test-* @MAN_DIR@/man1

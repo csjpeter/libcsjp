@@ -1,0 +1,23 @@
+	cat $1 | sed \
+		-e "s|@PRJNAME@|libcsjp|g" \
+		-e "s|@PRJNAME_BASE@|csjp|g" \
+		-e "s|@PRJDESC@|Experimental general base library for C++.|g" \
+		-e "s|@PRJDESCRIPTION@| The purpose of this library to provide an alternative general\n purpose base library, which is platform independent, lightweight,\n easier to use and more productive than the standard C++ library.\n Note, this library is only an experiment for now.|g" \
+		-e "s|@PKGNAME@|libcsjp0.3|g" \
+		-e "s|@PKGNAME_BASE@|libcsjp0.3|g" \
+		-e "s|@VERSION_MAJOR@|0|g" \
+		-e "s|@VERSION_MINOR@|3|g" \
+		-e "s|@VERSION_PATCH@|0|g" \
+		-e "s|@VERSION_API@|0.3|g" \
+		-e "s|@VERSION@|0.3.0|g" \
+		-e "s|@VERSION_PACKAGING@|0.3.0-14.04-trusty|g" \
+		-e "s|@DEVELOPMENT_START_YEAR@|2009|g" \
+		-e "s|@AUTHOR@|Peter Csaszar|g" \
+		-e "s|@EMAIL@|csjpeter@gmail.com|g" \
+		-e "s|@TARGET_DIST@|trusty|g" \
+		-e "s|@HOST_DIST@|trusty|g" \
+		-e "s|@DIST_DIR@|trusty|g" \
+		-e "s|@CURRENT_DATE@|Sat, 06 Feb 2016 00:12:27 +0100|g" \
+		-e "s|@CURRENT_YEAR@|2016|g" \
+		-e "s|@PRECONFIGURATION@|--prefix=opt/extras.ubuntu.com/csjp --ldflags=-rdynamic --fpic --gnu-source --desktop --multicultural|g" \
+		|| exit $?

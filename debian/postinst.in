@@ -1,0 +1,36 @@
+#!/bin/bash
+
+echo "--> $0 $@"
+
+function configure ()
+{
+	ldconfig -n /@TCROOT@@PREFIX@lib
+}
+
+function abort-remove ()
+{
+	false
+}
+
+function abort-upgrade ()
+{
+	true
+}
+
+CMD=$1
+
+	case $CMD in
+(configure)
+	configure $2 || exit $?
+	;;
+(abort-remove)
+	abort-remove || exit $?
+	;;
+(abort-upgrade)
+	abort-upgrade $2 || exit $?
+	;;
+(*)
+	echo "Unknown command received: $CMD"
+	exit 1;
+	;;
+	esac

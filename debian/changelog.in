@@ -1,0 +1,163 @@
+@PKGNAME@ (@VERSION_PACKAGING@) @HOST_DIST@; urgency=low
+
+  * Fixing debian rules for build-arch depends on build-indep now because
+    architecture field value 'all' in control file means that architecture
+    independent package is to be built as well even if architecture dependent
+    build was asked for.
+  * Only api version symlink is to be created for the .so, so both libcsjp0.1
+    and libcsjp0.2 can be installed to the same system.
+  * New container Array
+  * New container PodArray
+  * New csjp::String API:
+    const String & operator=(const String &);
+    const String & operator=(char c);
+    const String & operator=(unsigned char c);
+    const String & operator=(unsigned u);
+    const String & operator=(long unsigned u);
+    const String & operator=(long long unsigned u);
+    const String & operator=(int i);
+    const String & operator=(long int i);
+    const String & operator=(long long int i);
+    void chopFront(unint _length);
+    void chopBack(unint _length);
+    void trimFront(const char * toTrim, unint _length);
+    void trimFront(const char * toTrim);
+    void trimFront(const String &);
+    void trimBack(const char * toTrim, unint _length);
+    void trimBack(const char * toTrim);
+    void trimBack(const String &);
+    void cat(const Arg & arg, const Args & ... args);
+  * New function:
+    bool subStringByRegexp(const String &, Array<StringChunk> & result, const char * regexp) const;
+  * New csjp::CString API:
+    bool operator==(const CString a, const char * b);
+  * New csjp::StringChunk API:
+    explicit StringChunk(const StringChunk & str, unint from);
+    explicit StringChunk(const StringChunk & str);
+    explicit StringChunk();
+    const StringChunk & operator=(const char *);
+    const StringChunk & operator=(const StringChunk & chunk);
+    void assign(const char * str, unint length);
+    void assign(const char * str);
+    void assign(const StringChunk & chunk);
+    Array<StringChunk> split(const char * delimiters, bool avoidEmptyResults = true);
+    bool chopFront(const char * str, unint _length);
+    bool chopFront(const char * str);
+    bool chopFront(const StringChunk & str);
+    void chopFront(unint _length);
+    void chopBack(unint _length);
+    void trimFront(const char * toTrim, unint _length);
+    void trimFront(const char * toTrim);
+    void trimFront(const StringChunk &);
+    void trimBack(const char * toTrim, unint _length);
+    void trimBack(const char * toTrim);
+    void trimBack(const StringChunk &);
+  * csjp::Json class provided as parser and data structure for json format
+  * New csjp::File API:
+    explicit File(const StringChunk & fileName);
+    void rename(const char * name);
+    void rename(const String & name);
+    void overWrite(const String & data);
+  * Removed debian rules from Makefile
+  * Auto compute number of make jobs for debian packaging
+  * Improved json parser reading strings without quotation
+  * lenght() method of String and StringChunk replaced with public const
+    reference member.
+  * In String class added str reference to inner c string data.
+  * In StringChunk data method replaced by data reference member to inner
+    data.
+  * Container speed test improved and made more precise. Also tests the new
+    Array and PodArray container.
+  * BTree class renamed to BinTree. BTree name is needed for real BTree
+    implementation in the future.
+  * Added for printing backtrace of segmentation faults:
+    void set_segmentation_fault_signal_handler();
+  * Added backtrace notes for Exception objects.
+  * New Exception: NotImplemented
+  * Exception class is allways compatible with std::exception from now on.
+  * Range based for loop support for:
+    - Exception (for notes in it)
+    - String
+    - BinTree
+    - Array
+    - PodArray
+    - Container
+    - OwnerContainer
+    - ReferenceContainer
+    - SorterContainer
+    - SorterOwnerContainer
+    - SorterReferenceContainer
+  * Exception notes, LOG, DBG, FATAL messages are using variadic templates
+    for formatted printing.
+  * The number type unint is replaced by size_t, unsigned and alike standard
+    types.
+
+ -- @AUTHOR@ <@EMAIL@>  @CURRENT_DATE@
+
+libcsjp0.2 (0.2.1) @HOST_DIST@; urgency=low
+
+  * Fixed some debian build rules.
+
+ -- Peter Csaszar <csjpeter@gmail.com>  Wed, 12 Jun 2013 09:48:46 +0200
+
+libcsjp0.2 (0.2.0) @HOST_DIST@; urgency=low
+
+  * Logging debug messages in one line instead of two.
+  * A logger function moved to csjp_utility.h
+  * Fixed some scope issue with swap() calls in containers
+  * Some uml diagramm about containers.
+  * Speed test about containers.
+  * New methods for String and File:
+    void appendVPrintf(const char * format, va_list args, unint length = 256);
+    void appendPrintf(const char * format, ...);
+
+ -- Peter Csaszar <csjpeter@gmail.com>  Tue, 11 Jun 2013 22:02:16 +0200
+
+libcsjp0.1 (0.1.6) @HOST_DIST@; urgency=low
+
+  * Fixing debian rules for binary-arch and binary-indep builds.
+
+ -- Peter Csaszar <csjpeter@gmail.com>  Fri, 22 Mar 2013 07:45:45 +0100
+
+libcsjp0.1 (0.1.5) @HOST_DIST@; urgency=low
+
+  * For ubuntu, using package versions containing distribution
+    version.
+
+ -- Peter Csaszar <csjpeter@gmail.com>  Fri, 22 Mar 2013 07:25:23 +0100
+
+libcsjp0.1 (0.1.4) @HOST_DIST@; urgency=low
+
+  * Fixed a leak in String::subStringByRegexp()
+
+ -- Peter Csaszar <csjpeter@gmail.com>  Wed, 20 Mar 2013 23:10:05 +0100
+
+libcsjp0.1 (0.1.3) @HOST_DIST@; urgency=low
+
+  * Adding graphviz to build depends
+  * Fixing compilation issues in debug mode.
+  * Fixing DBG macro
+  * Implement copy in both ReferenceContainer and OwnerContainer
+    instead in Container
+
+ -- Peter Csaszar <csjpeter@gmail.com>  Wed, 13 Mar 2013 12:59:05 +0100
+
+libcsjp0.1 (0.1.2) @HOST_DIST@; urgency=low
+
+  * Adding doxygen to source dependencies
+
+ -- Peter Csaszar <csjpeter@gmail.com>  Mon, 04 Mar 2013 23:15:18 +0100
+
+libcsjp0.1 (0.1.1) @HOST_DIST@; urgency=low
+
+  * If null ptr logdir set, log into actual directory instead of
+    /var/log.
+  * Fixes in configure script to be compatible with dh_auto_configure
+
+ -- Peter Csaszar <csjpeter@gmail.com>  Mon, 04 Mar 2013 22:06:39 +0100
+
+libcsjp0.1 (0.1.0) @HOST_DIST@; urgency=low
+
+  * Initial version, first public release.
+
+ -- Peter Csaszar <csjpeter@gmail.com>  Mon, 04 Mar 2013 11:15:06 +0100

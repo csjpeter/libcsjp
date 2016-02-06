@@ -1,0 +1,12 @@
+prefix=/@TCROOT@@PREFIX@
+
+Name: @PRJNAME@@VERSION_API@
+Description: @PRJDESC@
+Version: @VERSION@
+Libs: -L/@TCROOT@@PREFIX@lib -l@PRJNAME_BASE@@VERSION_API@
+Libs.private: @LIBS@
+Cflags: -I/@TCROOT@@PREFIX@include/@PRJNAME@@VERSION_API@ \
+	-I/@TCROOT@@PREFIX@include/@PRJNAME@@VERSION_API@/devel \
+	-I/@TCROOT@@PREFIX@include/@PRJNAME@@VERSION_API@/container \
+	-I/@TCROOT@@PREFIX@include/@PRJNAME@@VERSION_API@/core
+

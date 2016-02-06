@@ -1,0 +1,91 @@
+/*
+ * Author: Csaszar, Peter <csjpeter@gmail.com>
+ * Copyright (C) 2013 Csaszar, Peter
+ */
+
+digraph inheritances {
+	compound=true;
+	concentrate=false;
+	rankdir=RL;
+	nojustify=true;
+	labeljust=c;
+	fontname=Times;
+	fontsize=14;
+	node [fontname=Times, fontsize=10, style=solid];
+	edge [fontname=Sherif, fontsize=8, dir=both, labelfontname=Sherif, labelfontsize=8, labeldistance=1]
+
+	{ node [shape=record];
+		"BinTreeDataType" [label=DataType];
+	}
+
+	/* inheritance */
+	{ node [shape=record]; edge [arrowhead=onormal, arrowtail=none];
+		"Map<KeyType, ValueType>" -> "SorterOwnerContainer<MapEntry<KeyType, ValueType> >";
+		"OwnerBinTree<DataType>" -> "BinTree<DataType>";
+
+		"OwnerContainer<DataType>" -> "Container<DataType>";
+		"ReferenceContainer<DataType>" -> "Container<DataType>";
+
+		"SorterReferenceContainer<DataType>" -> "SorterContainer<DataType>";
+		"SorterOwnerContainer<DataType>" -> "SorterContainer<DataType>";
+	}
+
+	/* template implementation */
+/*	{ node [shape=record]; edge [arrowhead=onormal, arrowtail=none, style=dashed];
+		"BinTree< CustomBox<DataType> >" -> "BinTree<DataType>";
+		"BinTree< PrimaryBox<DataType> >" -> "BinTree<DataType>";
+
+		"SorterOwnerContainer<MapEntry<KeyType, ValueType> >" -> "SorterOwnerContainer<DataType>";
+	}*/
+
+	/* aggregation */
+	{ node [shape=record]; edge [arrowhead=none, arrowtail=odiamond];
+		/* hack for forwarding operator< from DataType to CustomBox<DataType> */
+		/*"CustomBox<DataType>" -> "SorterContainer<DataType>";*/
+
+		"CustomBox<DataType>" -> DataType;
+		"CustomBox<DataType>" -> "BinTree< PrimaryBox<DataType> >";
+
+		"PrimaryBox<DataType>" -> DataType;
+		"PrimaryBox<DataType>" -> "BinTree< CustomBox<DataType> >";
+	}
+
+	/* composition */
+	{ node [shape=record]; edge [arrowhead=none, arrowtail=diamond];
+		"CustomBox<DataType>" -> unint [label="order"];
+
+		"PrimaryBox<DataType>" -> bool [label="owner"];
+
+		"BinTree<DataType>" -> "BinTreeDataType";
+
+		"OwnerList<DataType>" -> "SorterOwnerContainer<DataType>";
+
+		"SorterContainer<DataType>" -> "BinTree< PrimaryBox<DataType> >" [headlabel="*"];
+		"SorterContainer<DataType>" -> "BinTree< CustomBox<DataType> >" [headlabel="*"];
+
+		"BinTree< PrimaryBox<DataType> >" -> "PrimaryBox<DataType>";
+		"BinTree< CustomBox<DataType> >" -> "CustomBox<DataType>";
+
+		"Map<KeyType, ValueType>" -> "MapEntry<KeyType, ValueType>" [headlabel="*"];
+		"MapEntry<KeyType, ValueType>" -> KeyType;
+		"MapEntry<KeyType, ValueType>" -> ValueType;
+
+		"Container<DataType>" -> "BinTree<DataType>" [headlabel="*"];
+	}
+
+/*
+Exception
+Ptr
+AbstractObjectTree
+Ini -> AbstractObjectTree
+Json -> AbstractObjectTree
+ObjectTree -> AbstractObjectTree
+File
+Mutex
+StringChunk
+String
+Object
+Text
+UniChar
+*/
+}

@@ -1,0 +1,392 @@
+
+# We dont want to use built in rules. Those are ineffective and we
+# can never know all of them, thus those can be unexpected as well.
+
+.SUFFIXES:
+
+MAKEFLAGS += --no-builtin-rules --no-builtin-variables
+EMPTY=
+COMMA=,
+SPACE=$(EMPTY) $(EMPTY)
+SHELL=bash
+
+#
+#	Configuration part
+#
+
+CFLAGS=@CFLAGS@
+LDFLAGS=@LDFLAGS@
+LIBS=@LIBS@
+STATICS=@STATICS@
+INCLUDES=@INCLUDES@
+CC=@CC@
+CXX=@CXX@
+CPP=@CPP@
+LD=@LD@
+STRIP=@STRIP@
+OBJCOPY=@OBJCOPY@
+MOC=@MOC@
+RANLIB=@RANLIB@
+PKGCONFIG=@PKGCONFIG@
+
+#
+# some tool
+#
+
+#cpp -dM /dev/null
+COMPILE=$(CXX) -c $(CFLAGS) $(INCLUDES)
+
+LINK=$(CXX) $(LDFLAGS) $^ $(STATICS) $(LIBS) -o $@
+
+LINK_DYNAMIC=$(CXX) -shared -Bdynamic $(LDFLAGS) $^ $(LIBS) \
+	-Wl,-soname,$(basename $(notdir $@)) -o $@
+
+LINK_STATIC=ar cqs $@ $^
+
+TESTDIR=tmp/@PRJNAME@@VERSION_API@/test/
+
+tmp/src/core/test/%.opp: src/core/test/%.cpp
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(COMPILE) -DTESTDIR=\"$(TESTDIR)\" -o $@ $<
+
+tmp/src/container/test/%.opp: src/container/test/%.cpp
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(COMPILE) -DTESTDIR=\"$(TESTDIR)\" -o $@ $<
+
+tmp/src/human/test/%.opp: src/human/test/%.cpp
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(COMPILE) -DTESTDIR=\"$(TESTDIR)\" -o $@ $<
+
+tmp/src/%.opp: src/%.cpp
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(COMPILE) -o $@ $<
+
+@TCROOT@@PREFIX@include/@PRJNAME@@VERSION_API@/%.h: src/%.h
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	cp -pd $< $@
+
+@TCROOT@@PREFIX@lib/%: \
+		tmp/@TCROOT@@PREFIX@lib/%
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	cp $^ $@
+	$(STRIP) --remove-section=.comment --remove-section=.note --strip-unneeded $@
+
+@TCROOT@@PREFIX@lib/debug/@PREFIX@lib/%: \
+		tmp/@TCROOT@@PREFIX@lib/%
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(OBJCOPY) --only-keep-debug $^ $@
+
+#$(OBJCOPY) --add-gnu-debuglink=@TCROOT@@PREFIX@lib/debug/@PREFIX@lib/@PRJNAME@.so.@VERSION@ $@
+
+@TCROOT@@PREFIX@bin/% : \
+		tmp/@TCROOT@@PREFIX@bin/%
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	cp $^ $@
+	$(STRIP) --remove-section=.comment --remove-section=.note --strip-debug $@
+
+@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/% : \
+		tmp/@TCROOT@@PREFIX@bin/%
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(OBJCOPY) --only-keep-debug $^ $@
+
+#
+# build goals
+#
+
+TEST_BINARIES=\
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-array \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-pod_array \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-ref_array \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string_chunk \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-file \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-mutex \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-bintree \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-sorter_container \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-json
+
+ifneq (,$(findstring multicultural,@CONFIG@))
+TEST_BINARIES+=\
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-human-unichar \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-human-text
+endif
+
+.PRECIOUS: \
+	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container_speed \
+	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-array \
+	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-pod_array \
+	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-ref_array \
+	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string_chunk \
+	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string \
+	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-file \
+	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-mutex \
+	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-bintree \
+	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container \
+	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-sorter_container \
+	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-json
+
+
+TEST_BINARIES_DBG=\
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-array \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-pod_array \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-ref_array \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string_chunk \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-file \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-mutex \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-bintree \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-sorter_container \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-json
+
+ifneq (,$(findstring multicultural,@CONFIG@))
+TEST_BINARIES_DBG=\
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-human-unichar \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-human-text
+endif
+
+TEST_BINARIES_MAN_PAGES=\
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-array.1 \
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-pod_array.1 \
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-ref_array.1 \
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-core-string_chunk.1 \
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-core-string.1 \
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-core-file.1 \
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-core-mutex.1 \
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-bintree.1 \
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-container.1 \
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-sorter_container.1 \
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-json.1
+
+ifneq (,$(findstring multicultural,@CONFIG@))
+TEST_BINARIES_MAN_PAGES=\
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-human-unichar.1 \
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-human-text.1
+endif
+
+DEVEL_HEADERS= \
+	@HEADERDIR@/devel/csjp_test.h \
+	@HEADERDIR@/devel/csjp_logger.h \
+	@HEADERDIR@/devel/csjp_exception.h \
+	@HEADERDIR@/devel/csjp_carray.h \
+	@HEADERDIR@/devel/csjp_object.h \
+	@HEADERDIR@/devel/csjp_defines.h \
+	@HEADERDIR@/devel/csjp_ctypes.h \
+	@HEADERDIR@/devel/csjp_utility.h
+
+DEVEL_INCLUDES=-Isrc/devel
+
+CONTAINER_HEADERS= \
+	@HEADERDIR@/container/csjp_array.h \
+	@HEADERDIR@/container/csjp_pod_array.h \
+	@HEADERDIR@/container/csjp_ref_array.h \
+	@HEADERDIR@/container/csjp_bintree.h \
+	@HEADERDIR@/container/csjp_ownerbintree.h \
+	@HEADERDIR@/container/csjp_container.h \
+	@HEADERDIR@/container/csjp_owner_container.h \
+	@HEADERDIR@/container/csjp_reference_container.h \
+	@HEADERDIR@/container/csjp_sorter_container.h \
+	@HEADERDIR@/container/csjp_sorter_owner_container.h \
+	@HEADERDIR@/container/csjp_sorter_reference_container.h \
+	@HEADERDIR@/container/csjp_json.h
+
+CONTAINER_INCLUDES=-Isrc/container
+
+CORE_HEADERS= \
+	@HEADERDIR@/core/csjp_string_chunk.h \
+	@HEADERDIR@/core/csjp_string.h \
+	@HEADERDIR@/core/csjp_file.h \
+	@HEADERDIR@/core/csjp_stopper.h \
+	@HEADERDIR@/core/csjp_mutex.h
+
+CORE_INCLUDES=-Isrc/core
+
+ifneq (,$(findstring multicultural,@CONFIG@))
+	HUMAN_HEADERS= \
+	@HEADERDIR@/human/csjp_unichar.h \
+	@HEADERDIR@/human/csjp_text.h
+else
+	HUMAN_HEADERS=
+endif
+
+HUMAN_INCLUDES=-Isrc/human
+
+HEADERS=\
+	$(DEVEL_HEADERS) \
+	$(CONTAINER_HEADERS) \
+	$(CORE_HEADERS) \
+	$(HUMAN_HEADERS)
+
+#
+# temporary files
+#
+
+-include $(DEVEL_OBJECTS:.opp=.d)
+
+DEVEL_OBJECTS= \
+	tmp/src/devel/csjp_utility.opp \
+	tmp/src/devel/csjp_logger.opp \
+	tmp/src/devel/csjp_exception.opp
+
+-include $(CORE_OBJECTS:.opp=.d)
+
+CORE_OBJECTS= \
+	tmp/src/core/csjp_string_chunk.opp \
+	tmp/src/core/csjp_string.opp \
+	tmp/src/core/csjp_file.opp \
+	tmp/src/core/csjp_mutex.opp
+
+-include $(CONTAINER_OBJECTS:.opp=.d)
+
+CONTAINER_OBJECTS= \
+	tmp/src/container/csjp_json.opp
+
+-include $(HUMAN_OBJECTS:.opp=.d)
+
+ifneq (,$(findstring multicultural,@CONFIG@))
+HUMAN_OBJECTS= \
+	tmp/src/human/csjp_unichar.opp \
+	tmp/src/human/csjp_text.opp
+else
+HUMAN_OBJECTS=
+endif
+
+#
+# main rules
+#
+
+all: build
+
+build: build-arch build-indep
+
+build-arch: \
+	$(HEADERS) \
+	@TCROOT@@PREFIX@lib/@PRJNAME@@VERSION_API@.a \
+	@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION@ \
+	@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION_API@ \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@lib/@PRJNAME@.so.@VERSION@ \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container_speed \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container_speed \
+	$(TEST_BINARIES) \
+	$(TEST_BINARIES_DBG) \
+	$(TEST_BINARIES_MAN_PAGES)
+
+build-indep: \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-speed.gnuplot \
+	@DOCDIR@/containers.png \
+	@DOCDIR@/html/index.html
+
+clean:
+	test "x" = "x$(shell find . | grep \\~$$)" || rm $(shell find . | grep \\~$$)
+	test "x" = "x$(shell find . | grep \\.swp$$)" || rm $(shell find . | grep \\.swp$$)
+	test "x" = "x$(shell find . | grep \\.log$$)" || rm $(shell find . | grep \\.log$$)
+	! test -d tmp || rm -fr tmp
+	! test -d @TCROOT@@PREFIX@bin || rm -fr @TCROOT@@PREFIX@bin
+	! test -d @TCROOT@@PREFIX@lib || rm -fr @TCROOT@@PREFIX@lib
+	! test -d @TCROOT@@PREFIX@share || rm -fr @TCROOT@@PREFIX@share
+	! test -d @TCROOT@@PREFIX@test || rm -fr @TCROOT@@PREFIX@test
+	! test -d @TCROOT@@PREFIX@include || rm -fr @TCROOT@@PREFIX@include
+	test "x" = "x@TCROOT@@PREFIX@" || { ! test -d @TCROOT@@PREFIX@ || rmdir @TCROOT@@PREFIX@ ; }
+	! test -e Makefile || rm Makefile
+	! test -e doxyfile || rm doxyfile
+
+install:
+	test -d $(DESTDIR) || mkdir -p $(DESTDIR)
+	test -d $(DESTDIR)/@PREFIX@ || mkdir -p $(DESTDIR)/@PREFIX@
+	cp -pdr @TCROOT@@PREFIX@lib $(DESTDIR)/@PREFIX@lib
+	cp -pdr @TCROOT@@PREFIX@share $(DESTDIR)/@PREFIX@share
+	cp -pdr @TCROOT@@PREFIX@bin $(DESTDIR)/@PREFIX@bin
+	cp -pdr @TCROOT@@PREFIX@include $(DESTDIR)/@PREFIX@include
+
+check: $(TEST_BINARIES)
+	@let RET=0; \
+	mkdir -p $(TESTDIR); \
+	for t in $(TEST_BINARIES); do \
+		echo LD_LIBRARY_PATH=@TCROOT@@PREFIX@lib $$t; \
+		LD_LIBRARY_PATH=@TCROOT@@PREFIX@lib $$t || let RET=$$?; \
+	done; \
+	test $$RET -eq 0 || { \
+		echo -e "\e[31m"; \
+		echo "There was some failure during testing !"; \
+		echo -e "\e[0m"; \
+		false ; \
+	}
+
+@DOCDIR@/html/index.html: $(HEADERS)
+	@test -d @DOCDIR@ || mkdir -p @DOCDIR@
+	doxygen - < doxyfile
+
+FORCE:
+
+#
+#	build rules
+#
+
+@TCROOT@@PREFIX@lib/@PRJNAME@@VERSION_API@.a: \
+		$(DEVEL_OBJECTS) \
+		$(CORE_OBJECTS) \
+		$(CONTAINER_OBJECTS) \
+		$(TEXT_OBJECTS) \
+		$(HUMAN_OBJECTS)
+	test -d $(dir $@) || mkdir -p $(dir $@)
+	$(LINK_STATIC)
+	$(RANLIB) $@
+
+tmp/@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION@: \
+		$(DEVEL_OBJECTS) \
+		$(CORE_OBJECTS) \
+		$(CONTAINER_OBJECTS) \
+		$(TEXT_OBJECTS) \
+		$(HUMAN_OBJECTS)
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(LINK_DYNAMIC)
+
+@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION_API@ : \
+		| @TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION@
+	ln -s $(notdir @TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION@) $@
+
+@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-speed.gnuplot: \
+		src/container/test/container_speed.gnuplot
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	cp $< $@
+
+@TCROOT@@PREFIX@bin/@PRJNAME@@VERSION_API@-%: \
+		tmp/src/tools/%.opp \
+		@TCROOT@@PREFIX@lib/@PRJNAME@@VERSION_API@.a
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(LINK)
+
+tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-% : \
+		tmp/src/container/test/%.opp \
+		@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION_API@
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(LINK)
+
+tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-% : \
+		tmp/src/core/test/%.opp \
+		@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION_API@
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(LINK)
+
+tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-json : \
+		tmp/src/container/test/json.opp \
+		@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION_API@
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(LINK)
+
+tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-human-% : \
+		tmp/src/human/test/%.opp \
+		@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION_API@
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(LINK)
+
+@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-%.1 :
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	echo ".so man1/@PRJNAME@@VERSION_API@-test.1" > $@
+
+@DOCDIR@/%.png : \
+		dot/%.dot
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	dot -Tpng $^ -o $@
+

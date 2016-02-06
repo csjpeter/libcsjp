@@ -1,0 +1,53 @@
+.\" Process this file with
+.\" groff -man -Tascii man-file-name
+.\" For help: http://www.schweikhardt.net/man_page_howto.html
+.TH @PKGNAME@ 1 "@DEVELOPMENT_START_YEAR@-@CURRENT_YEAR@" @PRJNAME@ "User Manuals"
+
+.SH NAME
+@PKGNAME@ \- @PRJDESC@
+
+.SH SYNOPSIS
+.B test-@PRJNAME@@VERSION_API@-string_chunk
+.br
+.B test-@PRJNAME@@VERSION_API@-string
+.br
+.B test-@PRJNAME@@VERSION_API@-time
+.br
+.B test-@PRJNAME@@VERSION_API@-file
+.br
+.B test-@PRJNAME@@VERSION_API@-mutex
+.br
+.B test-@PRJNAME@@VERSION_API@-thread
+.br
+.B test-@PRJNAME@@VERSION_API@-btree
+.br
+.B test-@PRJNAME@@VERSION_API@-container
+.br
+.B test-@PRJNAME@@VERSION_API@-sorter_container
+.br
+.B test-@PRJNAME@@VERSION_API@-owner_list
+.br
+.B test-@PRJNAME@@VERSION_API@-map
+.br
+.B test-@PRJNAME@@VERSION_API@-json
+.br
+.RS
+.B [--logDir|-l
+.I log-directory
+.B ] [--verbose|-v]
+
+.SH DESCRIPTION
+Test binaries for library @PRJNAME@.so.@VERSION@.
+These test binaries should also work with @PRJNAME@.so.@VERSION_API@.
+
+.SH OPTIONS
+.IP "-l | --logDir log-directory"
+Use the given directory for logging. With no
+.I log-directory
+specified, there will be no logging.
+.IP "-v | --verbose"
+Write log messages to stderr as well, not only into log file.
+
+.SH AUTHOR
+@AUTHOR@ <@EMAIL@>
+
