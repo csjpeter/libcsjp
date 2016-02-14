@@ -273,7 +273,6 @@ const char * PrimeException::what() const throw()
 	for(NotesNode * iter = lastNode; iter; iter = iter->prev){
 		memcpy(msg + size, iter->msg, iter->size);
 		size += iter->size;
-		fprintf(stderr, "\nsize so far: %zu\n", size);
 		msg[size - 1] = '\n';
 	}
 	msg[size - 1] = 0;

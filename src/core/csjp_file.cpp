@@ -24,6 +24,7 @@ File::File(const char * fileName) :
 	file(0),
 	writable(false),
 	eofbit(false),
+	locked(false),
 	fileSize(0),
 	fileName(fileName)
 {
@@ -33,6 +34,7 @@ File::File(const String & fileName) :
 	file(0),
 	writable(false),
 	eofbit(false),
+	locked(false),
 	fileSize(0),
 	fileName(fileName)
 {
@@ -42,6 +44,7 @@ File::File(const StringChunk & fileName) :
 	file(0),
 	writable(false),
 	eofbit(false),
+	locked(false),
 	fileSize(0),
 	fileName(fileName.str, fileName.length)
 {
@@ -51,6 +54,30 @@ File::~File()
 {
 	if(file)
 		close(false);
+}
+
+void File::lock()
+{
+	if(0 < file)
+		close();
+	file = open(fileName.str, O_RDWR|O_CREAT|O_EXCL, 0600);
+	if(file < 0)
+		throw FileError(errno, "Failed to lock file %.", fileName);
+	locked = true;
+}
+
+void File::unlock()
+{
+	bool lockState = locked;
+	locked = false;
+	if(0 < file){
+		try{
+			close();
+		} catch(Exception & e) {
+			locked = lockState; // to be transactional
+			throw;
+		}
+	}
 }
 
 const String& File::name() const
@@ -252,6 +279,10 @@ void File::close(bool throws) const
 {
 	if(file < 1)
 		return;
+
+	if(locked)
+		throw FileError("Can not close a the locked file %, it has to be unlocked.",
+				fileName); 
 
 	int err;
 	TEMP_FAILURE_RETRY_RESULT(err, ::close(file));

@@ -48,6 +48,8 @@ class File
 #define FileInitializer : \
 		file(NULL), \
 		writable(false), \
+		eofbit(false), \
+		locked(false), \
 		fileSize(0), \
 		fileName()
 public:
@@ -63,11 +65,15 @@ public:
 	File(File && temp) :
 		file(temp.file),
 		writable(temp.writable),
+		eofbit(temp.eofbit),
+		locked(temp.locked),
 		fileSize(temp.fileSize),
 		fileName(move_cast(temp.fileName))
 	{
 		temp.file = 0;
 		temp.writable = false;
+		temp.eofbit = false;
+		temp.locked = false;
 		temp.fileSize = 0;
 		temp.fileName.clear();
 	}
@@ -75,11 +81,15 @@ public:
 	{
 		file = temp.file;
 		writable = temp.writable;
+		eofbit = temp.eofbit;
+		locked = temp.locked;
 		fileSize = temp.fileSize;
 		fileName = move_cast(temp.fileName);
 
 		temp.file = 0;
 		temp.writable = false;
+		temp.eofbit = false;
+		temp.locked = false;
 		temp.fileSize = 0;
 		temp.fileName.clear();
 
@@ -91,6 +101,9 @@ public:
 	explicit File(const StringChunk & fileName);
 	explicit File(String && fileName);
 	virtual ~File();
+
+	void lock();
+	void unlock();
 
 	const String & name() const;
 	bool exists() const;
@@ -145,6 +158,7 @@ private:
 	mutable int file;
 	mutable bool writable;
 	mutable bool eofbit;
+	bool locked;
 
 	/* Should only used by write() to avoid file size check before each write operation. */
 	long unsigned fileSize;
