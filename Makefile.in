@@ -303,8 +303,13 @@ check: $(TEST_BINARIES)
 	@let RET=0; \
 	mkdir -p $(TESTDIR); \
 	for t in $(TEST_BINARIES); do \
-		echo LD_LIBRARY_PATH=@TCROOT@@PREFIX@lib $$t; \
-		LD_LIBRARY_PATH=@TCROOT@@PREFIX@lib $$t || let RET=$$?; \
+		if [[ x$(TEST) = x ]]; then \
+			echo LD_LIBRARY_PATH=@TCROOT@@PREFIX@lib $$t; \
+			LD_LIBRARY_PATH=@TCROOT@@PREFIX@lib $$t || let RET=$$?; \
+		elif [[ "$$t" =~ ($(TEST)) ]]; then \
+			echo LD_LIBRARY_PATH=@TCROOT@@PREFIX@lib $$t; \
+			LD_LIBRARY_PATH=@TCROOT@@PREFIX@lib $$t -v || let RET=$$?; \
+		fi \
 	done; \
 	test $$RET -eq 0 || { \
 		echo -e "\e[31m"; \
