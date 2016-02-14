@@ -32,6 +32,7 @@ struct NotesNode
 	}
 
 	char * msg;
+	size_t size;
 	NotesNode * prev;
 };
 
@@ -61,7 +62,8 @@ PrimeException::PrimeException(const PrimeException & orig) :
 	id(orig.id),
 	noMem(orig.noMem),
 	name(orig.name),
-	lastNode(orig.lastNode)
+	lastNode(orig.lastNode),
+	whatMessage(0)
 {
 	/* FIXME: hack because I hate deep copies. */
 	((PrimeException&)orig).id = 0;
@@ -75,7 +77,8 @@ PrimeException::PrimeException(PrimeException && temp) :
 	id(temp.id),
 	noMem(temp.noMem),
 	name(temp.name),
-	lastNode(temp.lastNode)
+	lastNode(temp.lastNode),
+	whatMessage(0)
 {
 	temp.id = 0;
 	temp.noMem = false;
@@ -88,7 +91,8 @@ PrimeException::PrimeException() :
 	id(nextId()),
 	noMem(false),
 	name("PrimeException"),
-	lastNode(NULL)
+	lastNode(NULL),
+	whatMessage(0)
 {
 	noteBacktrace();
 }
@@ -98,7 +102,8 @@ PrimeException::PrimeException(const std::exception & e) :
 	id(nextId()),
 	noMem(false),
 	name("PrimeException"),
-	lastNode(NULL)
+	lastNode(NULL),
+	whatMessage(0)
 {
 	notePrintf("Causing exception was received as std:exception. What: %s", e.what());
 }
@@ -108,7 +113,8 @@ PrimeException::PrimeException(int err) :
 	id(nextId()),
 	noMem(false),
 	name("PrimeException"),
-	lastNode(NULL)
+	lastNode(NULL),
+	whatMessage(0)
 {
 	noteBacktrace();
 
@@ -133,6 +139,8 @@ PrimeException::~PrimeException() throw()
 		lastNode->free();
 		free(lastNode);
 	}
+	if(whatMessage)
+		free(whatMessage);
 }
 
 void PrimeException::noteBacktrace()
@@ -213,6 +221,7 @@ void PrimeException::vnotePrintf(const char * format, va_list args)
 	}
 
 	node->msg = msg;
+	node->size = size;
 	node->prev = lastNode;
 	lastNode = node;
 }
@@ -235,19 +244,40 @@ void PrimeException::note(const char * msg_)
 
 	memcpy(msg, msg_, size);
 	node->msg = msg;
+	node->size = size;
 	node->prev = lastNode;
 	lastNode = node;
 }
 
 const char * PrimeException::what() const throw()
 {
-	if(lastNode && lastNode->msg)
-		return lastNode->msg;
+	if(!lastNode || !lastNode->msg){
+		if(noMem)
+			return "There was no enough memory for the 'what' message.";
+		return "No explanation given.";
+	}
 
-	if(noMem)
-		return "There was no enough memory for the 'what' message.";
+	size_t size = 0;
+	for(NotesNode * iter = lastNode; iter; iter = iter->prev)
+		size += iter->size;
+	if(whatMessage)
+		free(whatMessage);
+	whatMessage = reinterpret_cast<char *>(malloc(size));
+	if(!whatMessage){
+		if(lastNode && lastNode->msg)
+			return lastNode->msg;
+	}
 
-	return "No explanation given.";
+	size = 0;
+	char * msg = whatMessage;
+	for(NotesNode * iter = lastNode; iter; iter = iter->prev){
+		memcpy(msg + size, iter->msg, iter->size);
+		size += iter->size;
+		fprintf(stderr, "\nsize so far: %zu\n", size);
+		msg[size - 1] = '\n';
+	}
+	msg[size - 1] = 0;
+	return msg;
 }
 
 static void print_backtrace()

@@ -45,11 +45,13 @@ public:
 		noMem = temp.noMem;
 		name = temp.name;
 		lastNode = temp.lastNode;
+		whatMessage = temp.whatMessage;
 
 		temp.id = 0;
 		temp.noMem = false;
 		temp.name = 0;
 		temp.lastNode = 0;
+		temp.whatMessage = 0;
 
 		return *this;
 	}
@@ -74,6 +76,8 @@ protected:
 	bool noMem;
 	const char * name;
 	NotesNode * lastNode;
+private:
+	mutable char * whatMessage;
 };
 
 void set_segmentation_fault_signal_handler();
