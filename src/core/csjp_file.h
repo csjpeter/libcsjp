@@ -141,8 +141,10 @@ protected:
 	void close(bool throws) const;
 
 private:
-	mutable FILE* file;
+	//mutable FILE* file;
+	mutable int file;
 	mutable bool writable;
+	mutable bool eofbit;
 
 	/* Should only used by write() to avoid file size check before each write operation. */
 	long unsigned fileSize;

@@ -53,6 +53,7 @@ void TestFile::createAndUnlink()
 	VERIFY(file.exists());
 	VERIFY(file.isRegular());
 	VERIFY(!file.isDir());
+	VERIFY(file.size() == 0);
 
 	TESTSTEP("Unlink file");
 	NOEXC_VERIFY(file.unlink());
@@ -119,6 +120,7 @@ void TestFile::read()
 	TESTSTEP("Read all from file");
 	NOEXC_VERIFY(file.rewind());
 	NOEXC_VERIFY(input = file.readAll());
+	LOG("read in data: [%]", input);
 	VERIFY(input == "7 byte");
 	VERIFY(file.eof());
 
@@ -201,12 +203,14 @@ void TestFile::append()
 
 	TESTSTEP("AppendPrintf another string");
 	NOEXC_VERIFY(file.appendPrintf("n%sk", "a"));
+	//TESTSTEP("Append another string");
+	//NOEXC_VERIFY(file.appendf("%", "nak"));
 	str.clear();
 	NOEXC_VERIFY(file.rewind());
 	NOEXC_VERIFY(str = file.readAll());
 	VERIFY(str == "kutyusoknak");
 
-	TESTSTEP("Appendf another string");
+	TESTSTEP("Append another string");
 	NOEXC_VERIFY(file.appendf("%", "!"));
 	str.clear();
 	NOEXC_VERIFY(file.rewind());
