@@ -357,6 +357,32 @@ inline long double & operator<<=(long double & i, const String & str)
 
 
 
+class ErrNo : public String
+{
+public:
+	ErrNo()
+	{
+		int errNo = errno;
+		char errorMsg[512] = {0};
+		const char * msg = NULL;
+		errno = 0;
+#ifdef _GNU_SOURCE
+		msg = strerror_r(errNo, errorMsg, sizeof(errorMsg));
+#else
+		int r = strerror_r(errNo, errorMsg, sizeof(errorMsg));
+		(void)r;
+		msg = errorMsg;
+#endif
+		int _errNo = errno;
+		if(_errNo)
+			catf("Error in strerror_r: number % - %", _errNo, strerror(_errNo));
+		catf("% - %", errNo, msg);
+	}
+};
+
+
+
+
 
 #ifdef DEBUG
 #define DBG(...){ \
