@@ -14,7 +14,7 @@ class Skeleton {
  */
 #define SkeletonInitializer
 public:
-	explicit Skeleton(const Skeleton & orig) SkeletonInitializer { /* copy */ }
+	explicit Skeleton(const Skeleton & orig) = default;
 	const Skeleton & operator=(const Skeleton & orig) = delete;
 
 	Skeleton(Skeleton && temp) /* ...impl... */ { /*...impl...*/ }
