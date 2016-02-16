@@ -94,6 +94,10 @@ PrimeException::PrimeException() :
 	lastNode(NULL),
 	whatMessage(0)
 {
+	pid_t pid = getpid();
+	notePrintf("Process pid is %d, session pid is %d.", pid, getsid(pid));
+	notePrintf("Owner uid: %d, euid: %d, gid: %d, egid: %d",
+			getuid(), geteuid(), getgid(), getegid());
 	noteBacktrace();
 }
 
@@ -105,6 +109,10 @@ PrimeException::PrimeException(const std::exception & e) :
 	lastNode(NULL),
 	whatMessage(0)
 {
+	pid_t pid = getpid();
+	notePrintf("Process pid is %d, session pid is %d.", pid, getsid(pid));
+	notePrintf("Owner uid: %d, euid: %d, gid: %d, egid: %d",
+			getuid(), geteuid(), getgid(), getegid());
 	notePrintf("Causing exception was received as std:exception. What: %s", e.what());
 }
 
@@ -116,6 +124,10 @@ PrimeException::PrimeException(int err) :
 	lastNode(NULL),
 	whatMessage(0)
 {
+	pid_t pid = getpid();
+	notePrintf("Process pid is %d, session pid is %d.", pid, getsid(pid));
+	notePrintf("Owner uid: %d, euid: %d, gid: %d, egid: %d",
+			getuid(), geteuid(), getgid(), getegid());
 	noteBacktrace();
 
 	char errorMsg[512] = {0};
