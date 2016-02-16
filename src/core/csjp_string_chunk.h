@@ -48,6 +48,8 @@ public:
 	const StringChunk & operator=(const char * str) { assign(str); return *this; }
 	const StringChunk & operator=(const StringChunk & chunk) { assign(chunk); return *this;}
 
+	operator const char * () const { return ref; }
+
 	int compare(const char * str, size_t _length) const;
 	int compare(const char * str) const;
 	int compare(const StringChunk & str) const;
@@ -137,14 +139,14 @@ inline bool operator<(const StringChunk & a, const char * b) { return a.compare(
 inline bool operator<(const char * a, const StringChunk & b) { return b.compare(a) == 1; }
 
 inline bool operator<(const StringChunk & a, const String & b)
-	{ StringChunk chunk(b.str, b.length); return a < chunk; }
+	{ StringChunk chunk(b, b.length); return a < chunk; }
 inline bool operator<(const String & a, const StringChunk & b)
-	{ StringChunk chunk(a.str, a.length); return chunk < b; }
+	{ StringChunk chunk(a, a.length); return chunk < b; }
 
 inline String & operator<<=(String & lhs, const StringChunk & rhs)
-	{ lhs.assign(rhs.str, rhs.length); return lhs; }
+	{ lhs.assign(rhs, rhs.length); return lhs; }
 inline String & operator<<(String & lhs, const StringChunk & rhs)
-	{ lhs.append(rhs.str, rhs.length); return lhs; }
+	{ lhs.append(rhs, rhs.length); return lhs; }
 
 Array<StringChunk> split(const String & str,
 		const char * delimiters, bool avoidEmptyResults = true);

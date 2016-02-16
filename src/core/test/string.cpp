@@ -61,7 +61,7 @@ void TestString::constructs()
 
 	VERIFY(def.length == 0);
 	VERIFY(def.capacity() == 0);
-	VERIFY(def.str == 0);
+	VERIFY(def.c_str() == 0);
 
 	TESTSTEP("Construction by null c string");
 
@@ -70,7 +70,7 @@ void TestString::constructs()
 
 	VERIFY(0 == nullTest.capacity());
 	VERIFY(nullTest.length == 0);
-	VERIFY(nullTest.str == 0);
+	VERIFY(nullTest.c_str() == 0);
 
 	TESTSTEP("Construction by c string");
 
@@ -84,6 +84,12 @@ void TestString::constructs()
 
 	VERIFY(copied == "default");
 	VERIFY(copied == first);
+
+	//TESTSTEP("Experiment");
+	//const char * p = copied;
+	//p[0] = 0;
+	//copied.length = 0;
+	//VERIFY(copied == "");
 }
 
 void TestString::rangeForLoop()
@@ -499,8 +505,8 @@ void TestString::assign()
 	str = "";
 
 	VERIFY(str.length == 0);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[0] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[0] == 0);
 
 	str = "longer";
 
@@ -523,29 +529,29 @@ void TestString::shiftForward()
 	NOEXC_VERIFY(str.shiftForward(10, 22, 4));
 	DBG("Shifted: %", str);
 	VERIFY(str.length == 18);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[18] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[18] == 0);
 	VERIFY(str == "Hello big world!!!");
 
 	NOEXC_VERIFY(str.shiftForward(15, 17, 9));
 	DBG("Shifted: %", str);
 	VERIFY(str.length == 18);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[18] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[18] == 0);
 	VERIFY(str == "Hello !!g world!!!");
 
 	NOEXC_VERIFY(str.shiftForward(10, 18, 10));
 	DBG("Shifted: %", str);
 	VERIFY(str.length == 8);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[8] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[8] == 0);
 	VERIFY(str == "world!!!");
 
 	NOEXC_VERIFY(str.shiftForward(5, 8, 0));
 	DBG("Shifted: %", str);
 	VERIFY(str.length == 8);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[8] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[8] == 0);
 	VERIFY(str == "world!!!");
 }
 
@@ -558,8 +564,8 @@ void TestString::shiftBackward()
 	NOEXC_VERIFY(str.shiftBackward(0, 6, 4));
 	DBG("Shifted: %", str);
 	VERIFY(str.length == 22);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[22] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[22] == 0);
 	VERIFY(str == "HellHello big world!!!");
 
 	str = "Hello big-big world!!!";
@@ -567,8 +573,8 @@ void TestString::shiftBackward()
 	NOEXC_VERIFY(str.shiftBackward(13, 14, 8));
 	DBG("Shifted: %", str);
 	VERIFY(str.length == 22);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[22] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[22] == 0);
 	VERIFY(str == "Hello big-big world!! ");
 
 	str = "Hello big-big world!!!";
@@ -576,8 +582,8 @@ void TestString::shiftBackward()
 	NOEXC_VERIFY(str.shiftBackward(5, 22, 14));
 	DBG("Shifted: %", str);
 	VERIFY(str.length == 36);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[36] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[36] == 0);
 	VERIFY(str == "Hello big-big world big-big world!!!");
 
 	str = "Hello world!!";
@@ -585,8 +591,8 @@ void TestString::shiftBackward()
 	NOEXC_VERIFY(str.shiftBackward(12, 13, 1));
 	DBG("Shifted: %", str);
 	VERIFY(str.length == 14);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[14] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[14] == 0);
 	VERIFY(str == "Hello world!!!");
 }
 
@@ -596,29 +602,29 @@ void TestString::prepend()
 
 	NOEXC_VERIFY(str.prepend(""));
 	VERIFY(str.length == 0);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[0] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[0] == 0);
 	VERIFY(str == "");
 
 	NOEXC_VERIFY(str.prepend("testing"));
 	VERIFY(str.length == 7);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[7] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[7] == 0);
 	VERIFY(str == "testing");
 
 	csjp::String app("!");
 
 	NOEXC_VERIFY(str.prepend(app));
 	VERIFY(str.length == 8);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[8] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[8] == 0);
 	VERIFY(str == "!testing");
 
 	NOEXC_VERIFY(str.prepend('\0'));
 	VERIFY(str.length == 9);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[0] == 0);
-	VERIFY(str.str[9] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[0] == 0);
+	VERIFY(str[9] == 0);
 	VERIFY(str.isEqual("\0!testing", 9));
 }
 
@@ -628,28 +634,28 @@ void TestString::append()
 
 	NOEXC_VERIFY(str.append(""));
 	VERIFY(str.length == 0);
-	VERIFY(str.str == 0);
+	VERIFY(str.c_str() == 0);
 	VERIFY(str == "");
 
 	NOEXC_VERIFY(str.append("testing"));
 	VERIFY(str.length == 7);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[7] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[7] == 0);
 	VERIFY(str == "testing");
 
 	csjp::String app("!");
 
 	NOEXC_VERIFY(str.append(app));
 	VERIFY(str.length == 8);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[8] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[8] == 0);
 	VERIFY(str == "testing!");
 
 	NOEXC_VERIFY(str.append('\0'));
 	VERIFY(str.length == 9);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[8] == 0);
-	VERIFY(str.str[9] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[8] == 0);
+	VERIFY(str[9] == 0);
 	VERIFY(str.isEqual("testing!\0", 9));
 
 	TESTSTEP("long double to string");
@@ -658,19 +664,19 @@ void TestString::append()
 	str.chop();
 	d = -.987654321098765432109876543210;
 	NOEXC_VERIFY(str.append(d, 15));
-	//printf("got: '%s'\n", str.str);
+	//printf("got: '%s'\n", str.c_str());
 	VERIFY(str == "-0.987654321098765");
 
 	str.chop();
 	d = 9876543210.9876543210;
 	NOEXC_VERIFY(str.append(d, 5));
-	//printf("got: '%s'\n", str.str);
+	//printf("got: '%s'\n", str.c_str());
 	VERIFY(str == "9876543210.98765");
 
 	str.chop();
 	d = 9876543210;
 	NOEXC_VERIFY(str.append(d, 5));
-	//printf("got: '%s'\n", str.str);
+	//printf("got: '%s'\n", str.c_str());
 	VERIFY(str == "9876543210.00000");
 
 	TESTSTEP("long long unsigned to string");
@@ -679,7 +685,7 @@ void TestString::append()
 	str.chop();
 	u = 987654321;
 	NOEXC_VERIFY(str.append(u));
-	printf("got: '%s'\n", str.str);
+	printf("got: '%s'\n", str.c_str());
 	VERIFY(str == "987654321");
 
 	TESTSTEP("long long int to string");
@@ -688,7 +694,7 @@ void TestString::append()
 	str.chop();
 	i = -987654321;
 	NOEXC_VERIFY(str.append(i));
-	printf("got: '%s'\n", str.str);
+	printf("got: '%s'\n", str.c_str());
 	VERIFY(str == "-987654321");
 }
 
@@ -698,34 +704,34 @@ void TestString::print()
 
 	NOEXC_VERIFY(str.appendPrintf(NULL));
 	VERIFY(str.length == 0);
-	VERIFY(str.str == 0);
+	VERIFY(str.c_str() == 0);
 	VERIFY(str == "");
 
 	/* Compiler warning: zero-length gnu_printf format string [-Werror=format-zero-length] */
 /*	NOEXC_VERIFY(str.appendPrintf(""));
 	VERIFY(str.length == 0);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[0] == 0);*/
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[0] == 0);*/
 
 	NOEXC_VERIFY(str.appendPrintf("first"));
 	VERIFY(str.length == 5);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[5] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[5] == 0);
 	VERIFY(str == "first");
 
 	const char * format = " %s";
 	NOEXC_VERIFY(str.appendPrintf(format, "second"));
 
 	VERIFY(str.length == 12);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[12] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[12] == 0);
 	VERIFY(str == "first second");
 
 	/* Compiler warning: zero-length gnu_printf format string [-Werror=format-zero-length] */
 /*	NOEXC_VERIFY(str.appendPrintf(""));
 	VERIFY(str.length == 12);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[12] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[12] == 0);
 	VERIFY(str == "first second");*/
 }
 
@@ -735,19 +741,19 @@ void TestString::insert()
 
 	NOEXC_VERIFY(str.insert(0, ""));
 	VERIFY(str.length == 0);
-	VERIFY(str.str == 0);
+	VERIFY(str.c_str() == 0);
 	VERIFY(str == "");
 
 	NOEXC_VERIFY(str.insert(0, "big-bang"));
 	VERIFY(str.length == 8);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[8] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[8] == 0);
 	VERIFY(str == "big-bang");
 
 	NOEXC_VERIFY(str.insert(3, "g"));
 	VERIFY(str.length == 9);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[9] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[9] == 0);
 	VERIFY(str == "bigg-bang");
 }
 
@@ -757,39 +763,39 @@ void TestString::erase()
 
 	NOEXC_VERIFY(str.erase(0, 0));
 	VERIFY(str.length == 0);
-	VERIFY(str.str == 0);
+	VERIFY(str.c_str() == 0);
 	VERIFY(str == "");
 
 	str = "Hello big-big world!";
 
 	NOEXC_VERIFY(str.erase(6, 14));
 	VERIFY(str.length == 12);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[12] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[12] == 0);
 	VERIFY(str == "Hello world!");
 
 	NOEXC_VERIFY(str.erase(11, 12));
 	VERIFY(str.length == 11);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[11] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[11] == 0);
 	VERIFY(str == "Hello world");
 
 	NOEXC_VERIFY(str.erase(0, 6));
 	VERIFY(str.length == 5);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[5] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[5] == 0);
 	VERIFY(str == "world");
 
 	NOEXC_VERIFY(str.erase(0, 0));
 	VERIFY(str.length == 5);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[5] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[5] == 0);
 	VERIFY(str == "world");
 
 	NOEXC_VERIFY(str.erase(2, 2));
 	VERIFY(str.length == 5);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[5] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[5] == 0);
 	VERIFY(str == "world");
 }
 
@@ -800,42 +806,42 @@ void TestString::write()
 
 	NOEXC_VERIFY(str.write(0, ""));
 	VERIFY(str.length == 8);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[8] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[8] == 0);
 	VERIFY(str.isEqual("big\0bang", 8));
 
 	NOEXC_VERIFY(str.write(0, nullPtr));
 	VERIFY(str.length == 8);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[8] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[8] == 0);
 	VERIFY(str.isEqual("big\0bang", 8));
 
 #ifndef PERFMODE
 	EXC_VERIFY(str.write(0, nullPtr, 3), csjp::InvalidArgument);
 	VERIFY(str.length == 8);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[8] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[8] == 0);
 	VERIFY(str.isEqual("big\0bang", 8));
 #endif
 
 	NOEXC_VERIFY(str.write(3, "?"));
 	VERIFY(str.length == 8);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[8] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[8] == 0);
 //	DBG("CHECK: '%'", str);
 	VERIFY(str == "big?bang");
 
 #ifndef PERFMODE
 	EXC_VERIFY(str.write(8, "?"), csjp::InvalidArgument);
 	VERIFY(str.length == 8);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[8] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[8] == 0);
 	VERIFY(str == "big?bang");
 
 	EXC_VERIFY(str.write(7, "??"), csjp::InvalidArgument);
 	VERIFY(str.length == 8);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[8] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[8] == 0);
 	VERIFY(str == "big?bang");
 #endif
 }
@@ -846,11 +852,11 @@ void TestString::read()
 	csjp::String str;
 
 	VERIFY(str.length == 0);
-	VERIFY(str.str == 0);
+	VERIFY(str.c_str() == 0);
 	VERIFY(str == "");
 	NOEXC_VERIFY(str = text.read(0, 0));
 	VERIFY(text.length == 0);
-	VERIFY(text.str == 0);
+	VERIFY(text.c_str() == 0);
 	VERIFY(text == "");
 
 	text = ("Hello big-big world!!!");
@@ -858,31 +864,31 @@ void TestString::read()
 	NOEXC_VERIFY(str = text.read(0, 0));
 	DBG("str: %", str);
 	VERIFY(str.length == 0);
-	VERIFY(str.str == 0);
+	VERIFY(str.c_str() == 0);
 	VERIFY(str == "");
 
 	NOEXC_VERIFY(str = text.read(0, 5));
 	VERIFY(str.length == 5);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[5] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[5] == 0);
 	VERIFY(str == "Hello");
 
 	NOEXC_VERIFY(str = text.read(14, 22));
 	VERIFY(str.length == 8);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[8] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[8] == 0);
 	VERIFY(str == "world!!!");
 
 	NOEXC_VERIFY(str = text.read(0, 1));
 	VERIFY(str.length == 1);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[1] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[1] == 0);
 	VERIFY(str == "H");
 
 	NOEXC_VERIFY(str = text.read(6, 13));
 	VERIFY(str.length == 7);
-	VERIFY(str.str != 0);
-	VERIFY(str.str[7] == 0);
+	VERIFY(str.c_str() != 0);
+	VERIFY(str[7] == 0);
 	VERIFY(str == "big-big");
 }
 
@@ -1113,7 +1119,7 @@ void TestString::swap()
 	VERIFY(str == "");
 	VERIFY(str.length == 0);
 	VERIFY(str.capacity() == 0);
-	VERIFY(str.str == 0);
+	VERIFY(str.c_str() == 0);
 }
 
 void TestString::appendOperator()

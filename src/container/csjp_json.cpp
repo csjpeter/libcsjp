@@ -128,7 +128,7 @@ bool JsonParser::skipComment()
 			throw ParseError("Control character found at linepos %:% "
 					"position % while reading "
 					"comment in json code: %",
-					lineNum, pos - linePos + 1, pos + 1, data.str);
+					lineNum, pos - linePos + 1, pos + 1, data);
 	}
 
 	return true;
@@ -156,7 +156,7 @@ bool JsonParser::readKeyword(const char * keyword)
 	if(len <= pos + keyword_len)
 		return false;
 
-	StringChunk comp(data.str + pos, keyword_len);
+	StringChunk comp(data.c_str() + pos, keyword_len);
 	if(comp.compare(keyword))
 		return false;
 
@@ -202,7 +202,7 @@ bool JsonParser::readFreeString(String & token)
 			throw ParseError("Control character found at linepos %:% "
 					"position % while reading "
 					"string in json code: %",
-					lineNum, pos - linePos + 1, pos + 1, data.str);
+					lineNum, pos - linePos + 1, pos + 1, data);
 
 		/* Special hack trick to be C++ namespace separator friendly. */
 		if(c == ':' && pos + 1 < len && data[pos+1] == ':'){
@@ -251,7 +251,7 @@ bool JsonParser::readString(String & token)
 			throw ParseError("Control character found at linepos %:% "
 					"position % while reading "
 					"string in json code: %",
-					lineNum, pos - linePos + 1, pos + 1, data.str);
+					lineNum, pos - linePos + 1, pos + 1, data);
 		if(escapeSequence){
 			switch(c){
 				case '"' :
@@ -283,7 +283,7 @@ bool JsonParser::readString(String & token)
 					str << c;
 					throw ParseError("Unsuported escape sequence started with "
 							"'%' at position: % in json code: %",
-							c, pos + 1, data.str);
+							c, pos + 1, data);
 					break;
 			}
 			escapeSequence--;
@@ -317,7 +317,7 @@ bool JsonParser::readNumber(String & token)
 	for(; true; pos++) {
 		if(len <= pos)
 			throw ParseError("End of input while lookig for number from position "
-					"% in json code: %", origPos, data.str);
+					"% in json code: %", origPos, data);
 
 		c = data[pos];
 
@@ -481,7 +481,7 @@ csjp::String Json::toString(int depth) const
 		data << "\"" << key << "\" : ";
 	}
 
-	if(value.str != 0){
+	if(value.length != 0){
 		data << "\"" << value << "\"";
 		return data;
 	}

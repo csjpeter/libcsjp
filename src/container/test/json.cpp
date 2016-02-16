@@ -48,7 +48,7 @@ void TestJson::onlyValues()
 	csjp::Json ot2;
 
 	TESTSTEP("Parse new csjp::String back into csjp::Json");
-	printf("%s\n", str.str);
+	LOG("%", str);
 	NOEXC_VERIFY(ot2.parse(str));
 	VERIFY(ot == ot2);
 }
@@ -81,7 +81,7 @@ void TestJson::onlyObjects()
 	NOEXC_VERIFY(str = ot.toString());
 
 	TESTSTEP("Parse new string back into csjp::Json");
-	printf("%s\n", str.str);
+	LOG("%", str);
 	NOEXC_VERIFY(ot2.parse(str));
 	VERIFY(ot == ot2);
 }
@@ -126,7 +126,7 @@ void TestJson::valuesInObjects()
 	NOEXC_VERIFY(str = ot.toString());
 
 	TESTSTEP("Parse new csjp::String back into csjp::Json");
-	printf("%s\n", str.str);
+	LOG("%", str);
 	NOEXC_VERIFY(ot2.parse(str));
 	VERIFY(ot == ot2);
 }
@@ -154,7 +154,7 @@ void TestJson::multipleSources()
 
 	TESTSTEP("Export csjp::Json into csjp::String");
 	NOEXC_VERIFY(str = ot.toString());
-	printf("%s\n", str.str);
+	LOG("%", str);
 
 	TESTSTEP("Parse new csjp::String back into csjp::Json");
 	NOEXC_VERIFY(ot2.parse(str));

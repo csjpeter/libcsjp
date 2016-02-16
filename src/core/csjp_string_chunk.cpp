@@ -871,7 +871,7 @@ Array<StringChunk> StringChunk::split(const char * delimiters, bool avoidEmptyRe
 Array<StringChunk> split(const String & str,
 		const char * delimiters, bool avoidEmptyResults)
 {
-	StringChunk chunk(str.str, str.length);
+	StringChunk chunk(str, str.length);
 	return chunk.split(delimiters, avoidEmptyResults);
 }
 
@@ -887,7 +887,7 @@ bool subStringByRegexp(const String & str, Array<StringChunk> & result, const ch
 	memset(matches, 0, sizeof(matches));
 	if(regcomp(&regexpCompiled, regexp, 0))
 		throw ParseError(errno, "Failed to compile regular expression: '%'.", regexp);
-	int res = regexec(&regexpCompiled, str.str, matchesSize, matches, 0);
+	int res = regexec(&regexpCompiled, str, matchesSize, matches, 0);
 	regfree(&regexpCompiled);
 	if(res)
 		return false;
@@ -901,7 +901,7 @@ bool subStringByRegexp(const String & str, Array<StringChunk> & result, const ch
 		if(result.capacity < i)
 			throw new InvalidArgument("Regular expression contains more groups than "
 					"the capacity of the result array given as parameter.");
-		result.add(str.str + matches[i].rm_so, matches[i].rm_eo - matches[i].rm_so);
+		result.add(str.c_str() + matches[i].rm_so, matches[i].rm_eo - matches[i].rm_so);
 		DBG("Got substring: '%' by using regexp: '%'.", result[i-1], regexp);
 	}
 

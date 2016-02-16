@@ -99,10 +99,10 @@ public:
 	explicit File(const char * fileName);
 	explicit File(const String & fileName);
 	explicit File(const StringChunk & fileName);
-	explicit File(String && fileName);
+	//explicit File(String && fileName);
 	virtual ~File();
 
-	void lock();
+	void lock(off_t length = 0);
 	void unlock();
 
 	const String & name() const;
@@ -154,7 +154,6 @@ protected:
 	void close(bool throws) const;
 
 private:
-	//mutable FILE* file;
 	mutable int file;
 	mutable bool writable;
 	mutable bool eofbit;

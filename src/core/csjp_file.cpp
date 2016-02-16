@@ -9,7 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <stdio.h> // FIXME replace with system call
+//#include <stdio.h> // FIXME replace with system call
 
 #include <string.h>
 
@@ -46,7 +46,7 @@ File::File(const StringChunk & fileName) :
 	eofbit(false),
 	locked(false),
 	fileSize(0),
-	fileName(fileName.str, fileName.length)
+	fileName(fileName, fileName.length)
 {
 }
 
@@ -56,14 +56,36 @@ File::~File()
 		close(false);
 }
 
-void File::lock()
+/**
+ * Based on stackoverflow answer:
+ * http://stackoverflow.com/questions/575328/fcntl-lockf-which-is-better-to-use-for-file-locking?answertab=active#tab-top
+ * It says:
+ *	Locking in unix/linux is by default advisory.... 
+ * Also says:
+ *	Linux does support mandatory locking, but only if your file system is
+ *	mounted with the option on and the file special attributes set.
+ *
+ * length is the number of bytes to lock from the current position; 0 means infinity
+ */
+void File::lock(off_t length)
 {
-	if(0 < file)
-		close();
-	file = open(fileName.str, O_RDWR|O_CREAT|O_EXCL, 0600);
-	if(file < 0)
+	if(file < 1 || !writable)
+		openForWrite();
+	if(lockf(file, F_TLOCK, length) < 0)
 		throw FileError(errno, "Failed to lock file %.", fileName);
 	locked = true;
+
+/*	// alternate implementation
+	(void)length;
+	if(0 < file)
+		close();
+	file = open(fileName, O_RDWR|O_CREAT|O_EXCL, 0600);
+	if(file < 0)
+		throw FileError(errno, "Failed to open file % in exclusive open mode.", fileName);
+	writable = true;
+	eofbit = false;
+	locked = true;
+*/
 }
 
 void File::unlock()
@@ -72,6 +94,11 @@ void File::unlock()
 	locked = false;
 	if(0 < file){
 		try{
+			// We must use close and not lockf(,F_ULOCK,) because in case of a daemon
+			// and its children the unlock would release the file in the name of all the
+			// processes. The close however keeps the lock for the still running
+			// processes and thus, the file will be unlock only when all the children
+			// and the daemon process itself closed the file.
 			close();
 		} catch(Exception & e) {
 			locked = lockState; // to be transactional
@@ -89,7 +116,7 @@ bool File::exists() const
 {
 	struct stat fileStat;
 	int err = 0;
-	if(stat(fileName.str, &fileStat) < 0){
+	if(stat(fileName, &fileStat) < 0){
 		err = errno;
 		if(err == ENOENT || err == ENOTDIR)
 			return false;
@@ -102,7 +129,7 @@ bool File::exists() const
 bool File::isRegular() const
 {
 	struct stat fileStat;
-	if(stat(fileName.str, &fileStat) < 0)
+	if(stat(fileName, &fileStat) < 0)
 		throw FileError(errno, "Could not check if file (%) is regular file.",
 				fileName);
 
@@ -114,7 +141,7 @@ bool File::isRegular() const
 bool File::isDir() const
 {
 	struct stat fileStat;
-	if(stat(fileName.str, &fileStat) < 0)
+	if(stat(fileName, &fileStat) < 0)
 		throw FileError(errno, "Could not check if (%) is directory.", fileName);
 
 	if(S_ISDIR(fileStat.st_mode))
@@ -150,7 +177,7 @@ void File::rename(const char * name)
 //	char buf[PATH_MAX];
 //	String cwd(char *getcwd(buf, PATH_MAX));
 	fileName.assign(name);
-	int fn = ::rename(oldFileName.str, name);
+	int fn = ::rename(oldFileName, name);
 	if(fn < 0){
 		int errNo = errno;
 		fileName = move_cast(oldFileName);
@@ -160,7 +187,7 @@ void File::rename(const char * name)
 
 void File::rename(const String & name)
 {
-	rename(name.str);
+	rename(name);
 }
 
 void File::resize(long unsigned size)
@@ -170,7 +197,7 @@ void File::resize(long unsigned size)
 	if(0 < file)
 		close();
 
-	int fn = open(fileName.str, O_RDWR);
+	int fn = open(fileName, O_RDWR);
 	if(fn < 0)
 		throw FileError(errno, "Could not get file number to be used for resizing "
 				 "file % to size of %.", fileName, size);
@@ -190,7 +217,7 @@ void File::create()
 	if(exists())
 		return;
 
-	file = open(fileName.str, O_CREAT|O_WRONLY|O_TRUNC, 0600);
+	file = open(fileName, O_CREAT|O_WRONLY|O_TRUNC, 0600);
 	if(file < 0)
 		throw FileError(errno, "Could not create file %.", fileName);
 	close();
@@ -205,13 +232,13 @@ void File::createDir()
 		return;
 	}
 
-	if(mkdir(fileName.str, 0700) < 0)
+	if(mkdir(fileName, 0700) < 0)
 		throw FileError(errno, "Failed to create directory (%).", fileName);
 }
 
 void File::removeDir()
 {
-	if(rmdir(fileName.str) < 0)
+	if(rmdir(fileName) < 0)
 		throw FileError(errno, "Failed to remove directory (%).", fileName);
 }
 
@@ -219,7 +246,7 @@ void File::unlink()
 {
 	if(0 < file)
 		close();
-	if(::unlink(fileName.str) < 0)
+	if(::unlink(fileName) < 0)
 		throw FileError(errno, "Could not unlink file %.", fileName);
 }
 
@@ -230,7 +257,7 @@ void File::openForRead() const
 	if(0 < file)
 		close();
 
-	file = open(fileName.str, O_RDONLY, 0600);
+	file = open(fileName, O_RDONLY, 0600);
 	if(file < 0)
 		throw FileError(errno, "Could not open file (%) for reading.", fileName);
 	writable = false;
@@ -246,7 +273,7 @@ void File::openForWrite()
 	if(0 < file)
 		close();
 
-	file = open(fileName.str, O_RDWR, 0600);
+	file = open(fileName, O_RDWR, 0600);
 	if(!file)
 		throw FileError(errno, "Could not open file (%) for writing (and reading).",
 				fileName);
@@ -280,9 +307,15 @@ void File::close(bool throws) const
 	if(file < 1)
 		return;
 
-	if(locked)
-		throw FileError("Can not close a the locked file %, it has to be unlocked.",
-				fileName); 
+	if(locked){
+		FileError e("Can not close a the locked file %, it has to be unlocked.", fileName); 
+		if(throws)
+			throw (FileError&&)e;
+		else{
+			e.note("Absorbing (not throwing) exception in file close.");
+			EXCEPTION(e);
+		}
+	}
 
 	int err;
 	TEMP_FAILURE_RETRY_RESULT(err, ::close(file));
@@ -425,7 +458,7 @@ void File::write(const String & data)
 	long unsigned written = 0;
 	while(written < data.length){
 		errno = 0;
-		int justWritten = ::write(file, data.str + written, data.length - written);
+		int justWritten = ::write(file, data.c_str() + written, data.length - written);
 		if(errno){
 			int errNo = errno;
 			FileError e(errNo, "Error after writting % bytes into file %.",
