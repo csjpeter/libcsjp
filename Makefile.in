@@ -43,7 +43,7 @@ LINK_DYNAMIC=$(CXX) -shared -Bdynamic $(LDFLAGS) $^ $(LIBS) \
 
 LINK_STATIC=ar cqs $@ $^
 
-TESTDIR=tmp/@PRJNAME@@VERSION_API@/test/
+TESTDIR=$(shell echo $$PWD)/tmp/@PRJNAME@@VERSION_API@/test/
 
 tmp/src/core/test/%.opp: src/core/test/%.cpp
 	@test -d $(dir $@) || mkdir -p $(dir $@)
@@ -54,6 +54,10 @@ tmp/src/container/test/%.opp: src/container/test/%.cpp
 	$(COMPILE) -DTESTDIR=\"$(TESTDIR)\" -o $@ $<
 
 tmp/src/human/test/%.opp: src/human/test/%.cpp
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(COMPILE) -DTESTDIR=\"$(TESTDIR)\" -o $@ $<
+
+tmp/src/system/test/%.opp: src/system/test/%.cpp
 	@test -d $(dir $@) || mkdir -p $(dir $@)
 	$(COMPILE) -DTESTDIR=\"$(TESTDIR)\" -o $@ $<
 
@@ -112,6 +116,12 @@ TEST_BINARIES+=\
 	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-human-text
 endif
 
+ifneq (,$(findstring system,@CONFIG@))
+TEST_BINARIES+=\
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-system-daemon \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-system-signal
+endif
+
 .PRECIOUS: \
 	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container_speed \
 	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-array \
@@ -146,6 +156,12 @@ TEST_BINARIES_DBG=\
 	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-human-text
 endif
 
+ifneq (,$(findstring system,@CONFIG@))
+TEST_BINARIES_DBG=\
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-system-daemon \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-system-signal
+endif
+
 TEST_BINARIES_MAN_PAGES=\
 	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-array.1 \
 	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-pod_array.1 \
@@ -159,10 +175,16 @@ TEST_BINARIES_MAN_PAGES=\
 	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-sorter_container.1 \
 	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-json.1
 
-ifneq (,$(findstring multicultural,@CONFIG@))
+ifneq (,$(findstring system,@CONFIG@))
 TEST_BINARIES_MAN_PAGES=\
 	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-human-unichar.1 \
 	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-human-text.1
+endif
+
+ifneq (,$(findstring multicultural,@CONFIG@))
+TEST_BINARIES_MAN_PAGES=\
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-system-daemon.1 \
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-system-signal.1
 endif
 
 DEVEL_HEADERS= \
@@ -212,11 +234,22 @@ endif
 
 HUMAN_INCLUDES=-Isrc/human
 
+ifneq (,$(findstring system,@CONFIG@))
+	SYSTEM_HEADERS= \
+	@HEADERDIR@/system/csjp_daemon.h \
+	@HEADERDIR@/system/csjp_signal.h
+else
+	SYSTEM_HEADERS=
+endif
+
+SYSTEM_INCLUDES=-Isrc/system
+
 HEADERS=\
 	$(DEVEL_HEADERS) \
 	$(CONTAINER_HEADERS) \
 	$(CORE_HEADERS) \
-	$(HUMAN_HEADERS)
+	$(HUMAN_HEADERS) \
+	$(SYSTEM_HEADERS)
 
 #
 # temporary files
@@ -250,6 +283,16 @@ HUMAN_OBJECTS= \
 	tmp/src/human/csjp_text.opp
 else
 HUMAN_OBJECTS=
+endif
+
+-include $(SYSTEM_OBJECTS:.opp=.d)
+
+ifneq (,$(findstring system,@CONFIG@))
+SYSTEM_OBJECTS= \
+	tmp/src/system/csjp_daemon.opp \
+	tmp/src/system/csjp_signal.opp
+else
+SYSTEM_OBJECTS=
 endif
 
 #
@@ -333,7 +376,8 @@ FORCE:
 		$(CORE_OBJECTS) \
 		$(CONTAINER_OBJECTS) \
 		$(TEXT_OBJECTS) \
-		$(HUMAN_OBJECTS)
+		$(HUMAN_OBJECTS) \
+		$(SYSTEM_OBJECTS)
 	test -d $(dir $@) || mkdir -p $(dir $@)
 	$(LINK_STATIC)
 	$(RANLIB) $@
@@ -343,7 +387,8 @@ tmp/@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION@: \
 		$(CORE_OBJECTS) \
 		$(CONTAINER_OBJECTS) \
 		$(TEXT_OBJECTS) \
-		$(HUMAN_OBJECTS)
+		$(HUMAN_OBJECTS) \
+		$(SYSTEM_OBJECTS)
 	@test -d $(dir $@) || mkdir -p $(dir $@)
 	$(LINK_DYNAMIC)
 
@@ -382,6 +427,12 @@ tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-json : \
 
 tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-human-% : \
 		tmp/src/human/test/%.opp \
+		@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION_API@
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(LINK)
+
+tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-system-% : \
+		tmp/src/system/test/%.opp \
 		@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION_API@
 	@test -d $(dir $@) || mkdir -p $(dir $@)
 	$(LINK)

@@ -116,5 +116,12 @@ source: \
 	$(DIST_DIR)/src/core/csjp_string_chunk.cpp \
 	$(DIST_DIR)/src/core/csjp_string.cpp \
 	\
+	$(DIST_DIR)/src/system/csjp_daemon.h \
+	$(DIST_DIR)/src/system/csjp_daemon.cpp \
+	$(DIST_DIR)/src/system/test/daemon.cpp \
+	$(DIST_DIR)/src/system/csjp_signal.h \
+	$(DIST_DIR)/src/system/csjp_signal.cpp \
+	$(DIST_DIR)/src/system/test/signal.cpp \
+	\
 	$(DIST_DIR)/dot/containers.dot
 

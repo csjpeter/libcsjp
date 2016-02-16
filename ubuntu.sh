@@ -47,6 +47,7 @@ function config ()
 		$@ \
 		--desktop \
 		--multicultural \
+		--system \
 		|| exit $?
 
 #		--cflags=\\\"-fno-candidate-functions\\\" \
