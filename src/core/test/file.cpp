@@ -1,6 +1,6 @@
 /*
  * Author: Csaszar, Peter <csjpeter@gmail.com>
- * Copyright (C) 2011 Csaszar, Peter
+ * Copyright (C) 2011-2016 Csaszar, Peter
  */
 
 #include <csjp_file.h>

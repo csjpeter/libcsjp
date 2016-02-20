@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 #include <csjp_string_chunk.h>
+#include <csjp_socket.h>
 
 namespace csjp {
 
@@ -43,7 +44,7 @@ namespace csjp {
  *
  * FIXME: lets make write operations exclusive, direct and synchronized.
  */
-class File
+class File : public Socket
 {
 #define FileInitializer : \
 		file(NULL), \
@@ -63,14 +64,13 @@ public:
 	const File & operator=(const File &) = delete;
 
 	File(File && temp) :
-		file(temp.file),
+		Socket(move_cast(temp)),
 		writable(temp.writable),
 		eofbit(temp.eofbit),
 		locked(temp.locked),
 		fileSize(temp.fileSize),
 		fileName(move_cast(temp.fileName))
 	{
-		temp.file = 0;
 		temp.writable = false;
 		temp.eofbit = false;
 		temp.locked = false;
@@ -79,14 +79,13 @@ public:
 	}
 	const File & operator=(File && temp)
 	{
-		file = temp.file;
+		Socket::operator=(move_cast(temp));
 		writable = temp.writable;
 		eofbit = temp.eofbit;
 		locked = temp.locked;
 		fileSize = temp.fileSize;
 		fileName = move_cast(temp.fileName);
 
-		temp.file = 0;
 		temp.writable = false;
 		temp.eofbit = false;
 		temp.locked = false;
@@ -154,7 +153,6 @@ protected:
 	void close(bool throws) const;
 
 private:
-	mutable int file;
 	mutable bool writable;
 	mutable bool eofbit;
 	bool locked;

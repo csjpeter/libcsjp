@@ -103,6 +103,7 @@ TEST_BINARIES=\
 	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-ref_array \
 	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string \
 	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string_chunk \
+	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-socket \
 	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-file \
 	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-mutex \
 	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-bintree \
@@ -129,6 +130,7 @@ endif
 	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-ref_array \
 	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string_chunk \
 	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string \
+	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-socket \
 	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-file \
 	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-mutex \
 	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-bintree \
@@ -143,6 +145,7 @@ TEST_BINARIES_DBG=\
 	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-ref_array \
 	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string_chunk \
 	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-socket \
 	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-file \
 	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-mutex \
 	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-bintree \
@@ -168,6 +171,7 @@ TEST_BINARIES_MAN_PAGES=\
 	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-ref_array.1 \
 	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-core-string_chunk.1 \
 	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-core-string.1 \
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-core-socket.1 \
 	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-core-file.1 \
 	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-core-mutex.1 \
 	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-bintree.1 \
@@ -218,6 +222,7 @@ CONTAINER_INCLUDES=-Isrc/container
 CORE_HEADERS= \
 	@HEADERDIR@/core/csjp_string_chunk.h \
 	@HEADERDIR@/core/csjp_string.h \
+	@HEADERDIR@/core/csjp_socket.h \
 	@HEADERDIR@/core/csjp_file.h \
 	@HEADERDIR@/core/csjp_stopper.h \
 	@HEADERDIR@/core/csjp_mutex.h
@@ -267,6 +272,7 @@ DEVEL_OBJECTS= \
 CORE_OBJECTS= \
 	tmp/src/core/csjp_string_chunk.opp \
 	tmp/src/core/csjp_string.opp \
+	tmp/src/core/csjp_socket.opp \
 	tmp/src/core/csjp_file.opp \
 	tmp/src/core/csjp_mutex.opp
 

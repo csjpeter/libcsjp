@@ -21,7 +21,6 @@
 namespace csjp {
 
 File::File(const char * fileName) :
-	file(0),
 	writable(false),
 	eofbit(false),
 	locked(false),
@@ -31,7 +30,6 @@ File::File(const char * fileName) :
 }
 
 File::File(const String & fileName) :
-	file(0),
 	writable(false),
 	eofbit(false),
 	locked(false),
@@ -41,7 +39,6 @@ File::File(const String & fileName) :
 }
 
 File::File(const StringChunk & fileName) :
-	file(0),
 	writable(false),
 	eofbit(false),
 	locked(false),
@@ -52,7 +49,7 @@ File::File(const StringChunk & fileName) :
 
 File::~File()
 {
-	if(file)
+	if(0 <= file)
 		close(false);
 }
 
@@ -69,7 +66,7 @@ File::~File()
  */
 void File::lock(off_t length)
 {
-	if(file < 1 || !writable)
+	if(file < 0 || !writable)
 		openForWrite();
 	if(lockf(file, F_TLOCK, length) < 0)
 		throw FileError(errno, "Failed to lock file %.", fileName);
@@ -92,7 +89,7 @@ void File::unlock()
 {
 	bool lockState = locked;
 	locked = false;
-	if(0 < file){
+	if(0 <= file){
 		try{
 			// We must use close and not lockf(,F_ULOCK,) because in case of a daemon
 			// and its children the unlock would release the file in the name of all the
@@ -151,7 +148,7 @@ bool File::isDir() const
 
 long unsigned File::size() const
 {
-	if(file < 1)
+	if(file < 0)
 		openForRead();
 
 	long lastPos = lseek(file, 0, SEEK_CUR);
@@ -170,7 +167,7 @@ long unsigned File::size() const
 
 void File::rename(const char * name)
 {
-	if(0 < file)
+	if(0 <= file)
 		close();
 
 	String oldFileName(fileName);
@@ -194,7 +191,7 @@ void File::resize(long unsigned size)
 {
 	int errNo = 0;
 
-	if(0 < file)
+	if(0 <= file)
 		close();
 
 	int fn = open(fileName, O_RDWR);
@@ -212,7 +209,7 @@ void File::resize(long unsigned size)
 
 void File::create()
 {
-	if(0 < file)
+	if(0 <= file)
 		close();
 	if(exists())
 		return;
@@ -244,7 +241,7 @@ void File::removeDir()
 
 void File::unlink()
 {
-	if(0 < file)
+	if(0 <= file)
 		close();
 	if(::unlink(fileName) < 0)
 		throw FileError(errno, "Could not unlink file %.", fileName);
@@ -252,9 +249,9 @@ void File::unlink()
 
 void File::openForRead() const
 {
-	if(0 < file && !writable)
+	if(0 <= file && !writable)
 		return;
-	if(0 < file)
+	if(0 <= file)
 		close();
 
 	file = open(fileName, O_RDONLY, 0600);
@@ -266,15 +263,15 @@ void File::openForRead() const
 
 void File::openForWrite()
 {
-	if(0 < file && writable)
+	if(0 <= file && writable)
 		return;
-	if(file < 1 && !exists())
+	if(file < 0 && !exists())
 		create();
-	if(0 < file)
+	if(0 <= file)
 		close();
 
 	file = open(fileName, O_RDWR, 0600);
-	if(!file)
+	if(file < 0)
 		throw FileError(errno, "Could not open file (%) for writing (and reading).",
 				fileName);
 
@@ -304,7 +301,7 @@ void File::openForWrite()
  */
 void File::close(bool throws) const
 {
-	if(file < 1)
+	if(file < 0)
 		return;
 
 	if(locked){
@@ -328,7 +325,7 @@ void File::close(bool throws) const
 		EXCEPTION(e);
 	}
 
-	file = 0;
+	file = -1;
 	writable = false;
 }
 
@@ -339,7 +336,7 @@ bool File::eof() const
 
 void File::rewind() const
 {
-	if(file < 1)
+	if(file < 0)
 		return;
 
 	if(-1 == lseek(file, 0, SEEK_SET))
@@ -349,7 +346,7 @@ void File::rewind() const
 
 String File::readAll() const
 {
-	if(file < 1)
+	if(file < 0)
 		openForRead();
 
 	CArray<char> buffer(4096);
@@ -380,7 +377,7 @@ String File::readAll() const
 
 String File::read(long unsigned bytes) const
 {
-	if(file < 1)
+	if(file < 0)
 		openForRead();
 
 	CArray<char> buffer(bytes + 1);
@@ -409,7 +406,7 @@ String File::read(long unsigned bytes) const
 
 String File::readAllFromPos(long unsigned pos) const
 {
-	if(file < 1)
+	if(file < 0)
 		openForRead();
 
 	if(lseek(file, pos, SEEK_SET) < 0)
@@ -420,7 +417,7 @@ String File::readAllFromPos(long unsigned pos) const
 
 String File::readFromPos(long unsigned pos, long unsigned bytes) const
 {
-	if(file < 1)
+	if(file < 0)
 		openForRead();
 
 	if(lseek(file, pos, SEEK_SET) < 0)
@@ -431,7 +428,7 @@ String File::readFromPos(long unsigned pos, long unsigned bytes) const
 /*
 void File::getLine(String & buffer) const
 {
-	if(file < 1)
+	if(file < 0)
 		openForRead();
 
 	char* buf = NULL;
@@ -452,7 +449,7 @@ void File::getLine(String & buffer) const
 
 void File::write(const String & data)
 {
-	if(file < 1 || !writable)
+	if(file < 0 || !writable)
 		openForWrite();
 
 	long unsigned written = 0;
@@ -482,7 +479,7 @@ void File::write(const String & data)
 
 void File::writeAtPos(const String & data, long unsigned pos)
 {
-	if(file < 1 || !writable)
+	if(file < 0 || !writable)
 		openForWrite();
 
 	if(lseek(file, pos, SEEK_SET) < 0)
@@ -493,7 +490,7 @@ void File::writeAtPos(const String & data, long unsigned pos)
 
 void File::append(const String & data)
 {
-	if(file < 1 || !writable)
+	if(file < 0 || !writable)
 		openForWrite();
 
 	if(lseek(file, 0L, SEEK_END) < 0)

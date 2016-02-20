@@ -102,19 +102,22 @@ source: \
 	$(DIST_DIR)/src/human/test/text.cpp \
 	$(DIST_DIR)/src/human/csjp_unichar.cpp \
 	\
-	$(DIST_DIR)/src/core/csjp_string_chunk.h \
 	$(DIST_DIR)/src/core/csjp_mutex.h \
-	$(DIST_DIR)/src/core/csjp_string.h \
-	$(DIST_DIR)/src/core/csjp_file.h \
-	$(DIST_DIR)/src/core/csjp_stopper.h \
 	$(DIST_DIR)/src/core/test/mutex.cpp \
-	$(DIST_DIR)/src/core/test/file.cpp \
-	$(DIST_DIR)/src/core/test/string_chunk.cpp \
-	$(DIST_DIR)/src/core/test/string.cpp \
 	$(DIST_DIR)/src/core/csjp_mutex.cpp \
-	$(DIST_DIR)/src/core/csjp_file.cpp \
-	$(DIST_DIR)/src/core/csjp_string_chunk.cpp \
+	$(DIST_DIR)/src/core/csjp_string.h \
+	$(DIST_DIR)/src/core/test/string.cpp \
 	$(DIST_DIR)/src/core/csjp_string.cpp \
+	$(DIST_DIR)/src/core/csjp_string_chunk.h \
+	$(DIST_DIR)/src/core/csjp_string_chunk.cpp \
+	$(DIST_DIR)/src/core/test/string_chunk.cpp \
+	$(DIST_DIR)/src/core/csjp_socket.h \
+	$(DIST_DIR)/src/core/csjp_socket.cpp \
+	$(DIST_DIR)/src/core/test/socket.cpp \
+	$(DIST_DIR)/src/core/csjp_file.h \
+	$(DIST_DIR)/src/core/csjp_file.cpp \
+	$(DIST_DIR)/src/core/test/file.cpp \
+	$(DIST_DIR)/src/core/csjp_stopper.h \
 	\
 	$(DIST_DIR)/src/system/csjp_daemon.h \
 	$(DIST_DIR)/src/system/csjp_daemon.cpp \
