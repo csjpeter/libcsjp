@@ -21,6 +21,7 @@
 namespace csjp {
 
 File::File(const char * fileName) :
+	file(-1),
 	writable(false),
 	eofbit(false),
 	locked(false),
@@ -30,6 +31,7 @@ File::File(const char * fileName) :
 }
 
 File::File(const String & fileName) :
+	file(-1),
 	writable(false),
 	eofbit(false),
 	locked(false),
@@ -39,6 +41,7 @@ File::File(const String & fileName) :
 }
 
 File::File(const StringChunk & fileName) :
+	file(-1),
 	writable(false),
 	eofbit(false),
 	locked(false),
@@ -52,7 +55,7 @@ File::~File()
 	if(0 <= file)
 		close(false);
 }
-
+#if 0
 /**
  * Based on stackoverflow answer:
  * http://stackoverflow.com/questions/575328/fcntl-lockf-which-is-better-to-use-for-file-locking?answertab=active#tab-top
@@ -103,7 +106,7 @@ void File::unlock()
 		}
 	}
 }
-
+#endif
 const String& File::name() const
 {
 	return fileName;

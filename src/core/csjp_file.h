@@ -9,7 +9,6 @@
 #include <stdio.h>
 
 #include <csjp_string_chunk.h>
-#include <csjp_socket.h>
 
 namespace csjp {
 
@@ -44,7 +43,7 @@ namespace csjp {
  *
  * FIXME: lets make write operations exclusive, direct and synchronized.
  */
-class File : public Socket
+class File
 {
 #define FileInitializer : \
 		file(NULL), \
@@ -64,13 +63,14 @@ public:
 	const File & operator=(const File &) = delete;
 
 	File(File && temp) :
-		Socket(move_cast(temp)),
+		file(temp.file),
 		writable(temp.writable),
 		eofbit(temp.eofbit),
 		locked(temp.locked),
 		fileSize(temp.fileSize),
 		fileName(move_cast(temp.fileName))
 	{
+		temp.file = 0;
 		temp.writable = false;
 		temp.eofbit = false;
 		temp.locked = false;
@@ -79,13 +79,14 @@ public:
 	}
 	const File & operator=(File && temp)
 	{
-		Socket::operator=(move_cast(temp));
+		file = temp.file;
 		writable = temp.writable;
 		eofbit = temp.eofbit;
 		locked = temp.locked;
 		fileSize = temp.fileSize;
 		fileName = move_cast(temp.fileName);
 
+		temp.file = 0;
 		temp.writable = false;
 		temp.eofbit = false;
 		temp.locked = false;
@@ -100,10 +101,10 @@ public:
 	explicit File(const StringChunk & fileName);
 	//explicit File(String && fileName);
 	virtual ~File();
-
+#if 0
 	void lock(off_t length = 0);
 	void unlock();
-
+#endif
 	const String & name() const;
 	bool exists() const;
 	bool isRegular() const;
@@ -153,6 +154,7 @@ protected:
 	void close(bool throws) const;
 
 private:
+	mutable int file;
 	mutable bool writable;
 	mutable bool eofbit;
 	bool locked;
