@@ -110,6 +110,7 @@ case "${CMD}" in
 			--lintian-opts --no-lintian || exit $?
 	;;
 	(check)
+		shift
 		config ${DISTRIB_CODENAME} --debug || exit $?
 		exec_in_dir ${DISTRIB_CODENAME} make -j${JOBS} $@ || exit $?
 		exec_in_dir ${DISTRIB_CODENAME} make test || exit $?
