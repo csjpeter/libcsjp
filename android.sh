@@ -1,5 +1,7 @@
 #!/bin/bash
 
+JOBS=$(expr $(cat /proc/cpuinfo | grep processor | wc -l) + 1)
+
 source /etc/lsb-release
 
 function exec_in_dir ()
@@ -85,6 +87,15 @@ case "${CMD}" in
 			-B $@ \
 			--lintian-opts --no-lintian || exit $?
 	;;
+	(code)
+		test "x$1" = "x" || { API=$1 ; shift ; }
+		test "x$1" = "x" || { ARCH=$1 ; shift ; }
+		DIST=${DISTRIB_CODENAME}-x-${API}-${ARCH}
+
+		config ${API} ${ARCH} ${DIST} \
+			--packaging=android \
+			--target=${API}-${ARCH} || exit $?
+		exec_in_dir ${DIST} make -j1 $@ || exit $?
 	(*)
 		test "x$1" = "x" || { API=$1 ; shift ; }
 		test "x$1" = "x" || { ARCH=$1 ; shift ; }
@@ -93,7 +104,7 @@ case "${CMD}" in
 		config ${API} ${ARCH} ${DIST} \
 			--packaging=android \
 			--target=${API}-${ARCH} || exit $?
-		exec_in_dir ${DIST} make $@ || exit $?
+		exec_in_dir ${DIST} make -j${JOBS} $@ || exit $?
 	;;
 esac
 
