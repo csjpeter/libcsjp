@@ -81,7 +81,7 @@ void Daemon::daemonize(bool exitParent)
 	pidString << pid;
 	lockFile.write(pidString);
 	lockFile.rewind();
-	lockFile.lock();
+	//lockFile.lock();
 
 	LOG("Pid file is ready"); // Administrator can use the pid file from now on
 
@@ -98,7 +98,7 @@ void Daemon::daemonize(bool exitParent)
 
 Daemon::~Daemon()
 {
-	lockFile.unlock();
+	//lockFile.unlock();
 	lockFile.unlink();
 }
 
