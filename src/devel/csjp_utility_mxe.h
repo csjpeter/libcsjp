@@ -22,6 +22,12 @@ const char * strerror_r(int errNo, char * buf, size_t buflen);
 struct tm *localtime_r(const time_t *timep, struct tm *result);
 int mkdir(const char *pathname, unsigned mode);
 
+inline int getsid(int pid) { (void)pid; return 0; }
+inline int getuid() { return 0; }
+inline int geteuid() { return 0; }
+inline int getgid() { return 0; }
+inline int getegid() { return 0; }
+
 namespace csjp {
 
 void basicLogger(const char * msg, FILE * stdfile, const char * binaryName);
