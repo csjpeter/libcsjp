@@ -8,6 +8,8 @@
 
 #include <stdio.h>
 
+inline int getsid(int pid) { (void)pid; return 0; }
+
 long double strtold(const char *nptr, char **endptr);
 
 namespace csjp {
