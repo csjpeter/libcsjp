@@ -14,7 +14,7 @@ public:
 	void resize();
 	void read();
 	void append();
-	void lock();
+	//void lock();
 };
 
 void TestFile::createAndUnlink()
@@ -222,7 +222,7 @@ void TestFile::append()
 	NOEXC_VERIFY(file.unlink());
 	VERIFY(!file.exists());
 }
-
+#if 0
 void TestFile::lock()
 {
 	csjp::File file(TESTDIR "/lockfile.test");
@@ -238,7 +238,7 @@ void TestFile::lock()
 	TESTSTEP("Unlock file");
 	NOEXC_VERIFY(file.unlock());
 }
-
+#endif
 TEST_INIT(File)
 
 	TEST_RUN(createAndUnlink);
@@ -246,6 +246,6 @@ TEST_INIT(File)
 	TEST_RUN(resize);
 	TEST_RUN(read);
 	TEST_RUN(append);
-	TEST_RUN(lock);
+	//TEST_RUN(lock);
 
 TEST_FINISH(File)
