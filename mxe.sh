@@ -73,6 +73,11 @@ case "${CMD}" in
 		config ${DIST} || exit $?
 		exec_in_dir ${DIST} debuild --no-tgz-check -S
 		;;
+	(code)
+		shift
+		config ${DIST} || exit $?
+		exec_in_dir ${DIST} make -j1 $@ || exit $?
+	;;
 	(*)
 		config ${DIST} || exit $?
 		exec_in_dir ${DIST} make -j${JOBS} $@ || exit $?
