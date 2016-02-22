@@ -9,6 +9,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include <csjp_exception.h>
 #include <csjp_logger.h>
@@ -93,8 +94,20 @@ public:
 	const char * c_str() const { return val; }
 	operator const char * () const { return val; }
 
-	const char& operator[](size_t i) const { return val[i]; }
-	inline char& operator[](size_t i){ return val[i]; }
+	const char& operator[](unsigned char i) const { return val[i]; }
+	inline char& operator[](unsigned char i){ return val[i]; }
+	const char& operator[](int i) const { return val[i]; }
+	inline char& operator[](int i){ return val[i]; }
+	const char& operator[](long int i) const { return val[i]; }
+	inline char& operator[](long int i){ return val[i]; }
+	const char& operator[](long long int i) const { return val[i]; }
+	inline char& operator[](long long int i){ return val[i]; }
+	const char& operator[](unsigned i) const { return val[i]; }
+	inline char& operator[](unsigned i){ return val[i]; }
+	const char& operator[](long unsigned i) const { return val[i]; }
+	inline char& operator[](long unsigned i){ return val[i]; }
+	const char& operator[](long long unsigned i) const { return val[i]; }
+	inline char& operator[](long long unsigned i){ return val[i]; }
 
 	int compare(const char * str, size_t _length) const;
 	int compare(const char * str) const;
@@ -159,8 +172,10 @@ public:
 	const String & operator=(unsigned char c) { chop(); append(c); return *this; }
 	const String & operator=(unsigned u) { chop(); append(u); return *this; }
 	const String & operator=(long unsigned u) {chop(); append(u); return *this; }
+	const String & operator=(long long unsigned u) {chop(); append(u); return *this; }
 	const String & operator=(int i) { chop(); append(i); return *this; }
 	const String & operator=(long int i) { chop(); append(i); return *this; }
+	const String & operator=(long long int i) { chop(); append(i); return *this; }
 	const String & operator=(const String & s) { assign(s); return s; }
 	const String & operator+=(const char * str){ append(str); return *this; }
 	const String & operator+=(const String &);
