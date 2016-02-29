@@ -197,7 +197,7 @@ INCLUDES="${INCLUDES} -Isrc -Isrc/devel -Isrc/container -Isrc/core -Isrc/human -
 
 TCROOT="${TCROOT}"
 
-LDFLAGS="${LDFLAGS} -Wl,--as-needed"
+LDFLAGS="${LDFLAGS} -Wl,--as-needed -Wl,-rpath,@DIST_DIR@/${TCROOT}${PREFIX}/lib/"
 STATICS="${STATICS}"
 
 # Adjusting PREFIX and TCROOT if non-empty

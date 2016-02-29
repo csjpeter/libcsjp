@@ -97,156 +97,67 @@ tmp/src/%.opp: src/%.cpp
 # build goals
 #
 
-TEST_BINARIES=\
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-array \
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-pod_array \
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-ref_array \
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string \
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string_chunk \
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-socket \
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-file \
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-mutex \
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-bintree \
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container \
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-sorter_container \
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-json
-
+TEST_LIST=\
+	  container-array \
+	  container-pod_array \
+	  container-ref_array \
+	  core-string \
+	  core-string_chunk \
+	  core-file \
+	  core-mutex \
+	  container-bintree \
+	  container-container \
+	  container-container_speed \
+	  container-sorter_container \
+	  container-json
 ifneq (,$(findstring multicultural,@CONFIG@))
-TEST_BINARIES+=\
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-human-unichar \
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-human-text
+	TEST_LIST+=\
+		   human-unichar \
+		   human-text
+endif
+ifneq (,$(findstring system,@CONFIG@))
+	TEST_LIST+=\
+		   system-daemon \
+		   system-signal
 endif
 
-ifneq (,$(findstring system,@CONFIG@))
-TEST_BINARIES+=\
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-system-daemon \
-	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-system-signal
-endif
+define TEST_template
+TEST_BINARIES+=@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-$(1)
+TEST_BINARIES_DBG+=\
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-$(1)
+TEST_BINARIES_MAN_PAGES=\
+	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-$(1).1
+endef
+$(foreach i,$(TEST_LIST),$(eval $(call TEST_template,$(i))))
+
 
 .PRECIOUS: \
 	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container_speed \
-	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-array \
-	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-pod_array \
-	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-ref_array \
-	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string_chunk \
-	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string \
-	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-socket \
-	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-file \
-	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-mutex \
-	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-bintree \
-	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container \
-	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-sorter_container \
-	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-json
+	$(foreach i,$(TEST_LIST),\
+	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-$(i))
 
 
-TEST_BINARIES_DBG=\
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-array \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-pod_array \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-ref_array \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string_chunk \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-string \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-socket \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-file \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-mutex \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-bintree \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-sorter_container \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-json
-
-ifneq (,$(findstring multicultural,@CONFIG@))
-TEST_BINARIES_DBG=\
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-human-unichar \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-human-text
-endif
-
-ifneq (,$(findstring system,@CONFIG@))
-TEST_BINARIES_DBG=\
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-system-daemon \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-system-signal
-endif
-
-TEST_BINARIES_MAN_PAGES=\
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-array.1 \
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-pod_array.1 \
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-ref_array.1 \
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-core-string_chunk.1 \
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-core-string.1 \
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-core-socket.1 \
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-core-file.1 \
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-core-mutex.1 \
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-bintree.1 \
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-container.1 \
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-container-sorter_container.1 \
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-json.1
-
-ifneq (,$(findstring system,@CONFIG@))
-TEST_BINARIES_MAN_PAGES=\
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-human-unichar.1 \
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-human-text.1
-endif
-
-ifneq (,$(findstring multicultural,@CONFIG@))
-TEST_BINARIES_MAN_PAGES=\
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-system-daemon.1 \
-	@MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-system-signal.1
-endif
-
-DEVEL_HEADERS= \
-	@HEADERDIR@/devel/csjp_test.h \
-	@HEADERDIR@/devel/csjp_logger.h \
-	@HEADERDIR@/devel/csjp_exception.h \
-	@HEADERDIR@/devel/csjp_carray.h \
-	@HEADERDIR@/devel/csjp_object.h \
-	@HEADERDIR@/devel/csjp_defines.h \
-	@HEADERDIR@/devel/csjp_ctypes.h \
-	@HEADERDIR@/devel/csjp_utility.h
-
+DEVEL_HEADERS = $(wildcard @HEADERDIR@/devel/*.h)
 DEVEL_INCLUDES=-Isrc/devel
 
-CONTAINER_HEADERS= \
-	@HEADERDIR@/container/csjp_array.h \
-	@HEADERDIR@/container/csjp_pod_array.h \
-	@HEADERDIR@/container/csjp_ref_array.h \
-	@HEADERDIR@/container/csjp_bintree.h \
-	@HEADERDIR@/container/csjp_ownerbintree.h \
-	@HEADERDIR@/container/csjp_container.h \
-	@HEADERDIR@/container/csjp_owner_container.h \
-	@HEADERDIR@/container/csjp_reference_container.h \
-	@HEADERDIR@/container/csjp_sorter_container.h \
-	@HEADERDIR@/container/csjp_sorter_owner_container.h \
-	@HEADERDIR@/container/csjp_sorter_reference_container.h \
-	@HEADERDIR@/container/csjp_json.h
-
+CONTAINER_HEADERS = $(wildcard @HEADERDIR@/container/*.h)
 CONTAINER_INCLUDES=-Isrc/container
 
-CORE_HEADERS= \
-	@HEADERDIR@/core/csjp_string_chunk.h \
-	@HEADERDIR@/core/csjp_string.h \
-	@HEADERDIR@/core/csjp_socket.h \
-	@HEADERDIR@/core/csjp_file.h \
-	@HEADERDIR@/core/csjp_stopper.h \
-	@HEADERDIR@/core/csjp_mutex.h
-
+CORE_HEADERS = $(wildcard @HEADERDIR@/core/*.h)
 CORE_INCLUDES=-Isrc/core
 
 ifneq (,$(findstring multicultural,@CONFIG@))
-	HUMAN_HEADERS= \
-	@HEADERDIR@/human/csjp_unichar.h \
-	@HEADERDIR@/human/csjp_text.h
+	HUMAN_HEADERS = $(wildcard @HEADERDIR@/human/*.h)
 else
 	HUMAN_HEADERS=
 endif
-
 HUMAN_INCLUDES=-Isrc/human
 
 ifneq (,$(findstring system,@CONFIG@))
-	SYSTEM_HEADERS= \
-	@HEADERDIR@/system/csjp_daemon.h \
-	@HEADERDIR@/system/csjp_signal.h
+	SYSTEM_HEADERS = $(wildcard @HEADERDIR@/system/*.h)
 else
 	SYSTEM_HEADERS=
 endif
-
 SYSTEM_INCLUDES=-Isrc/system
 
 HEADERS=\
@@ -262,31 +173,24 @@ HEADERS=\
 
 -include $(DEVEL_OBJECTS:.opp=.d)
 
-DEVEL_OBJECTS= \
-	tmp/src/devel/csjp_utility.opp \
-	tmp/src/devel/csjp_logger.opp \
-	tmp/src/devel/csjp_exception.opp
+DEVEL_OBJECTS = $(patsubst src/devel/%.cpp,tmp/src/devel/%.opp,\
+		 	$(wildcard src/devel/*.cpp))
 
 -include $(CORE_OBJECTS:.opp=.d)
 
-CORE_OBJECTS= \
-	tmp/src/core/csjp_string_chunk.opp \
-	tmp/src/core/csjp_string.opp \
-	tmp/src/core/csjp_socket.opp \
-	tmp/src/core/csjp_file.opp \
-	tmp/src/core/csjp_mutex.opp
+CORE_OBJECTS = $(patsubst src/core/%.cpp,tmp/src/core/%.opp,\
+		 	$(wildcard src/core/*.cpp))
 
 -include $(CONTAINER_OBJECTS:.opp=.d)
 
-CONTAINER_OBJECTS= \
-	tmp/src/container/csjp_json.opp
+CONTAINER_OBJECTS = $(patsubst src/container/%.cpp,tmp/src/container/%.opp,\
+		 	$(wildcard src/container/*.cpp))
 
 -include $(HUMAN_OBJECTS:.opp=.d)
 
 ifneq (,$(findstring multicultural,@CONFIG@))
-HUMAN_OBJECTS= \
-	tmp/src/human/csjp_unichar.opp \
-	tmp/src/human/csjp_text.opp
+HUMAN_OBJECTS = $(patsubst src/human/%.cpp,tmp/src/human/%.opp,\
+			$(wildcard src/human/*.cpp))
 else
 HUMAN_OBJECTS=
 endif
@@ -294,9 +198,8 @@ endif
 -include $(SYSTEM_OBJECTS:.opp=.d)
 
 ifneq (,$(findstring system,@CONFIG@))
-SYSTEM_OBJECTS= \
-	tmp/src/system/csjp_daemon.opp \
-	tmp/src/system/csjp_signal.opp
+SYSTEM_OBJECTS = $(patsubst src/system/%.cpp,tmp/src/system/%.opp,\
+		 	$(wildcard src/system/*.cpp))
 else
 SYSTEM_OBJECTS=
 endif
@@ -413,35 +316,15 @@ tmp/@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION@: \
 	@test -d $(dir $@) || mkdir -p $(dir $@)
 	$(LINK)
 
-tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-% : \
-		tmp/src/container/test/%.opp \
+COMPONENT_LIST = container core human system
+define COMPONENT_TEST_template
+tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-$(1)-% : \
+		tmp/src/$(1)/test/%.opp \
 		@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION_API@
-	@test -d $(dir $@) || mkdir -p $(dir $@)
-	$(LINK)
-
-tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-core-% : \
-		tmp/src/core/test/%.opp \
-		@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION_API@
-	@test -d $(dir $@) || mkdir -p $(dir $@)
-	$(LINK)
-
-tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-json : \
-		tmp/src/container/test/json.opp \
-		@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION_API@
-	@test -d $(dir $@) || mkdir -p $(dir $@)
-	$(LINK)
-
-tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-human-% : \
-		tmp/src/human/test/%.opp \
-		@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION_API@
-	@test -d $(dir $@) || mkdir -p $(dir $@)
-	$(LINK)
-
-tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-system-% : \
-		tmp/src/system/test/%.opp \
-		@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION_API@
-	@test -d $(dir $@) || mkdir -p $(dir $@)
-	$(LINK)
+	@test -d $$(dir $$@) || mkdir -p $$(dir $$@)
+	$$(LINK)
+endef
+$(foreach i,$(COMPONENT_LIST),$(eval $(call COMPONENT_TEST_template,$(i))))
 
 @MAN_DIR@/man1/test-@PRJNAME@@VERSION_API@-%.1 :
 	@test -d $(dir $@) || mkdir -p $(dir $@)
