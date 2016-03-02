@@ -57,6 +57,58 @@ static unsigned nextId()
 	return __sync_fetch_and_add(&id, 1);
 }
 
+const char * errnoName(int errNo)
+{
+	switch(errNo)
+	{
+		case EBADF : return "EBADF";
+		case EINVAL : return "EINVAL";
+		case ENOTCONN : return "ENOTCONN";
+		case ENOTSOCK : return "ENOTSOCK";
+		case EACCES : return "EACCES";
+		case EAFNOSUPPORT : return "EAFNOSUPPORT";
+		case EMFILE : return "EMFILE";
+		case ENFILE : return "ENFILE";
+		case ENOBUFS : return "ENOBUFS";
+		case ENOMEM : return "ENOMEM";
+		case EPROTONOSUPPORT : return "EPROTONOSUPPORT";
+		case EDQUOT : return "EDQUOT";
+		case EFAULT : return "EFAULT";
+		case EFBIG : return "EFBIG";
+		case EINTR : return "EINTR";
+		case EISDIR : return "EISDIR";
+		case ELOOP : return "ELOOP";
+		case ENAMETOOLONG : return "ENAMETOOLONG";
+		case ENODEV : return "ENODEV";
+		case ENOENT : return "ENOENT";
+		case ENOSPC : return "ENOSPC";
+		case ENOTDIR : return "ENOTDIR";
+		case ENXIO : return "ENXIO";
+		case EOVERFLOW : return "EOVERFLOW";
+		case ETXTBSY : return "ETXTBSY";
+		case EWOULDBLOCK : return "EWOULDBLOCK";
+		//case EAGAIN : return "EAGAIN";
+		case EIO : return "EIO";
+		case EDESTADDRREQ : return "EDESTADDRREQ";
+		case EPIPE : return "EPIPE";
+		case ECONNABORTED : return "ECONNABORTED";
+		case EOPNOTSUPP : return "EOPNOTSUPP";
+		case EPROTO : return "EPROTO";
+		case EPERM : return "EPERM";
+		case EADDRINUSE : return "EADDRINUSE";
+		case EEXIST : return "EEXIST";
+		case EADDRNOTAVAIL : return "EADDRNOTAVAIL";
+		case EROFS : return "EROFS";
+		case EALREADY : return "EALREADY";
+		case ECONNREFUSED : return "ECONNREFUSED";
+		case EINPROGRESS : return "EINPROGRESS";
+		case EISCONN : return "EISCONN";
+		case ENETUNREACH : return "ENETUNREACH";
+		case ETIMEDOUT : return "ETIMEDOUT";
+		default: return "-";
+	}
+}
+
 PrimeException::PrimeException(const PrimeException & orig) :
 	std::exception(),
 	id(orig.id),
@@ -142,7 +194,7 @@ PrimeException::PrimeException(int err) :
 		notePrintf("Error in strerror_r: number %d : %s", _errNo, strerror(_errNo));
 	msg = errorMsg;
 #endif
-	notePrintf("Error number (errno) %d : %s", err, msg);
+	notePrintf("errno %d (%s) : %s", err, errnoName(err), msg);
 }
 
 PrimeException::~PrimeException() throw()

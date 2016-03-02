@@ -17,7 +17,7 @@ int String::compare(const char * str, size_t _length) const
 {
 	ENSURE(str || !_length,  InvalidArgument);
 
-	DBG("'%' (%) == '%' (%)", val, len, str, _length);
+	//DBG("'%' (%) == '%' (%)", val, len, str, _length);
 
 	if(!_length)
 		return (len == 0) ? 0 : 1;
@@ -1107,15 +1107,15 @@ void String::replace(const char * what, size_t whatLength, const char * to, size
 		size_t chunkEndPos = len;
 		for(; 0 < matches; matches--) {
 			size_t offset = matches * (diffLength);
-			DBG("pos: %, chunkEndPos: %, offset: %", pos, chunkEndPos, offset);
-			DBG("Before shiftBackward from: %, until: %, offset: %, str: '%'",
-					pos, chunkEndPos, offset, val);
+			//DBG("pos: %, chunkEndPos: %, offset: %", pos, chunkEndPos, offset);
+			//DBG("Before shiftBackward from: %, until: %, offset: %, str: '%'",
+			//		pos, chunkEndPos, offset, val);
 			shiftBackward(pos, chunkEndPos, offset);
-			DBG("After shiftBackward from: %, until: %, offset: %, str: '%'",
-					pos, chunkEndPos, offset, val);
+			//DBG("After shiftBackward from: %, until: %, offset: %, str: '%'",
+			//		pos, chunkEndPos, offset, val);
 			write(pos + offset - toLength, to, toLength);
-			DBG("After write pos: %, to: %, str: '%'",
-					pos + offset - toLength, to, val);
+			//DBG("After write pos: %, to: %, str: '%'",
+			//		pos + offset - toLength, to, val);
 			if(matches == 1)
 				break;
 			pos -= whatLength;
@@ -1131,19 +1131,19 @@ void String::replace(const char * what, size_t whatLength, const char * to, size
 		pos = 0;
 		findFirst(pos, what, whatLength, pos, until);
 		for(; 0 < matches; offset += diffLength, matches--) {
-			DBG("Before write pos: %, to: %, str: '%'", pos , to, val);
+			//DBG("Before write pos: %, to: %, str: '%'", pos , to, val);
 			write(pos, to, toLength);
-			DBG("After  write pos: %, to: %, str: '%'", pos , to, val);
+			//DBG("After  write pos: %, to: %, str: '%'", pos , to, val);
 			lastPos = pos + toLength;
 			findFirst(pos, what, whatLength, pos + toLength + offset, until); // the last call might not find anything
 			if(matches == 1)
 				pos = len; // for the last replace, we will move the rest of the string
-			DBG("After findfirst: pos: %, lastPos: %", pos, lastPos);
-			DBG("Before shiftForward from: %, until: %, offset: %, str: '%'",
-					lastPos + offset, pos, offset, val);
+			//DBG("After findfirst: pos: %, lastPos: %", pos, lastPos);
+			//DBG("Before shiftForward from: %, until: %, offset: %, str: '%'",
+			//		lastPos + offset, pos, offset, val);
 			shiftForward(lastPos + offset, pos, offset);
-			DBG("After  shiftForward from: %, until: %, offset: %, str: '%'",
-					lastPos + offset, pos, offset, val);
+			//DBG("After  shiftForward from: %, until: %, offset: %, str: '%'",
+			//		lastPos + offset, pos, offset, val);
 			pos -= offset;
 		}
 	}

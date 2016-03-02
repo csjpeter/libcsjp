@@ -118,7 +118,11 @@ endif
 ifneq (,$(findstring system,@CONFIG@))
 	TEST_LIST+=\
 		   system-daemon \
-		   system-signal
+		   system-signal \
+		   system-socket \
+		   system-listener \
+		   system-server \
+		   system-client
 endif
 
 define TEST_template
