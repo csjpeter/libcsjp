@@ -24,12 +24,12 @@ public:
 		return *this;
 	}
 
-	Listener(const String & ip, unsigned port,
+	Listener(const char * ip, unsigned port,
 			unsigned incomingConnectionQueueLength = 0);
 	virtual ~Listener() {}
 
 	virtual void readableEvent(){}
-	virtual void writableEvent(){}
+	virtual void writeableEvent(){}
 
 	friend Server;
 };

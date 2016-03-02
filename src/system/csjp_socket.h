@@ -32,6 +32,7 @@
 
 namespace csjp {
 
+class EPoll;
 class Socket
 {
 public:
@@ -62,7 +63,7 @@ protected:
 	virtual ~Socket();
 
 	virtual void readableEvent() = 0;
-	virtual void writableEvent() = 0;
+	virtual void writeableEvent() = 0;
 
 	void readToBuffer();
 	void writeFromBuffer();
@@ -77,6 +78,8 @@ private:
 public:
 	const size_t & bytesAvailable;
 	const size_t & bytesToSend;
+
+	friend EPoll;
 };
 
 DECL_EXCEPTION(Exception, SocketError);

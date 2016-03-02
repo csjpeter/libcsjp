@@ -23,14 +23,14 @@ public:
 		return *this;
 	}
 
-	Server(Listener &);
+	Server(const Listener &);
 	virtual ~Server() {}
 
 	virtual void readableEvent()
 	{
 		readToBuffer();
 	}
-	virtual void writableEvent()
+	virtual void writeableEvent()
 	{
 		writeFromBuffer();
 	}

@@ -19,9 +19,9 @@ public:
 	{
 		csjp::Server::readableEvent();
 	}
-	virtual void writableEvent()
+	virtual void writeableEvent()
 	{
-		csjp::Server::writableEvent();
+		csjp::Server::writeableEvent();
 	}
 };
 
@@ -36,9 +36,9 @@ public:
 	{
 		csjp::Client::readableEvent();
 	}
-	virtual void writableEvent()
+	virtual void writeableEvent()
 	{
-		csjp::Client::writableEvent();
+		csjp::Client::writeableEvent();
 	}
 };
 
@@ -66,7 +66,7 @@ void TestClient::receiveMsg()
 
 	SocketServer server(listener);
 	server.write(msg);
-	server.writableEvent();
+	server.writeableEvent();
 
 	while(client.bytesAvailable < 9){
 		client.readableEvent();

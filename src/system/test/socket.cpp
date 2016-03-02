@@ -13,7 +13,7 @@ public:
 	virtual ~SocketChild() {}
 
 	virtual void readableEvent(){}
-	virtual void writableEvent(){}
+	virtual void writeableEvent(){}
 };
 
 class TestSocket

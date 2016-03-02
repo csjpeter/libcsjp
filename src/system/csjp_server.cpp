@@ -21,7 +21,7 @@
 
 namespace csjp {
 
-Server::Server(Listener & listener) : Socket()
+Server::Server(const Listener & listener) : Socket()
 {
 	socklen_t clilen = sizeof(address);
 	file = ::accept4(listener.file, 

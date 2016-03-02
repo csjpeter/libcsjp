@@ -30,7 +30,7 @@ public:
 	{
 		readToBuffer();
 	}
-	virtual void writableEvent()
+	virtual void writeableEvent()
 	{
 		writeFromBuffer();
 	}

@@ -21,7 +21,7 @@
 
 namespace csjp {
 
-Listener::Listener(const String & ip, unsigned port,
+Listener::Listener(const char * ip, unsigned port,
 		unsigned incomingConnectionQueueLength ) :
 	Socket()
 {
@@ -29,7 +29,7 @@ Listener::Listener(const String & ip, unsigned port,
 	address.sin_addr.s_addr = INADDR_ANY;
 	address.sin_port = htons(port);
 
-	if(inet_pton(AF_INET, ip.c_str(), &address.sin_addr.s_addr) != 1)
+	if(inet_pton(AF_INET, ip, &address.sin_addr.s_addr) != 1)
 		throw SocketError("Failed to parse or convert '%' to binary "
 				"ip number.", ip);
 

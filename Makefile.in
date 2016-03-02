@@ -122,7 +122,8 @@ ifneq (,$(findstring system,@CONFIG@))
 		   system-socket \
 		   system-listener \
 		   system-server \
-		   system-client
+		   system-client \
+		   system-epoll
 endif
 
 define TEST_template
