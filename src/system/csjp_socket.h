@@ -55,16 +55,18 @@ public:
 
 	void close(bool throws = true) const;
 
-	String read(size_t length);
-	void write(const String & data);
+	String receive(size_t length);
+	void send(const String & data);
 
 protected:
 	Socket();
 	virtual ~Socket();
 
-	virtual void readableEvent() = 0;
-	virtual void writeableEvent() = 0;
+	virtual void dataReceived() = 0;
+	virtual void readyToSend(){};
 
+private:
+	bool isListening();
 	void readToBuffer();
 	void writeFromBuffer();
 

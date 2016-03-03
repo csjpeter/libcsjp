@@ -28,8 +28,11 @@ public:
 			unsigned incomingConnectionQueueLength = 0);
 	virtual ~Listener() {}
 
-	virtual void readableEvent(){}
-	virtual void writeableEvent(){}
+	virtual void dataReceived()
+	{
+		LOG("% readBuffer content: [%]",
+				__PRETTY_FUNCTION__, receive(bytesAvailable));
+	}
 
 	friend Server;
 };

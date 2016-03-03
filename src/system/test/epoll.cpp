@@ -22,14 +22,15 @@ public:
 		csjp::Listener(ip, port, incomingConnectionQueueLength) {}
 	virtual ~SocketListener() {}
 
-	virtual void readableEvent()
+	virtual void dataReceived()
 	{
-		LOG("%", __PRETTY_FUNCTION__);
+		//LOG("%", __PRETTY_FUNCTION__);
 		servers.add((csjp::Listener&)*this);
 	}
-	virtual void writeableEvent()
+	virtual void readyToSend()
 	{
-		LOG("%", __PRETTY_FUNCTION__);
+		//LOG("%", __PRETTY_FUNCTION__);
+		VERIFY(false);
 	}
 };
 
@@ -39,23 +40,18 @@ public:
 	SocketServer(const csjp::Listener & l) : csjp::Server(l) {}
 	virtual ~SocketServer() {}
 
-	virtual void readableEvent()
+	virtual void dataReceived()
 	{
 		LOG("%", __PRETTY_FUNCTION__);
-		csjp::Server::readableEvent();
 		VERIFY(bytesAvailable == 12);
-		VERIFY(read(12) == "from client\n");
+		VERIFY(receive(12) == "from client\n");
+		//LOG("Server receives: [%]", receive(bytesAvailable));
 	}
-	virtual void writeableEvent()
+	virtual void readyToSend()
 	{
 		LOG("%", __PRETTY_FUNCTION__);
-		write(csjp::String("from server\n"));
-		csjp::Server::writeableEvent();
 	}
 };
-
-// readyToReceive and readyToSend
-// actionCanBeTaken read or write
 
 class SocketClient : public csjp::Client
 {
@@ -64,19 +60,16 @@ public:
 		csjp::Client(name, port) {}
 	virtual ~SocketClient() {}
 
-	virtual void readableEvent()
+	virtual void dataReceived()
 	{
 		LOG("%", __PRETTY_FUNCTION__);
-		csjp::Client::readableEvent();
 		//LOG("bytes avail: %", bytesAvailable);
-		VERIFY(bytesAvailable == 24);
-		VERIFY(read(12) == "from server\n");
+		VERIFY(bytesAvailable == 12);
+		VERIFY(receive(12) == "from server\n");
 	}
-	virtual void writeableEvent()
+	virtual void readyToSend()
 	{
 		LOG("%", __PRETTY_FUNCTION__);
-		write(csjp::String("from client\n"));
-		csjp::Client::writeableEvent();
 	}
 };
 
@@ -94,33 +87,53 @@ void TestEPoll::create()
 
 void TestEPoll::receiveMsg()
 {
+	TESTSTEP("Register SIGPIPE handler");
 	csjp::Signal termSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
 
 	csjp::String msg("Hi there!");
 
+	TESTSTEP("Creating EPoll");
 	csjp::EPoll epoll(5);
 
+	TESTSTEP("Listening");
 	SocketListener listener("127.0.0.1", 30303);
 	epoll.add(listener);
-	epoll.wait(10); // 0.01 sec
-	LOG("1st wait done");
 
+	TESTSTEP("Client connecting");
 	SocketClient client("127.0.0.1", 30303);
-	epoll.wait(10); // 0.01 sec
-	LOG("2nd wait done");
-	epoll.add(servers[0]);
 	epoll.add(client);
-	epoll.wait(10); // 0.01 sec
-	LOG("3rd wait done");
 
+	TESTSTEP("EPoll waits for incoming connection");
 	epoll.wait(10); // 0.01 sec
-	LOG("4th wait done");
+	VERIFY(servers.length == 1);
+	epoll.add(servers[0]);
 
+	TESTSTEP("Client writes");
+	client.send(csjp::String("from client\n"));
+	epoll.dataIsPending(client); // FIXME how to automatize this ?
+
+	TESTSTEP("EPoll waits");
+	epoll.wait(10); // 0.01 sec
+
+	TESTSTEP("Server writes");
+	servers[0].send(csjp::String("from server\n"));
+	epoll.dataIsPending(servers[0]); // FIXME how to automatize this ?
+
+	TESTSTEP("EPoll waits");
+	epoll.wait(10); // 0.01 sec
+
+	TESTSTEP("Client closes (kernel removes it from epoll)");
 	client.close();
 
-	EXC_VERIFY(epoll.wait(10), csjp::SocketClosedByPeer); // 0.01 sec
+	// FIXME how to handle this ???
+	//TESTSTEP("Server receives read msg with no data ->client closed");
+	//epoll.wait(10); // 0.01 sec
+
+	TESTSTEP("Server write should fail with proper exception");
+	EXC_VERIFY(servers[0].send(csjp::String("from server\n")), csjp::SocketClosedByPeer);
+
+	TESTSTEP("Remove server from epoll");
 	servers.removeAt(0);
-	LOG("5th wait done");
 }
 
 TEST_INIT(EPoll)

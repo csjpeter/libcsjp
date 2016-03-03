@@ -15,13 +15,10 @@ public:
 	SocketServer(csjp::Listener & l) : csjp::Server(l) {}
 	virtual ~SocketServer() {}
 
-	virtual void readableEvent()
+	virtual void dataReceived()
 	{
-		csjp::Server::readableEvent();
-	}
-	virtual void writeableEvent()
-	{
-		csjp::Server::writeableEvent();
+		LOG("% readBuffer content: [%]",
+				__PRETTY_FUNCTION__, receive(bytesAvailable));
 	}
 };
 
@@ -32,13 +29,10 @@ public:
 		csjp::Client(name, port) {}
 	virtual ~SocketClient() {}
 
-	virtual void readableEvent()
+	virtual void dataReceived()
 	{
-		csjp::Client::readableEvent();
-	}
-	virtual void writeableEvent()
-	{
-		csjp::Client::writeableEvent();
+		LOG("% readBuffer content: [%]",
+				__PRETTY_FUNCTION__, receive(bytesAvailable));
 	}
 };
 
@@ -59,26 +53,27 @@ void TestClient::receiveMsg()
 {
 	csjp::String msg("Hi there!");
 
+	TESTSTEP("Listening");
 	csjp::Listener listener(csjp::String("127.0.0.1"), 30303);
 
+	TESTSTEP("Connecting client");
 	SocketClient client("127.0.0.1", 30303);
-	//usleep(10 * 1000); // 0.01 sec
 
+	TESTSTEP("Server accepts connection");
 	SocketServer server(listener);
-	server.write(msg);
-	server.writeableEvent();
 
-	while(client.bytesAvailable < 9){
-		client.readableEvent();
-		usleep(10 * 1000); // 0.01 sec
-	}
-	csjp::String msg2 = client.read(client.bytesAvailable);
-	LOG("Received msg: %", msg2);
+	TESTSTEP("Client sends data");
+	client.send(msg);
+
+	TESTSTEP("Server receives data");
+	csjp::String msg2 = server.receive(msg.length);
+	//LOG("Received msg: %", msg2);
 	VERIFY(msg == msg2);
 
+	// FIXME, what if client closes, and if server writes
+	TESTSTEP("Server and listener closes");
 	server.close();
 	listener.close();
-	//usleep(10 * 1000); // 0.01 sec
 }
 
 TEST_INIT(Client)

@@ -67,6 +67,21 @@ void Socket::close(bool throws) const
 	file = -1;
 }
 
+bool Socket::isListening()
+{
+	if(file < 0)
+		throw SocketClosedByPeer();
+
+	int val;
+	socklen_t len = sizeof(val);
+	if(getsockopt(file, SOL_SOCKET, SO_ACCEPTCONN, &val, &len) == -1)
+		throw SocketError(errno,
+				"Failed to query if socket is listening.");
+	if(val)
+		return true;
+	return false;
+}
+
 void Socket::readToBuffer()
 {
 	if(file < 0)
@@ -111,14 +126,17 @@ void Socket::writeFromBuffer()
 	writeBuffer.chopFront(written);
 }
 
-String Socket::read(size_t length)
+String Socket::receive(size_t length)
 {
 	if(file < 0)
 		throw SocketClosedByPeer();
 
-	if(readBuffer.length < length)
-		throw SocketError("Can not yet read % byte long string from "
-				"socket.", length);
+	if(readBuffer.length < length){
+		readToBuffer();
+		if(readBuffer.length < length)
+			throw SocketError("Can not yet read % byte long "
+					"string from socket.", length);
+	}
 
 	String ret(readBuffer.c_str(), length);
 	readBuffer.chopFront(length);
@@ -126,12 +144,14 @@ String Socket::read(size_t length)
 	return ret;
 }
 
-void Socket::write(const String & data)
+void Socket::send(const String & data)
 {
 	if(file < 0)
 		throw SocketClosedByPeer();
 
 	writeBuffer.append(data);
+	//FIXME how to register itself in epoll for write event
+	writeFromBuffer();
 }
 
 

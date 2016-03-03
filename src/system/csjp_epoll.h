@@ -30,18 +30,18 @@ public:
 	virtual ~EPoll() {}
 
 	void add(Socket &);
+	void dataIsPending(Socket &);
+	void noMoreDataIsPending(Socket &);
 	void remove(Socket &);
 	void wait(int timeout = 0);
 
-	virtual void readableEvent()
+	virtual void dataReceived()
 	{
-		//readToBuffer();
-	}
-	virtual void writeableEvent()
-	{
-		//writeFromBuffer();
+		LOG("% readBuffer content: [%]",
+				__PRETTY_FUNCTION__, receive(bytesAvailable));
 	}
 
+private:
 	CArray<struct epoll_event> events;
 };
 

@@ -25,15 +25,6 @@ public:
 
 	Server(const Listener &);
 	virtual ~Server() {}
-
-	virtual void readableEvent()
-	{
-		readToBuffer();
-	}
-	virtual void writeableEvent()
-	{
-		writeFromBuffer();
-	}
 };
 
 }

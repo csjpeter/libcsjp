@@ -12,8 +12,7 @@ public:
 	SocketChild() : Socket() {}
 	virtual ~SocketChild() {}
 
-	virtual void readableEvent(){}
-	virtual void writeableEvent(){}
+	virtual void dataReceived(){}
 };
 
 class TestSocket

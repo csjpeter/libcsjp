@@ -8,6 +8,19 @@
 #include <csjp_server.h>
 #include <csjp_test.h>
 
+class SocketServer : public csjp::Server
+{
+public:
+	SocketServer(csjp::Listener & l) : csjp::Server(l) {}
+	virtual ~SocketServer() {}
+
+	virtual void dataReceived()
+	{
+		LOG("% readBuffer content: [%]",
+				__PRETTY_FUNCTION__, receive(bytesAvailable));
+	}
+};
+
 class TestServer
 {
 public:
@@ -18,7 +31,7 @@ void TestServer::create()
 {
 	csjp::Listener listener(csjp::String("127.0.0.1"), 20202);
 	try{
-		csjp::Server server(listener);
+		SocketServer server(listener);
 		VERIFY(false);
 	} catch(csjp::SocketNoneConnecting & e){
 		//EXCEPTION(e);

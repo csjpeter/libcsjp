@@ -34,18 +34,40 @@ void EPoll::add(Socket & socket)
 {
 	struct epoll_event ev;
 
-	ev.events = EPOLLIN | EPOLLOUT;//FIXME what does EPOLLOUT for listener
+	ev.events = EPOLLIN;
 	ev.data.ptr = &socket;
 	if(epoll_ctl(file, EPOLL_CTL_ADD, socket.file, &ev) == -1)
 		throw SocketError(errno, "Failed to add a socket to epoll.");
 	LOG("Added fd: %", socket.file);
 }
 
+void EPoll::dataIsPending(Socket & socket)
+{
+	struct epoll_event ev;
+
+	ev.events = EPOLLIN | EPOLLOUT;
+	ev.data.ptr = &socket;
+	if(epoll_ctl(file, EPOLL_CTL_MOD, socket.file, &ev) == -1)
+		throw SocketError(errno, "Failed to modify a socket in epoll.");
+	LOG("Modified for read and write events; fd: %", socket.file);
+}
+
+void EPoll::noMoreDataIsPending(Socket & socket)
+{
+	struct epoll_event ev;
+
+	ev.events = EPOLLIN;
+	ev.data.ptr = &socket;
+	if(epoll_ctl(file, EPOLL_CTL_MOD, socket.file, &ev) == -1)
+		throw SocketError(errno, "Failed to modify a socket in epoll.");
+	LOG("Modified for read only events; fd: %", socket.file);
+}
+
 void EPoll::remove(Socket & socket)
 {
 	struct epoll_event ev;
 
-	ev.events = EPOLLIN | EPOLLOUT;//FIXME what does EPOLLOUT for listener
+	ev.events = EPOLLIN | EPOLLOUT;
 	ev.data.ptr = &socket;
 	if(epoll_ctl(file, EPOLL_CTL_DEL, socket.file, &ev) == -1)
 		throw SocketError(errno,
@@ -76,17 +98,28 @@ void EPoll::wait(int timeout)
 		if((e & EPOLLET) == EPOLLET) LOG("EPOLLET");
 		if((e & EPOLLONESHOT) == EPOLLONESHOT) LOG("EPOLLONESHOT");
 
-		if((e & EPOLLIN) == EPOLLIN) socket.readableEvent();
-		if((e & EPOLLOUT) == EPOLLOUT) socket.writeableEvent();
+		if((e & EPOLLIN) == EPOLLIN){
+			if(!socket.isListening()){
+				LOG("EPoll reads socket fd: %", socket.file);
+				socket.readToBuffer();
+			}
+			socket.dataReceived();
+		}
+		if((e & EPOLLOUT) == EPOLLOUT){
+			socket.writeFromBuffer();
+			socket.readyToSend();
+			if(socket.bytesToSend == 0)
+				noMoreDataIsPending(socket);
+		}
 
-		/*
+#if 0
 		if((e & EPOLLRDHUP) == EPOLLRDHUP) LOG("EPOLLRDHUP");
 		if((e & EPOLLPRI) == EPOLLPRI) LOG("EPOLLPRI");
 		if((e & EPOLLERR) == EPOLLERR) LOG("EPOLLERR");
 		if((e & EPOLLHUP) == EPOLLHUP) LOG("EPOLLHUP");
 		if((e & EPOLLET) == EPOLLET) LOG("EPOLLET");
 		if((e & EPOLLONESHOT) == EPOLLONESHOT) LOG("EPOLLONESHOT");
-		*/
+#endif
 	}
 }
 

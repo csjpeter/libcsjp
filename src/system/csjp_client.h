@@ -25,15 +25,6 @@ public:
 
 	Client(const char *name, unsigned port);
 	virtual ~Client() {}
-
-	virtual void readableEvent()
-	{
-		readToBuffer();
-	}
-	virtual void writeableEvent()
-	{
-		writeFromBuffer();
-	}
 };
 
 }
