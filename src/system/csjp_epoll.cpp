@@ -79,8 +79,6 @@ void EPoll::wait(int timeout)
 		if((e & EPOLLIN) == EPOLLIN) socket.readableEvent();
 		if((e & EPOLLOUT) == EPOLLOUT) socket.writeableEvent();
 
-		//FIXME lets recognise closed sockets and remove them
-
 		/*
 		if((e & EPOLLRDHUP) == EPOLLRDHUP) LOG("EPOLLRDHUP");
 		if((e & EPOLLPRI) == EPOLLPRI) LOG("EPOLLPRI");

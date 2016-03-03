@@ -12,7 +12,7 @@
 
 namespace csjp {
 
-typedef void (*SignalHandlerFunction)(int signum, siginfo_t *info, void *context);
+typedef void (*SignalHandlerFunction)(int, siginfo_t *, void *);
 
 class Signal {
 	public:
@@ -25,7 +25,8 @@ class Signal {
 		explicit Signal(int signum, SignalHandlerFunction func);
 		~Signal();
 
-		static void sigtermHandler(int signum, siginfo_t *info, void *context);
+		static void sigtermHandler(int, siginfo_t *, void *);
+		static void sigpipeHandler(int, siginfo_t *, void *);
 
 	public:
 		static bool sigTermReceived;

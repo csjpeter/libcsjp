@@ -20,6 +20,13 @@ void Signal::sigtermHandler(int signum, siginfo_t *info, void *context)
 	Signal::sigTermReceived = true;
 }
 
+void Signal::sigpipeHandler(int signum, siginfo_t *info, void *context)
+{
+	(void)signum;
+	(void)info;
+	(void)context;
+}
+
 Signal::Signal(int signum, SignalHandlerFunction func) :
 	signum(signum),
 	func(func)

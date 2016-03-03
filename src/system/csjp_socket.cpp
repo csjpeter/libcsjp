@@ -96,10 +96,17 @@ void Socket::writeFromBuffer()
 		written += justWritten;
 		justWritten = ::write(file, writeBuffer.c_str() + written,
 				writeBuffer.length - written);
-		if(justWritten < 0 && errno != EAGAIN
-				/*&& errno != EWOULDBLOCK*/ && errno != EINTR)
-			throw SocketError(errno, "Error after writting % bytes "
-					"to socket.", written);
+		if(0 <= justWritten || errno == EAGAIN
+				/*|| errno == EWOULDBLOCK*/ || errno == EINTR)
+			continue;
+		if(errno == EPIPE){
+			int errNo = errno;
+			close(false);
+			throw SocketClosedByPeer(errNo,	"Error after writting "
+					"% bytes to socket.", written);
+		}
+		throw SocketError(errno, "Error after writting % bytes "
+				"to socket.", written);
 	} while(0 < justWritten);
 	writeBuffer.chopFront(written);
 }

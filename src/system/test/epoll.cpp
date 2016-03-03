@@ -5,10 +5,11 @@
 
 #include <unistd.h>
 
+#include <csjp_test.h>
+#include <csjp_signal.h>
 #include <csjp_server.h>
 #include <csjp_client.h>
 #include <csjp_epoll.h>
-#include <csjp_test.h>
 
 class SocketServer;
 csjp::Array<SocketServer> servers;
@@ -93,6 +94,8 @@ void TestEPoll::create()
 
 void TestEPoll::receiveMsg()
 {
+	csjp::Signal termSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
+
 	csjp::String msg("Hi there!");
 
 	csjp::EPoll epoll(5);
@@ -113,11 +116,10 @@ void TestEPoll::receiveMsg()
 	epoll.wait(10); // 0.01 sec
 	LOG("4th wait done");
 
-	//servers.removeAt(0);
 	client.close();
 
-	epoll.wait(10); // 0.01 sec
-	// FIXME: if client closes: Program received signal SIGPIPE, Broken pipe
+	EXC_VERIFY(epoll.wait(10), csjp::SocketClosedByPeer); // 0.01 sec
+	servers.removeAt(0);
 	LOG("5th wait done");
 }
 
