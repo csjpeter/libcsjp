@@ -14,6 +14,9 @@
 class SocketServer;
 csjp::Array<SocketServer> servers;
 
+csjp::String serverReceived;
+csjp::String clientReceived;
+
 class SocketListener : public csjp::Listener
 {
 public:
@@ -24,12 +27,12 @@ public:
 
 	virtual void dataReceived()
 	{
-		//LOG("%", __PRETTY_FUNCTION__);
+		//DBG("");
 		servers.add((csjp::Listener&)*this);
 	}
 	virtual void readyToSend()
 	{
-		//LOG("%", __PRETTY_FUNCTION__);
+		//DBG("");
 		VERIFY(false);
 	}
 };
@@ -42,14 +45,12 @@ public:
 
 	virtual void dataReceived()
 	{
-		LOG("%", __PRETTY_FUNCTION__);
-		VERIFY(bytesAvailable == 12);
-		VERIFY(receive(12) == "from client\n");
-		//LOG("Server receives: [%]", receive(bytesAvailable));
+		VERIFY(bytesAvailable == 12 || serverReceived.length);
+		serverReceived = receive(bytesAvailable);
 	}
 	virtual void readyToSend()
 	{
-		LOG("%", __PRETTY_FUNCTION__);
+		DBG("");
 	}
 };
 
@@ -57,19 +58,17 @@ class SocketClient : public csjp::Client
 {
 public:
 	SocketClient(const char *name, unsigned port) :
-		csjp::Client(name, port) {}
+		csjp::Client(name, port){}
 	virtual ~SocketClient() {}
 
 	virtual void dataReceived()
 	{
-		LOG("%", __PRETTY_FUNCTION__);
-		//LOG("bytes avail: %", bytesAvailable);
 		VERIFY(bytesAvailable == 12);
-		VERIFY(receive(12) == "from server\n");
+		clientReceived = receive(12);
 	}
 	virtual void readyToSend()
 	{
-		LOG("%", __PRETTY_FUNCTION__);
+		DBG("");
 	}
 };
 
@@ -110,30 +109,27 @@ void TestEPoll::receiveMsg()
 
 	TESTSTEP("Client writes");
 	client.send(csjp::String("from client\n"));
-	epoll.dataIsPending(client); // FIXME how to automatize this ?
+	epoll.dataIsPending(client); // FIXME how to automate this ?
 
 	TESTSTEP("EPoll waits");
 	epoll.wait(10); // 0.01 sec
+	VERIFY(serverReceived == "from client\n");
 
 	TESTSTEP("Server writes");
 	servers[0].send(csjp::String("from server\n"));
-	epoll.dataIsPending(servers[0]); // FIXME how to automatize this ?
+	epoll.dataIsPending(servers[0]); // FIXME how to automate this ?
 
 	TESTSTEP("EPoll waits");
 	epoll.wait(10); // 0.01 sec
+	VERIFY(clientReceived == "from server\n");
 
 	TESTSTEP("Client closes (kernel removes it from epoll)");
 	client.close();
 
-	// FIXME how to handle this ???
-	//TESTSTEP("Server receives read msg with no data ->client closed");
-	//epoll.wait(10); // 0.01 sec
-
-	TESTSTEP("Server write should fail with proper exception");
-	EXC_VERIFY(servers[0].send(csjp::String("from server\n")), csjp::SocketClosedByPeer);
-
-	TESTSTEP("Remove server from epoll");
-	servers.removeAt(0);
+	TESTSTEP("Server gets closed and thus removed from epoll");
+	epoll.wait(10); // 0.01 sec
+	// we should not be able to remove what is not there
+	EXC_VERIFY(epoll.remove(servers[0]), csjp::SocketError);
 }
 
 TEST_INIT(EPoll)

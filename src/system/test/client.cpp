@@ -5,6 +5,7 @@
 
 #include <unistd.h>
 
+#include <csjp_signal.h>
 #include <csjp_server.h>
 #include <csjp_client.h>
 #include <csjp_test.h>
@@ -17,8 +18,7 @@ public:
 
 	virtual void dataReceived()
 	{
-		LOG("% readBuffer content: [%]",
-				__PRETTY_FUNCTION__, receive(bytesAvailable));
+		DBG("% readBuffer content: [%]", receive(bytesAvailable));
 	}
 };
 
@@ -31,8 +31,7 @@ public:
 
 	virtual void dataReceived()
 	{
-		LOG("% readBuffer content: [%]",
-				__PRETTY_FUNCTION__, receive(bytesAvailable));
+		DBG("readBuffer content: [%]", receive(bytesAvailable));
 	}
 };
 
@@ -41,6 +40,8 @@ class TestClient
 public:
 	void create();
 	void receiveMsg();
+	void serverSendsToClosedClient();
+	void clientSendsToClosedServer();
 };
 
 void TestClient::create()
@@ -67,19 +68,60 @@ void TestClient::receiveMsg()
 
 	TESTSTEP("Server receives data");
 	csjp::String msg2 = server.receive(msg.length);
-	//LOG("Received msg: %", msg2);
+	//DBG("Received msg: %", msg2);
 	VERIFY(msg == msg2);
 
-	// FIXME, what if client closes, and if server writes
 	TESTSTEP("Server and listener closes");
 	server.close();
 	listener.close();
+}
+
+void TestClient::serverSendsToClosedClient()
+{
+	csjp::String msg("Hi there!");
+
+	TESTSTEP("Setting up client server connection");
+	csjp::Listener listener(csjp::String("127.0.0.1"), 30303);
+	SocketClient client("127.0.0.1", 30303);
+	SocketServer server(listener);
+	usleep(10 * 1000); // 0.01 sec
+	
+	TESTSTEP("Client closes");
+	client.close();
+	
+	TESTSTEP("Register SIGPIPE handler");
+	csjp::Signal termSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
+
+	TESTSTEP("Server write should fail with proper exception");
+	EXC_VERIFY(server.send(msg), csjp::SocketClosedByPeer);
+}
+
+void TestClient::clientSendsToClosedServer()
+{
+	csjp::String msg("Hi there!");
+
+	TESTSTEP("Setting up client server connection");
+	csjp::Listener listener(csjp::String("127.0.0.1"), 30303);
+	SocketClient client("127.0.0.1", 30303);
+	SocketServer server(listener);
+	usleep(10 * 1000); // 0.01 sec
+	
+	TESTSTEP("Server closes");
+	server.close();
+	
+	TESTSTEP("Register SIGPIPE handler");
+	csjp::Signal termSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
+
+	TESTSTEP("Client write should fail with proper exception");
+	EXC_VERIFY(client.send(msg), csjp::SocketClosedByPeer);
 }
 
 TEST_INIT(Client)
 
 	TEST_RUN(create);
 	TEST_RUN(receiveMsg);
+	TEST_RUN(serverSendsToClosedClient);
+	TEST_RUN(clientSendsToClosedServer);
 
 TEST_FINISH(Client)
 

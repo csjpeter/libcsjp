@@ -16,8 +16,7 @@ public:
 
 	virtual void dataReceived()
 	{
-		LOG("% readBuffer content: [%]",
-				__PRETTY_FUNCTION__, receive(bytesAvailable));
+		DBG("readBuffer content: [%]", receive(bytesAvailable));
 	}
 };
 

@@ -90,13 +90,14 @@ void Socket::readToBuffer()
 	char buffer[4096];
 	ssize_t readIn = 0;
 
-	do {
-		readBuffer.append(buffer, readIn);
-		readIn = ::read(file, buffer, sizeof(buffer));
-	} while(0 < readIn);
-	
-	if(readIn < 0 && errno != EAGAIN
-			/*&& errno != EWOULDBLOCK*/ && errno != EINTR)
+	do{
+		readIn = 0;
+		do {
+			readBuffer.append(buffer, readIn);
+			readIn = ::read(file, buffer, sizeof(buffer));
+		} while(0 < readIn);
+	} while(readIn < 0 && errno == EINTR);
+	if(readIn < 0 && ( errno != EAGAIN /*&& errno != EWOULDBLOCK*/ ) )
 		throw SocketError(errno, "Error while reading from socket.");
 }
 
@@ -108,22 +109,27 @@ void Socket::writeFromBuffer()
 	long unsigned written = 0;
 	int justWritten = 0;
 	do {
-		written += justWritten;
-		justWritten = ::write(file, writeBuffer.c_str() + written,
-				writeBuffer.length - written);
-		if(0 <= justWritten || errno == EAGAIN
-				/*|| errno == EWOULDBLOCK*/ || errno == EINTR)
-			continue;
-		if(errno == EPIPE){
-			int errNo = errno;
-			close(false);
-			throw SocketClosedByPeer(errNo,	"Error after writting "
-					"% bytes to socket.", written);
-		}
-		throw SocketError(errno, "Error after writting % bytes "
-				"to socket.", written);
-	} while(0 < justWritten);
+		justWritten = 0;
+		do {
+			written += justWritten;
+			justWritten = ::write(file,
+					writeBuffer.c_str() + written,
+					writeBuffer.length - written);
+		} while(0 < justWritten);
+	} while(justWritten < 0 && errno == EINTR);
+	int errNo = errno;
+
 	writeBuffer.chopFront(written);
+
+	if(justWritten < 0 && errNo == EPIPE){
+		close(false);
+		throw SocketClosedByPeer(errNo,	"Error after writting "
+				"% bytes to socket.", written);
+	}
+
+	if(justWritten < 0 && ( errNo != EAGAIN /*&& errNo != EWOULDBLOCK*/))
+		throw SocketError(errNo, "Error after writting % bytes "
+				"to socket.", written);
 }
 
 String Socket::receive(size_t length)

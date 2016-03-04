@@ -37,7 +37,7 @@ void TestSignal::termDaemon()
 
 		TESTSTEP("Running daemon loop until term signal is received");
 		while(!csjp::Signal::sigTermReceived){
-			LOG("Test daemon is running");
+			DBG("Test daemon is running");
 			usleep(100 * 1000); // wait 0.1 sec
 		}
 	} catch (csjp::DaemonParent & e){
@@ -47,7 +47,7 @@ void TestSignal::termDaemon()
 		csjp::File pidFile(pidFileName);
 		auto pidStr = pidFile.readAll();
 		pid_t pid; pid <<= pidStr;
-                LOG("We have the daemon child with pid %.", pid);
+                DBG("We have the daemon child with pid %.", pid);
 
 		TESTSTEP("Sending SIGTERM to the daemon");
 		if(kill(pid, SIGTERM))

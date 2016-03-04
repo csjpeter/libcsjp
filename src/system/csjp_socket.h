@@ -62,8 +62,9 @@ protected:
 	Socket();
 	virtual ~Socket();
 
+	virtual void closedByPeer() {}
 	virtual void dataReceived() = 0;
-	virtual void readyToSend(){};
+	virtual void readyToSend() {}
 
 private:
 	bool isListening();
