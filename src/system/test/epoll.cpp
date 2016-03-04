@@ -128,7 +128,6 @@ void TestEPoll::receiveMsg()
 
 	TESTSTEP("Server gets closed and thus removed from epoll");
 	epoll.wait(10); // 0.01 sec
-	// we should not be able to remove what is not there
 	EXC_VERIFY(epoll.remove(servers[0]), csjp::SocketError);
 }
 
