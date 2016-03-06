@@ -30,7 +30,7 @@ EPoll::EPoll(unsigned maxEvents) :
 		throw SocketError(errno, "epoll_create1() failed");
 }
 
-void EPoll::add(Socket & socket)
+void EPoll::add(Socket & socket, bool observ)
 {
 	struct epoll_event ev;
 
@@ -38,6 +38,9 @@ void EPoll::add(Socket & socket)
 	ev.data.ptr = &socket;
 	if(epoll_ctl(file, EPOLL_CTL_ADD, socket.file, &ev) == -1)
 		throw SocketError(errno, "Failed to add a socket to epoll.");
+
+	if(observ)
+		socket.observer = this;
 	//DBG("Added fd: %", socket.file);
 }
 
@@ -74,6 +77,22 @@ void EPoll::remove(Socket & socket)
 				"Failed to remove a socket from epoll.");
 }
 
+const char * epollEventMap(int event)
+{
+	switch(event)
+	{
+		case EPOLLERR : return "EPOLLERR"; break;
+		case EPOLLHUP : return "EPOLLHUP"; break;
+		case EPOLLIN : return "EPOLLIN"; break;
+		case EPOLLOUT : return "EPOLLOUT"; break;
+		case EPOLLRDHUP : return "EPOLLRDHUP"; break;
+		case EPOLLPRI : return "EPOLLPRI"; break;
+		case EPOLLET : return "EPOLLET"; break;
+		case EPOLLONESHOT : return "EPOLLONESHOT"; break;
+		default: return "UNKNOWN"; break;
+	}
+}
+
 void EPoll::wait(int timeout)
 {
 	int nfds = epoll_wait(file, events.ptr, events.size, timeout);
@@ -84,20 +103,13 @@ void EPoll::wait(int timeout)
 		Socket & socket = *((Socket*)(events.ptr[i].data.ptr));
 		int e = events.ptr[i].events;
 
-		//DBG("epoll events found: % for fd: %", e, socket.file);
+		//DBG("epoll event: %(%) fd:%", epollEventMap(e),e,socket.file);
 
-		if((e & EPOLLERR) == EPOLLERR) DBG("EPOLLERR");
 		if((e & EPOLLHUP) == EPOLLHUP){
-			DBG("EPOLLHUP");
 			remove(socket);
 			continue;
 		}
-#if 0
-		if((e & EPOLLRDHUP) == EPOLLRDHUP) DBG("EPOLLRDHUP");
-		if((e & EPOLLPRI) == EPOLLPRI) DBG("EPOLLPRI");
-		if((e & EPOLLET) == EPOLLET) DBG("EPOLLET");
-		if((e & EPOLLONESHOT) == EPOLLONESHOT) DBG("EPOLLONESHOT");
-#endif
+
 		if((e & EPOLLIN) == EPOLLIN){
 			if(!socket.isListening()){
 				//DBG("EPoll reads socket fd: %", socket.file);
@@ -112,10 +124,10 @@ void EPoll::wait(int timeout)
 			socket.dataReceived();
 		}
 		if((e & EPOLLOUT) == EPOLLOUT){
-			socket.writeFromBuffer();
 			socket.readyToSend();
 			if(socket.bytesToSend == 0)
 				noMoreDataIsPending(socket);
+			socket.writeFromBuffer();
 		}
 	}
 }

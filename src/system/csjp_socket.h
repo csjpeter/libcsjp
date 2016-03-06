@@ -32,6 +32,13 @@
 
 namespace csjp {
 
+class Socket;
+class SocketObserver
+{
+public:
+	virtual void dataIsPending(Socket & socket) = 0;
+};
+
 class EPoll;
 class Socket
 {
@@ -73,6 +80,7 @@ private:
 
 protected:
 	mutable int file;
+	SocketObserver * observer;
 	struct sockaddr_in address;
 
 private:

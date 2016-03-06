@@ -13,7 +13,7 @@
 
 namespace csjp {
 
-class EPoll : public Socket
+class EPoll : public Socket, public SocketObserver
 {
 public:
 	explicit EPoll(const EPoll & orig) = delete;
@@ -29,7 +29,7 @@ public:
 	EPoll(unsigned maxEvents);
 	virtual ~EPoll() {}
 
-	void add(Socket &);
+	void add(Socket &, bool observ = true);
 	void dataIsPending(Socket &);
 	void noMoreDataIsPending(Socket &);
 	void remove(Socket &);

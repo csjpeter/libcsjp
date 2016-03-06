@@ -23,6 +23,7 @@ namespace csjp {
 
 Socket::Socket() :
 	file(-1),
+	observer(0),
 	bytesAvailable(readBuffer.length),
 	bytesToSend(writeBuffer.length)
 {
@@ -156,8 +157,9 @@ void Socket::send(const String & data)
 		throw SocketClosedByPeer();
 
 	writeBuffer.append(data);
-	//FIXME how to register itself in epoll for write event
-	writeFromBuffer();
+
+	if(observer)
+		observer->dataIsPending(*this);
 }
 
 

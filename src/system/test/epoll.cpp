@@ -27,12 +27,10 @@ public:
 
 	virtual void dataReceived()
 	{
-		//DBG("");
 		servers.add((csjp::Listener&)*this);
 	}
 	virtual void readyToSend()
 	{
-		//DBG("");
 		VERIFY(false);
 	}
 };
@@ -100,27 +98,28 @@ void TestEPoll::receiveMsg()
 
 	TESTSTEP("Client connecting");
 	SocketClient client("127.0.0.1", 30303);
-	epoll.add(client);
+	epoll.add(client, true); // automated epoll write registration
 
 	TESTSTEP("EPoll waits for incoming connection");
 	epoll.wait(10); // 0.01 sec
 	VERIFY(servers.length == 1);
-	epoll.add(servers[0]);
+	epoll.add(servers[0], false); // manual epoll write registration
 
-	TESTSTEP("Client writes");
+	TESTSTEP("Client writes with automated epoll write registration");
 	client.send(csjp::String("from client\n"));
-	epoll.dataIsPending(client); // FIXME how to automate this ?
 
 	TESTSTEP("EPoll waits");
-	epoll.wait(10); // 0.01 sec
+	epoll.wait(10); // 0.01 sec for write event
+	epoll.wait(10); // 0.01 sec for read event
 	VERIFY(serverReceived == "from client\n");
 
-	TESTSTEP("Server writes");
+	TESTSTEP("Server writes with manual epoll write registration");
 	servers[0].send(csjp::String("from server\n"));
-	epoll.dataIsPending(servers[0]); // FIXME how to automate this ?
+	epoll.dataIsPending(servers[0]);
 
 	TESTSTEP("EPoll waits");
-	epoll.wait(10); // 0.01 sec
+	epoll.wait(10); // 0.01 sec for write event
+	epoll.wait(10); // 0.01 sec for read event
 	VERIFY(clientReceived == "from server\n");
 
 	TESTSTEP("Client closes (kernel removes it from epoll)");
