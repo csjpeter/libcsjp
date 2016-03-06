@@ -93,6 +93,21 @@ const char * epollEventMap(int event)
 	}
 }
 
+bool isSocketListening(int file)
+{
+	if(file < 0)
+		throw SocketClosedByPeer();
+
+	int val;
+	socklen_t len = sizeof(val);
+	if(getsockopt(file, SOL_SOCKET, SO_ACCEPTCONN, &val, &len) == -1)
+		throw SocketError(errno,
+				"Failed to query if socket is listening.");
+	if(val)
+		return true;
+	return false;
+}
+
 void EPoll::wait(int timeout)
 {
 	int nfds = epoll_wait(file, events.ptr, events.size, timeout);
@@ -111,7 +126,7 @@ void EPoll::wait(int timeout)
 		}
 
 		if((e & EPOLLIN) == EPOLLIN){
-			if(!socket.isListening()){
+			if(!isSocketListening(socket.file)){
 				//DBG("EPoll reads socket fd: %", socket.file);
 				auto old = socket.bytesAvailable;
 				socket.readToBuffer();

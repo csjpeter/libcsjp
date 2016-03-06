@@ -73,8 +73,6 @@ protected:
 	virtual void dataReceived() = 0;
 	virtual void readyToSend() {}
 
-private:
-	bool isListening();
 	void readToBuffer();
 	void writeFromBuffer();
 

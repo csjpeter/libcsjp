@@ -68,21 +68,6 @@ void Socket::close(bool throws) const
 	file = -1;
 }
 
-bool Socket::isListening()
-{
-	if(file < 0)
-		throw SocketClosedByPeer();
-
-	int val;
-	socklen_t len = sizeof(val);
-	if(getsockopt(file, SOL_SOCKET, SO_ACCEPTCONN, &val, &len) == -1)
-		throw SocketError(errno,
-				"Failed to query if socket is listening.");
-	if(val)
-		return true;
-	return false;
-}
-
 void Socket::readToBuffer()
 {
 	if(file < 0)

@@ -20,6 +20,11 @@ public:
 	{
 		DBG("% readBuffer content: [%]", receive(bytesAvailable));
 	}
+
+	void writeFromBuffer()
+	{
+		Server::writeFromBuffer();
+	}
 };
 
 class SocketClient : public csjp::Client
@@ -32,6 +37,11 @@ public:
 	virtual void dataReceived()
 	{
 		DBG("readBuffer content: [%]", receive(bytesAvailable));
+	}
+
+	void writeFromBuffer()
+	{
+		Client::writeFromBuffer();
 	}
 };
 
@@ -65,6 +75,7 @@ void TestClient::receiveMsg()
 
 	TESTSTEP("Client sends data");
 	client.send(msg);
+	client.writeFromBuffer();
 
 	TESTSTEP("Server receives data");
 	csjp::String msg2 = server.receive(msg.length);
@@ -93,7 +104,8 @@ void TestClient::serverSendsToClosedClient()
 	csjp::Signal termSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
 
 	TESTSTEP("Server write should fail with proper exception");
-	EXC_VERIFY(server.send(msg), csjp::SocketClosedByPeer);
+	server.send(msg);
+	EXC_VERIFY(server.writeFromBuffer(), csjp::SocketClosedByPeer);
 }
 
 void TestClient::clientSendsToClosedServer()
@@ -113,7 +125,8 @@ void TestClient::clientSendsToClosedServer()
 	csjp::Signal termSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
 
 	TESTSTEP("Client write should fail with proper exception");
-	EXC_VERIFY(client.send(msg), csjp::SocketClosedByPeer);
+	client.send(msg);
+	EXC_VERIFY(client.writeFromBuffer(), csjp::SocketClosedByPeer);
 }
 
 TEST_INIT(Client)
