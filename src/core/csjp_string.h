@@ -202,6 +202,7 @@ public:
 
 	void append(const char *, size_t _length);
 	void append(const char *);
+	void append(const void * ptr) { appendPrintf("%p", ptr); }
 	void append(const String &);
 	void append(bool b) { append( b ? "true" : "false"); }
 	void append(char);
@@ -317,6 +318,7 @@ inline String & operator<<(String & lhs, const std::exception & e){lhs.append(e.
 inline String & operator<<(String & lhs, char rhs) { lhs.append(rhs); return lhs; }
 inline String & operator<<(String & lhs, unsigned char rhs) { lhs.append(rhs); return lhs; }
 inline String & operator<<(String & lhs, const char * rhs) { lhs.append(rhs); return lhs; }
+inline String & operator<<(String & lhs, const void * rhs) { lhs.append(rhs); return lhs; }
 inline String & operator<<(String & lhs, const String & rhs) { lhs.append(rhs); return lhs; }
 inline String & operator<<(String & lhs, const unsigned rhs) { lhs.append(rhs); return lhs; }
 inline String & operator<<(String & lhs, const long unsigned rhs) { lhs.append(rhs); return lhs; }
@@ -401,7 +403,8 @@ public:
 #define DBG(...){ \
 			csjp::String str; \
 			str.cat(VT_MAGENTA VT_TA_BOLD "DEBUG    " VT_NORMAL \
-					VT_BLUE, __PRETTY_FUNCTION__, VT_NORMAL); \
+					VT_BLUE, __PRETTY_FUNCTION__, ":", \
+					__LINE__, VT_NORMAL); \
 			str.catf(__VA_ARGS__); \
 			csjp::msgLogger(csjp::verboseMode ? stderr : NULL, str, str.length); \
 		}
