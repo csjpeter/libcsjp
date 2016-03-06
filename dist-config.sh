@@ -64,10 +64,10 @@ PRECONFIGURATION=$*
 
 test "x${HOST_DIST}" = "x${TARGET_DIST}" && {
 	PKGNAME=${PKGNAME_BASE}
-	DIST_DIR=${HOST_DIST}
+	DIST_DIR=build-for-${HOST_DIST}
 } || {
 	PKGNAME=${TARGET_DIST}-${PKGNAME_BASE}
-	DIST_DIR=${HOST_DIST}-x-${TARGET_DIST}
+	DIST_DIR=build-for-${HOST_DIST}-x-${TARGET_DIST}
 }
 
 # param 1 : inflie

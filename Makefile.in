@@ -142,24 +142,29 @@ $(foreach i,$(TEST_LIST),$(eval $(call TEST_template,$(i))))
 	tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-$(i))
 
 
-DEVEL_HEADERS = $(wildcard @HEADERDIR@/devel/*.h)
+DEVEL_HEADERS = $(patsubst src/devel/%.h,@HEADERDIR@/devel/%.h,\
+		 	$(wildcard src/devel/*.h))
 DEVEL_INCLUDES=-Isrc/devel
 
-CONTAINER_HEADERS = $(wildcard @HEADERDIR@/container/*.h)
+CONTAINER_HEADERS = $(patsubst src/container/%.h,@HEADERDIR@/container/%.h,\
+		 	$(wildcard src/container/*.h))
 CONTAINER_INCLUDES=-Isrc/container
 
-CORE_HEADERS = $(wildcard @HEADERDIR@/core/*.h)
+CORE_HEADERS = $(patsubst src/core/%.h,@HEADERDIR@/core/%.h,\
+		 	$(wildcard src/core/*.h))
 CORE_INCLUDES=-Isrc/core
 
 ifneq (,$(findstring multicultural,@CONFIG@))
-	HUMAN_HEADERS = $(wildcard @HEADERDIR@/human/*.h)
+	HUMAN_HEADERS = $(patsubst src/human/%.h,@HEADERDIR@/human/%.h,\
+		 	$(wildcard src/human/*.h))
 else
 	HUMAN_HEADERS=
 endif
 HUMAN_INCLUDES=-Isrc/human
 
 ifneq (,$(findstring system,@CONFIG@))
-	SYSTEM_HEADERS = $(wildcard @HEADERDIR@/system/*.h)
+	SYSTEM_HEADERS = $(patsubst src/system/%.h,@HEADERDIR@/system/%.h,\
+		 	$(wildcard src/system/*.h))
 else
 	SYSTEM_HEADERS=
 endif
@@ -171,6 +176,8 @@ HEADERS=\
 	$(CORE_HEADERS) \
 	$(HUMAN_HEADERS) \
 	$(SYSTEM_HEADERS)
+
+$(info HEADERS=$(HEADERS))
 
 #
 # temporary files

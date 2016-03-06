@@ -28,6 +28,9 @@ inline int geteuid() { return 0; }
 inline int getgid() { return 0; }
 inline int getegid() { return 0; }
 
+#define EDQUOT (INT_MAX - 1)
+#define ETXTBSY (INT_MAX - 2)
+
 namespace csjp {
 
 void basicLogger(const char * msg, FILE * stdfile, const char * binaryName);

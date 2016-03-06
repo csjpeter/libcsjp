@@ -72,7 +72,6 @@ const char * errnoName(int errNo)
 		case ENOBUFS : return "ENOBUFS";
 		case ENOMEM : return "ENOMEM";
 		case EPROTONOSUPPORT : return "EPROTONOSUPPORT";
-		case EDQUOT : return "EDQUOT";
 		case EFAULT : return "EFAULT";
 		case EFBIG : return "EFBIG";
 		case EINTR : return "EINTR";
@@ -85,9 +84,8 @@ const char * errnoName(int errNo)
 		case ENOTDIR : return "ENOTDIR";
 		case ENXIO : return "ENXIO";
 		case EOVERFLOW : return "EOVERFLOW";
-		case ETXTBSY : return "ETXTBSY";
-		case EWOULDBLOCK : return "EWOULDBLOCK";
-		//case EAGAIN : return "EAGAIN";
+		//case EWOULDBLOCK : return "EWOULDBLOCK";
+		case EAGAIN : return "EAGAIN";
 		case EIO : return "EIO";
 		case EDESTADDRREQ : return "EDESTADDRREQ";
 		case EPIPE : return "EPIPE";
@@ -105,6 +103,8 @@ const char * errnoName(int errNo)
 		case EISCONN : return "EISCONN";
 		case ENETUNREACH : return "ENETUNREACH";
 		case ETIMEDOUT : return "ETIMEDOUT";
+		case EDQUOT : return "EDQUOT";
+		case ETXTBSY : return "ETXTBSY";
 		default: return "-";
 	}
 }

@@ -52,7 +52,7 @@ function config ()
 
 #		--cflags=\\\"-fno-candidate-functions\\\" \
 
-	exec_in_dir ${DIST} ./configure || exit $?
+	exec_in_dir build-for-${DIST} ./configure || exit $?
 }
 
 function release ()
@@ -95,12 +95,13 @@ case "${CMD}" in
 	(pump)
 		shift
 		config ${DISTRIB_CODENAME} || exit $?
-		exec_in_dir ${DISTRIB_CODENAME} pump make CXX=distcc $@ || exit $?
+		exec_in_dir build-for-${DISTRIB_CODENAME} pump make CXX=distcc \
+			$@ || exit $?
 	;;
 	(debian)
 		shift
 		config ${DISTRIB_CODENAME} || exit $?
-		exec_in_dir ${DISTRIB_CODENAME} debuild \
+		exec_in_dir build-for-${DISTRIB_CODENAME} debuild \
 			--no-tgz-check \
 			--preserve-envvar MXE_HOME \
 			--preserve-envvar PATH \
@@ -112,16 +113,20 @@ case "${CMD}" in
 	(check)
 		shift
 		config ${DISTRIB_CODENAME} --debug || exit $?
-		exec_in_dir ${DISTRIB_CODENAME} make -j${JOBS} $@ || exit $?
-		exec_in_dir ${DISTRIB_CODENAME} make check $@ || exit $?
+		exec_in_dir build-for-${DISTRIB_CODENAME} make -j${JOBS} $@ \
+			|| exit $?
+		exec_in_dir build-for-${DISTRIB_CODENAME} make check $@ \
+			|| exit $?
 	;;
 	(code)
 		shift
 		config ${DISTRIB_CODENAME} --debug || exit $?
-		exec_in_dir ${DISTRIB_CODENAME} make -j1 $@ || exit $?
+		exec_in_dir build-for-${DISTRIB_CODENAME} make -j1 $@ \
+			|| exit $?
 	;;
 	(*)
 		config ${DISTRIB_CODENAME} --debug || exit $?
-		exec_in_dir ${DISTRIB_CODENAME} make -j${JOBS} $@ || exit $?
+		exec_in_dir build-for-${DISTRIB_CODENAME} make -j${JOBS} $@ \
+			|| exit $?
 	;;
 esac

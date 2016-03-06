@@ -55,7 +55,7 @@ function config()
 		--libs=\\\"-llog\\\" \
 		--static || exit $?
 
-	exec_in_dir ${DIST} ./configure || exit $?
+	exec_in_dir build-for-${DIST} ./configure || exit $?
 }
 
 export API=android-14
@@ -77,7 +77,7 @@ case "${CMD}" in
 		config ${API} ${ARCH} ${DIST} \
 			--packaging=android \
 			--target=${API}-${ARCH} || exit $?
-		exec_in_dir ${DIST} debuild \
+		exec_in_dir build-for-${DIST} debuild \
 			--no-tgz-check \
 			--preserve-envvar ANDROID_SDK_HOME \
 			--preserve-envvar ANDROID_NDK_HOME \
@@ -95,7 +95,8 @@ case "${CMD}" in
 		config ${API} ${ARCH} ${DIST} \
 			--packaging=android \
 			--target=${API}-${ARCH} || exit $?
-		exec_in_dir ${DIST} make -j1 $@ || exit $?
+		exec_in_dir build-for-${DIST} make -j1 $@ || exit $?
+	;;
 	(*)
 		test "x$1" = "x" || { API=$1 ; shift ; }
 		test "x$1" = "x" || { ARCH=$1 ; shift ; }
@@ -104,7 +105,7 @@ case "${CMD}" in
 		config ${API} ${ARCH} ${DIST} \
 			--packaging=android \
 			--target=${API}-${ARCH} || exit $?
-		exec_in_dir ${DIST} make -j${JOBS} $@ || exit $?
+		exec_in_dir build-for-${DIST} make -j${JOBS} $@ || exit $?
 	;;
 esac
 

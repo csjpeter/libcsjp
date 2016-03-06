@@ -44,7 +44,7 @@ function config()
 		--ldflags="-Wl,-subsystem,console" \
 		|| exit $?
 
-	exec_in_dir ${DIST} ./configure || exit $?
+	exec_in_dir build-for-${DIST} ./configure || exit $?
 }
 
 CMD=$1
@@ -54,7 +54,7 @@ case "${CMD}" in
 	(debian)
 		shift
 		config ${DIST} || exit $?
-		exec_in_dir ${DIST} debuild \
+		exec_in_dir build-for-${DIST} debuild \
 			--no-tgz-check \
 			--preserve-envvar MXE_HOME \
 			--preserve-envvar PATH \
@@ -66,20 +66,20 @@ case "${CMD}" in
 	(debian-nc)
 		shift
 		config ${DIST} || exit $?
-		exec_in_dir ${DIST} debuild --no-tgz-check -nc
+		exec_in_dir build-for-${DIST} debuild --no-tgz-check -nc
 		;;
 	(debian-src)
 		shift
 		config ${DIST} || exit $?
-		exec_in_dir ${DIST} debuild --no-tgz-check -S
+		exec_in_dir build-for-${DIST} debuild --no-tgz-check -S
 		;;
 	(code)
 		shift
 		config ${DIST} || exit $?
-		exec_in_dir ${DIST} make -j1 $@ || exit $?
+		exec_in_dir build-for-${DIST} make -j1 $@ || exit $?
 	;;
 	(*)
 		config ${DIST} || exit $?
-		exec_in_dir ${DIST} make -j${JOBS} $@ || exit $?
+		exec_in_dir build-for-${DIST} make -j${JOBS} $@ || exit $?
 	;;
 esac
