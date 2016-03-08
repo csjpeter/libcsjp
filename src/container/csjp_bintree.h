@@ -18,7 +18,6 @@ namespace csjp {
  * This class is an order statistic tree and thus each node has a
  * field containing the size of the subtree represented by the node.
  * For some more information on the basic theories see
- *  - http://en.wikipedia.org/wiki/B-tree
  *  - http://en.wikipedia.org/wiki/Order_statistic_tree
  *
  *   Balancing trick/algorithm is what can be found in for example Red-Black
@@ -28,9 +27,11 @@ namespace csjp {
  *
  *   - noerror/safe : There is absolutely no risk.
  *   - strong : The operation either succeeds, or has no effect at all.
- *   - weak : Operation might have unfinished changes, but no resource leak, nor failing invariant.
+ *   - weak : Operation might have unfinished changes, but no resource leak,
+ *     nor failing invariant.
  *
- *   For any of the cases, all the used/called functions shall have same or stronger safety.
+ *   For any of the cases, all the used/called functions shall have same
+ *   or better safety.
  */
 
 #ifndef PERFMODE
