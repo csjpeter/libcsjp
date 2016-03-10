@@ -125,24 +125,27 @@ void EPoll::wait(int timeout)
 			continue;
 		}
 
-		if((e & EPOLLIN) == EPOLLIN){
-			if(!isSocketListening(socket.file)){
-				//DBG("EPoll reads socket fd: %", socket.file);
-				auto old = socket.bytesAvailable;
-				socket.readToBuffer();
-				if(old == socket.bytesAvailable){ // peer closed
-					socket.close();
-					socket.closedByPeer();
-					continue;
-				}
-			}
+		if((e & EPOLLIN) == EPOLLIN && isSocketListening(socket.file)){
 			socket.dataReceived();
+			continue;
 		}
+
 		if((e & EPOLLOUT) == EPOLLOUT){
 			socket.readyToSend();
 			if(socket.bytesToSend == 0)
 				noMoreDataIsPending(socket);
 			socket.writeFromBuffer();
+		}
+		if((e & EPOLLIN) == EPOLLIN){
+			//DBG("EPoll reads socket fd: %", socket.file);
+			auto old = socket.totalBytesReceived;
+			socket.readToBuffer();
+			if(old == socket.totalBytesReceived){ // peer closed
+				//DBG(" PEER CLOSE DETECTED");
+				socket.close();
+				socket.closedByPeer();
+				continue;
+			}
 		}
 	}
 }

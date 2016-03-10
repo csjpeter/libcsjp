@@ -48,15 +48,34 @@ public:
 
 	Socket(Socket && temp) :
 		file(temp.file),
+		observer(temp.observer),
+		totalReceived(temp.totalReceived),
+		totalSent(temp.totalSent),
 		bytesAvailable(readBuffer.length),
-		bytesToSend(writeBuffer.length)
+		bytesToSend(writeBuffer.length),
+		totalBytesReceived(totalReceived),
+		totalBytesSent(totalSent)
 	{
 		temp.file = -1;
+		observer = 0;
+		bzero((char *) &address, sizeof(address));
+		totalReceived = 0;
+		totalSent = 0;
 	}
 	const Socket & operator=(Socket && temp)
 	{
 		file = temp.file;
+		observer = temp.observer;
+		address = temp.address; // FIXME is this right?
+		totalReceived = temp.totalReceived;
+		totalSent = temp.totalSent;
+
 		temp.file = -1;
+		temp.observer = 0;
+		bzero((char *) &address, sizeof(address));
+		temp.totalReceived = 0;
+		temp.totalSent = 0;
+
 		return *this;
 	}
 
@@ -84,9 +103,14 @@ protected:
 private:
 	String writeBuffer;
 	String readBuffer;
+	size_t totalReceived;
+	size_t totalSent;
+
 public:
 	const size_t & bytesAvailable;
 	const size_t & bytesToSend;
+	const size_t & totalBytesReceived;
+	const size_t & totalBytesSent;
 
 	friend EPoll;
 };

@@ -24,8 +24,12 @@ namespace csjp {
 Socket::Socket() :
 	file(-1),
 	observer(0),
+	totalReceived(0),
+	totalSent(0),
 	bytesAvailable(readBuffer.length),
-	bytesToSend(writeBuffer.length)
+	bytesToSend(writeBuffer.length),
+	totalBytesReceived(totalReceived),
+	totalBytesSent(totalSent)
 {
 	bzero((char *) &address, sizeof(address));
 }
@@ -40,6 +44,8 @@ void Socket::close(bool throws) const
 {
 	if(file < 0)
 		return;
+
+	//DBG("Closing socket: %", file);
 
 #if 0 // might cause TIME_WAIT on the other side, which is not always desired
 	if(::shutdown(file, SHUT_RDWR) < 0){
@@ -80,6 +86,10 @@ void Socket::readToBuffer()
 		readIn = 0;
 		do {
 			readBuffer.append(buffer, readIn);
+			if(0 < readIn){
+				totalReceived += readIn;
+				dataReceived();
+			}
 			readIn = ::read(file, buffer, sizeof(buffer));
 		} while(0 < readIn);
 	} while(readIn < 0 && errno == EINTR);
@@ -105,6 +115,7 @@ void Socket::writeFromBuffer()
 	} while(justWritten < 0 && errno == EINTR);
 	int errNo = errno;
 
+	totalSent += written;
 	writeBuffer.chopFront(written);
 
 	if(justWritten < 0 && errNo == EPIPE){
