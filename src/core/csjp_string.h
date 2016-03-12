@@ -421,7 +421,8 @@ public:
 
 #define FATAL(...){ \
 			csjp::String str; \
-			str.append(VT_RED VT_TA_UNDERSCORE VT_TA_BOLD "FATAL    " VT_NORMAL); \
+			str.append(VT_RED VT_TA_UNDERSCORE VT_TA_BOLD \
+					"FATAL    " VT_NORMAL); \
 			str.catf(__VA_ARGS__); \
 			fflush(stdout); \
 			csjp::msgLogger(stderr, str, str.length); \
@@ -431,8 +432,9 @@ public:
 
 #define EXCEPTION(exc)	{ \
 				csjp::String str; \
-				str.append(VT_RED VT_TA_BOLD "EXCEPTION" VT_NORMAL \
-						"Trace is below:\n"); \
+				str.catf("% %, details are below:\n", \
+						VT_RED VT_TA_BOLD "EXCEPTION" \
+						VT_NORMAL, exc.name); \
 				for(const auto & iter : exc) \
 					str.cat(iter, '\n'); \
 				fflush(stdout); \
@@ -528,6 +530,7 @@ DECL_EXCEPTION(ResourceError, ParseError);
 DECL_EXCEPTION(ResourceError, ConversionError);
 
 DECL_EXCEPTION(LogicError, ShouldNeverReached);
+DECL_EXCEPTION(LogicError, InvalidState);
 DECL_EXCEPTION(LogicError, InvalidArgument);
 DECL_EXCEPTION(LogicError, InvalidAssignment);
 DECL_EXCEPTION(LogicError, IndexOutOfRange);

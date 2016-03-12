@@ -17,6 +17,8 @@ namespace csjp {
 
 struct NotesNode;
 
+const char * errnoName(int errNo);
+
 class PrimeException : public std::exception
 {
 public:
@@ -33,7 +35,7 @@ public:
 public:
 	/* FIXME
 	 * Shit versions of gcc require copy construction on throwing, but
-	 * I cheet and I implement moving instead, which however might 
+	 * I cheat and I implement moving instead, which however might 
 	 * result in some unexpected situation. We will see. */
 	explicit PrimeException(const PrimeException &);
 	const PrimeException & operator=(const PrimeException &) = delete;
@@ -41,15 +43,15 @@ public:
 	PrimeException(PrimeException && temp);
 	const PrimeException & operator=(PrimeException && temp)
 	{
+		name = temp.name;
 		id = temp.id;
 		noMem = temp.noMem;
-		name = temp.name;
 		lastNode = temp.lastNode;
 		whatMessage = temp.whatMessage;
 
+		temp.name = 0;
 		temp.id = 0;
 		temp.noMem = false;
-		temp.name = 0;
 		temp.lastNode = 0;
 		temp.whatMessage = 0;
 
@@ -65,6 +67,9 @@ public:
 	iterator begin() const { return iterator(lastNode); }
 	iterator end() const { return iterator(0); }
 
+public:
+	const char * name;
+
 protected:
 	explicit PrimeException();
 	explicit PrimeException(const std::exception & e);
@@ -74,7 +79,6 @@ protected:
 protected:
 	unsigned id;
 	bool noMem;
-	const char * name;
 	NotesNode * lastNode;
 private:
 	mutable char * whatMessage;

@@ -52,10 +52,18 @@ void TestArray::singleNode()
 	VERIFY(c1[0] == char('s'));
 
 	TESTSTEP("Copy constructing");
-	/* copy constructing */
 	csjp::Array<char> c3(c1);
 
 	VERIFY(c1 == c3);
+
+	TESTSTEP("Join");
+	c1.join(c3);
+	VERIFY(c3.length == 0)
+	VERIFY(c1.length == 2)
+	VERIFY(c1.has(char('s')));
+	VERIFY(c1.index(char('s')) == 0);
+	VERIFY(c1[0] == char('s'));
+	VERIFY(c1[1] == char('s'));
 
 	TESTSTEP("Clear");
 	/* clear */

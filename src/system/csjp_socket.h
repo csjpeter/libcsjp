@@ -32,13 +32,6 @@
 
 namespace csjp {
 
-class Socket;
-class SocketObserver
-{
-public:
-	virtual void dataIsPending(Socket & socket) = 0;
-};
-
 class EPoll;
 class Socket
 {
@@ -48,7 +41,6 @@ public:
 
 	Socket(Socket && temp) :
 		file(temp.file),
-		observer(temp.observer),
 		totalReceived(temp.totalReceived),
 		totalSent(temp.totalSent),
 		bytesAvailable(readBuffer.length),
@@ -57,7 +49,6 @@ public:
 		totalBytesSent(totalSent)
 	{
 		temp.file = -1;
-		observer = 0;
 		bzero((char *) &address, sizeof(address));
 		totalReceived = 0;
 		totalSent = 0;
@@ -65,13 +56,11 @@ public:
 	const Socket & operator=(Socket && temp)
 	{
 		file = temp.file;
-		observer = temp.observer;
 		address = temp.address; // FIXME is this right?
 		totalReceived = temp.totalReceived;
 		totalSent = temp.totalSent;
 
 		temp.file = -1;
-		temp.observer = 0;
 		bzero((char *) &address, sizeof(address));
 		temp.totalReceived = 0;
 		temp.totalSent = 0;
@@ -79,25 +68,24 @@ public:
 		return *this;
 	}
 
-	void close(bool throws = true) const;
-
 	String receive(size_t length);
-	void send(const String & data);
+	String receiveAll();
+	bool send(const String & data); //returns false on EAGAIN or EWOULDBLOCK
 
 protected:
 	Socket();
 	virtual ~Socket();
+	void close(bool throws = true) const;
 
-	virtual void closedByPeer() {}
-	virtual void dataReceived() = 0;
-	virtual void readyToSend() {}
+private:
+	bool readToBuffer(); // returns false on EAGAIN or EWOULDBLOCK
+	bool writeFromBuffer(); // returns false on EAGAIN or EWOULDBLOCK
 
-	void readToBuffer();
-	void writeFromBuffer();
+	virtual void dataReceived() {} // place for child's business logic
+	virtual void readyToSend() {} // place for child's business logic
 
 protected:
 	mutable int file;
-	SocketObserver * observer;
 	struct sockaddr_in address;
 
 private:

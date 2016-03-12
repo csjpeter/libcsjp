@@ -10,6 +10,7 @@
 #include <csjp_server.h>
 #include <csjp_client.h>
 #include <csjp_epoll.h>
+#include <csjp_owner_container.h>
 
 class SocketServer;
 csjp::Array<SocketServer> servers;
@@ -27,8 +28,9 @@ public:
 
 	virtual void dataReceived()
 	{
-		servers.add((csjp::Listener&)*this);
+		servers.add(*this);
 	}
+
 	virtual void readyToSend()
 	{
 		VERIFY(false);
@@ -43,12 +45,9 @@ public:
 
 	virtual void dataReceived()
 	{
+		//DBG("%", bytesAvailable);
 		VERIFY(bytesAvailable == 12 || serverReceived.length);
 		serverReceived = receive(bytesAvailable);
-	}
-	virtual void readyToSend()
-	{
-		//DBG("");
 	}
 };
 
@@ -64,15 +63,27 @@ public:
 		VERIFY(bytesAvailable == 12);
 		clientReceived = receive(12);
 	}
-	virtual void readyToSend()
-	{
-		//DBG("");
-	}
+
+	void close(){ Client::close(); }
 };
 
 
-class SocketFloodServer;
-csjp::Array<SocketFloodServer> floodServers;
+class SocketFloodServer : public csjp::Server
+{
+public:
+	SocketFloodServer(const csjp::Listener & l) : csjp::Server(l) {}
+	virtual ~SocketFloodServer() {}
+
+	virtual void dataReceived()
+	{
+		if(4096 < bytesAvailable){ // flood protection
+			TESTSTEP("Too many data received: %", bytesAvailable);
+			close();
+		}
+	}
+};
+
+csjp::OwnerContainer<SocketFloodServer> floodServers;
 
 class SocketFloodListener : public csjp::Listener
 {
@@ -84,7 +95,7 @@ public:
 
 	virtual void dataReceived()
 	{
-		floodServers.add((csjp::Listener&)*this);
+		floodServers.add(new SocketFloodServer(*this));
 	}
 	virtual void readyToSend()
 	{
@@ -92,23 +103,34 @@ public:
 	}
 };
 
-class SocketFloodServer : public csjp::Server
+bool operator<(const SocketFloodServer & lhs, const SocketFloodServer & rhs)
+{
+	return &lhs < &rhs;
+}
+
+bool operator<(const csjp::Socket & lhs, const SocketFloodServer & rhs)
+{
+	return &lhs < &rhs;
+}
+
+bool operator<(const SocketFloodServer & lhs, const csjp::Socket & rhs)
+{
+	return &lhs < &rhs;
+}
+
+class SocketFloodClient : public csjp::Client
 {
 public:
-	SocketFloodServer(const csjp::Listener & l) : csjp::Server(l) {}
-	virtual ~SocketFloodServer() {}
+	SocketFloodClient(const char *name, unsigned port) :
+		csjp::Client(name, port){}
+	virtual ~SocketFloodClient() {}
 
 	virtual void dataReceived()
 	{
-		//DBG("Received bytes: %", totalBytesReceived);
-		if(4096 < bytesAvailable){ // flood protection
-			TESTSTEP("Too many data received, closing");
-			close(); // FIXME how to delete this object?
-		}
+		clientReceived = receiveAll();
 	}
-	virtual void readyToSend()
-	{
-	}
+
+	void close(){ Client::close(); }
 };
 
 class TestEPoll
@@ -129,8 +151,6 @@ void TestEPoll::receiveMsg()
 	TESTSTEP("Register SIGPIPE handler");
 	csjp::Signal termSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
 
-	csjp::String msg("Hi there!");
-
 	TESTSTEP("Creating EPoll");
 	csjp::EPoll epoll(5);
 
@@ -140,36 +160,38 @@ void TestEPoll::receiveMsg()
 
 	TESTSTEP("Client connecting");
 	SocketClient client("127.0.0.1", 30303);
-	epoll.add(client); // automated epoll write registration
+	epoll.add(client);
 
 	TESTSTEP("EPoll waits for incoming connection");
-	epoll.wait(10); // 0.01 sec
+	epoll.waitAndControl(10); // 0.01 sec
 	VERIFY(servers.length == 1);
-	epoll.add(servers[0], false); // manual epoll write registration
+	epoll.add(servers[0]);
 
-	TESTSTEP("Client writes with automated epoll write registration");
-	client.send(csjp::String("from client\n"));
+	TESTSTEP("Client writes");
+	VERIFY(client.send(csjp::String("from client\n")));
 
-	TESTSTEP("EPoll waits");
-	epoll.wait(10); // 0.01 sec for write event
-	epoll.wait(10); // 0.01 sec for read event
+	TESTSTEP("EPoll waits and server receives");
+	epoll.waitAndControl(10); // 0.01 sec
 	VERIFY(serverReceived == "from client\n");
 
-	TESTSTEP("Server writes with manual epoll write registration");
-	servers[0].send(csjp::String("from server\n"));
-	epoll.dataIsPending(servers[0]);
+	TESTSTEP("Server writes");
+	VERIFY(servers[0].send(csjp::String("from server\n")));
 
 	TESTSTEP("EPoll waits");
-	epoll.wait(10); // 0.01 sec for write event
-	epoll.wait(10); // 0.01 sec for read event
+	epoll.waitAndControl(10); // 0.01 sec
 	VERIFY(clientReceived == "from server\n");
 
-	TESTSTEP("Client closes (kernel removes it from epoll)");
+	TESTSTEP("Client closes (kernel will remove it from epoll on close)");
 	client.close();
 
-	TESTSTEP("Server gets closed and thus removed from epoll");
-	epoll.wait(10); // 0.01 sec
-	EXC_VERIFY(epoll.remove(servers[0]), csjp::SocketError);
+	TESTSTEP("Server experiences closed by peer state");
+	for(auto event : epoll.waitAndControl(10)){ // 0.01 sec
+		if(event.code == csjp::EPoll::ControlEventCode::ClosedByPeer)
+			servers.removeAt(0);
+	}
+	VERIFY(!servers.length);
+
+	TESTSTEP("Destructors do the rest of cleanup");
 }
 
 void TestEPoll::flood()
@@ -177,41 +199,58 @@ void TestEPoll::flood()
 	TESTSTEP("Register SIGPIPE handler");
 	csjp::Signal termSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
 
-	csjp::String msg("Hi there!");
-
 	TESTSTEP("Creating EPoll, listening, connecting with client");
 	csjp::EPoll epoll(5);
 	SocketFloodListener listener("127.0.0.1", 30303);
 	epoll.add(listener);
-	SocketClient client("127.0.0.1", 30303);
+	SocketFloodClient client("127.0.0.1", 30303);
 	epoll.add(client);
-	epoll.wait(10); // 0.01 sec
-	VERIFY(servers.length == 1);
-	epoll.add(floodServers[0]);
+	epoll.waitAndControl(10); // 0.01 sec
+	VERIFY(floodServers.size() == 1);
+	for(SocketFloodServer & server : floodServers)
+		epoll.add(server);
 
-	TESTSTEP("Client sends a lot of data, server should close the connection");
-	try{
-		csjp::String s;
-		for(int i = 0; i < 10000; i++)
-			s.cat("%,", i);
-		client.send(s);
-		epoll.wait(10); // 0.01 sec for write event
-		epoll.wait(10); // 0.01 sec for read event
-		VERIFY(false);
-	} catch(csjp::SocketClosedByPeer & e) {
-		DBG("Sent bytes: %", client.totalBytesSent);
-		DBG("Received bytes: %", floodServers[0].totalBytesReceived);
-	} catch(csjp::SocketError & e) {
-		DBG("Sent bytes: %", client.totalBytesSent);
-		DBG("Received bytes: %", floodServers[0].totalBytesReceived);
-		EXCEPTION(e);
+	TESTSTEP("Client sends lot of data, server closes the connection");
+	csjp::String s;
+	for(int i = 0; i < 1000000; i++)
+		s.cat("%,", i);
+	client.send(s);
+	for(auto event : epoll.waitAndControl(10)){ // 0.01 sec
+		DBG("ControlEvent received: %", event.name());
+		switch(event.code){
+		case csjp::EPoll::ControlEventCode::ClosedByHost:
+			NOEXC_VERIFY(floodServers.query(event.socket));
+			VERIFY(&floodServers[0] == &event.socket);
+			floodServers.remove(event.socket);
+			break;
+		default:
+			VERIFY(false);
+			break;
+		}
 	}
-	//VERIFY(serverReceived == "from client\n");
+	VERIFY(floodServers.size() == 0);
 
-	TESTSTEP("Close");
-	//client.close();
-	//epoll.wait(10); // 0.01 sec
-	//EXC_VERIFY(epoll.remove(servers[0]), csjp::SocketError);
+	TESTSTEP("Client receives ClosedByPeer event, thus client closes");
+	for(auto event : epoll.waitAndControl(10)){ // 0.01 sec
+		DBG("ControlEvent received: %", event.name());
+		switch(event.code){
+		case csjp::EPoll::ControlEventCode::ClosedByPeer:
+			client.close();
+			break;
+		case csjp::EPoll::ControlEventCode::Exception:
+			//VERIFY(false);
+			EXCEPTION(event.exception);
+			break;
+		default:
+			VERIFY(false);
+		}
+	}
+
+	TESTSTEP("Both client and server closed, no event should occur");
+	for(auto event : epoll.waitAndControl(10)) // 0.01 sec
+		VERIFY(false);
+
+	TESTSTEP("Destructors do the rest of cleanup");
 }
 
 TEST_INIT(EPoll)

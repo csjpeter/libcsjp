@@ -11,8 +11,6 @@ class SocketChild : public csjp::Socket
 public:
 	SocketChild() : Socket() {}
 	virtual ~SocketChild() {}
-
-	virtual void dataReceived(){}
 };
 
 class TestSocket

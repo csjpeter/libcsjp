@@ -184,6 +184,27 @@ public:
 		len++;
 		val[len] = 0;
 	}
+
+	void add(DataType * && dt)
+	{
+		if(cap <= len)
+			extendCapacity(len + 1);
+
+		val[len] = dt;
+		len++;
+		val[len] = 0;
+		dt = 0;
+	}
+
+	void add(DataType && dt)
+	{
+		if(cap <= len)
+			extendCapacity(len + 1);
+
+		val[len] = new DataType(dt);
+		len++;
+		val[len] = 0;
+	}
 #if 0
 	void push(Object<DataType> & t)
 	{
@@ -200,6 +221,18 @@ public:
 		len++;
 	}
 #endif
+
+	template<typename... Args>
+	void add(Args & ... args)
+	{
+		if(cap <= len)
+			extendCapacity(len + 1);
+
+		val[len] = new DataType(args...);
+		len++;
+		val[len] = 0;
+	}
+
 	template<typename... Args>
 	void add(const Args & ... args)
 	{
@@ -210,6 +243,26 @@ public:
 		len++;
 		val[len] = 0;
 	}
+
+	void join(Array<DataType> & array)
+	{
+		if(cap < len + array.length)
+			extendCapacity(len + array.length);
+
+		for(auto i = 0; i < array.length; i++){
+			val[len] = array.val[i];
+			len++;
+			val[len] = 0;
+			array.val[i] = 0;
+		}
+		array.len = 0;
+	}
+
+	void join(Array<DataType> && array)
+	{
+		join(array);
+	}
+
 #if 0
 	/**
 	 * Runtime:		O(n) <br/>

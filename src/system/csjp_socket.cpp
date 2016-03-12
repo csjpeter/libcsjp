@@ -14,8 +14,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <string>
+#undef DEBUG
 
+#include <string>
 
 #include "csjp_socket.h"
 
@@ -23,7 +24,6 @@ namespace csjp {
 
 Socket::Socket() :
 	file(-1),
-	observer(0),
 	totalReceived(0),
 	totalSent(0),
 	bytesAvailable(readBuffer.length),
@@ -45,11 +45,12 @@ void Socket::close(bool throws) const
 	if(file < 0)
 		return;
 
-	//DBG("Closing socket: %", file);
-
-#if 0 // might cause TIME_WAIT on the other side, which is not always desired
+#if 1 // might cause TIME_WAIT on the other side, which is not always desired
+	DBG("Shutdown socket fd:%", file);
 	if(::shutdown(file, SHUT_RDWR) < 0){
-		if(errno != ENOTCONN){
+		DBG("Shutdown socket fd:% errno: %-%",
+				file, errnoName(errno), errno);
+		if(errno != ENOTCONN && errno != ENOTSOCK){
 			SocketError e(errno, "Could not shutdown socket.");
 			if(throws)
 				throw (SocketError &&)e;
@@ -60,6 +61,9 @@ void Socket::close(bool throws) const
 		}
 	}
 #endif
+
+	DBG("Closing socket: %", file);
+
 	int err;
 	TEMP_FAILURE_RETRY_RESULT(err, ::close(file));
 	if(err){
@@ -74,12 +78,13 @@ void Socket::close(bool throws) const
 	file = -1;
 }
 
-void Socket::readToBuffer()
+bool Socket::readToBuffer()
 {
 	if(file < 0)
-		throw SocketClosedByPeer();
+		throw InvalidState("Socket is closed.");
 
-	char buffer[4096];
+	//char buffer[4096];
+	char buffer[4096*1024];
 	ssize_t readIn = 0;
 
 	do{
@@ -89,18 +94,50 @@ void Socket::readToBuffer()
 			if(0 < readIn){
 				totalReceived += readIn;
 				dataReceived();
+				if(file == -1) // closed by child class
+					return true;
 			}
 			readIn = ::read(file, buffer, sizeof(buffer));
 		} while(0 < readIn);
 	} while(readIn < 0 && errno == EINTR);
+
 	if(readIn < 0 && ( errno != EAGAIN /*&& errno != EWOULDBLOCK*/ ) )
 		throw SocketError(errno, "Error while reading from socket.");
+
+	return 0 <= readIn; // false if EAGAIN or EWOULDBLOCK happened
 }
 
-void Socket::writeFromBuffer()
+String Socket::receive(size_t length)
 {
 	if(file < 0)
-		throw SocketClosedByPeer();
+		throw InvalidState("Socket is closed.");
+
+	if(readBuffer.length < length){
+		readToBuffer();
+		if(readBuffer.length < length)
+			throw SocketError("Can not yet read % byte long "
+					"string from socket.", length);
+	}
+
+	String ret(readBuffer.c_str(), length);
+	readBuffer.chopFront(length);
+
+	return ret;
+}
+
+String Socket::receiveAll()
+{
+	if(file < 0)
+		throw InvalidState("Socket is closed.");
+
+	readToBuffer();
+	return String(move_cast(readBuffer));
+}
+
+bool Socket::writeFromBuffer()
+{
+	if(file < 0)
+		throw InvalidState("Socket is closed.");
 
 	long unsigned written = 0;
 	int justWritten = 0;
@@ -118,44 +155,25 @@ void Socket::writeFromBuffer()
 	totalSent += written;
 	writeBuffer.chopFront(written);
 
-	if(justWritten < 0 && errNo == EPIPE){
-		close(false);
-		throw SocketClosedByPeer(errNo,	"Error after writting "
-				"% bytes to socket.", written);
-	}
+	if(justWritten < 0 && (errNo == EPIPE || errNo == ECONNRESET))
+		throw SocketClosedByPeer(errNo, "Error after writting % bytes "
+				"to socket.", written);
 
 	if(justWritten < 0 && ( errNo != EAGAIN /*&& errNo != EWOULDBLOCK*/))
 		throw SocketError(errNo, "Error after writting % bytes "
 				"to socket.", written);
+
+	return 0 <= justWritten; // false if EAGAIN or EWOULDBLOCK happened
 }
 
-String Socket::receive(size_t length)
+bool Socket::send(const String & data)
 {
 	if(file < 0)
-		throw SocketClosedByPeer();
-
-	if(readBuffer.length < length){
-		readToBuffer();
-		if(readBuffer.length < length)
-			throw SocketError("Can not yet read % byte long "
-					"string from socket.", length);
-	}
-
-	String ret(readBuffer.c_str(), length);
-	readBuffer.chopFront(length);
-
-	return ret;
-}
-
-void Socket::send(const String & data)
-{
-	if(file < 0)
-		throw SocketClosedByPeer();
+		throw InvalidState("Socket is closed.");
 
 	writeBuffer.append(data);
 
-	if(observer)
-		observer->dataIsPending(*this);
+	return writeFromBuffer();
 }
 
 

@@ -183,6 +183,12 @@ $(info HEADERS=$(HEADERS))
 # temporary files
 #
 
+#
+#	FIXME tests are not (err) dependent on HEADERS, but if I add all the
+#	HEADERS as dependency, irrelevant header changes caused to
+#	recompile all the tests
+#
+
 -include $(DEVEL_OBJECTS:.opp=.d)
 
 DEVEL_OBJECTS = $(patsubst src/devel/%.cpp,tmp/src/devel/%.opp,\

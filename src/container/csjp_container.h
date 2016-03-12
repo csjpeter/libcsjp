@@ -21,7 +21,7 @@ public:
 		iterator operator++() const { ptr = ptr->next(); return *this; }
 		bool operator!=(const iterator & other) const { return ptr != other.ptr; }
 		const DataType& operator*() const { return *(ptr->data); }
-		//DataType& operator*() { return *(ptr->data); }
+		DataType& operator*() { return *(ptr->data); }
 	private:
 		mutable BinTree<DataType>* ptr;
 	};
@@ -59,8 +59,11 @@ protected:
 	BinTree<DataType> *root;
 
 public:
-	const iterator begin() const { if(!root) return 0; return iterator(root->first()); }
+	const iterator begin() const {
+		if(!root) return 0; return iterator(root->first()); }
 	const iterator end() const { return iterator(0); }
+	iterator begin() { if(!root) return 0; return iterator(root->first()); }
+	iterator end() { return iterator(0); }
 
 /*	bool compare(const DataType &a, const DataType &b) const
 	{
@@ -144,11 +147,11 @@ public:
 		ENSURE(root != NULL, IndexOutOfRange);
 		return *(root->queryAt(i)->data);
 	}
-	/*inline DataType& operator[](unsigned i)
+	inline DataType& operator[](unsigned i)
 	{
 		ENSURE(root != NULL, IndexOutOfRange);
 		return *(root->queryAt(i)->data);
-	}*/
+	}
 	const DataType& queryAt(unsigned i) const /*{{{*/
 	{
 		ENSURE(root != NULL, IndexOutOfRange);

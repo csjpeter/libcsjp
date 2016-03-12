@@ -441,11 +441,11 @@ public:
 		ENSURE(root != NULL, IndexOutOfRange);
 		return *(custom->queryAt(i)->data->data);
 	}
-	/*inline DataType& operator[](unsigned i)
+	inline DataType& operator[](unsigned i)
 	{
 		ENSURE(root != NULL, IndexOutOfRange);
 		return *(custom->queryAt(i)->data->data);
-	}*/
+	}
 	const DataType& queryAt(unsigned i) const /*{{{*/
 	{
 		ENSURE(root != NULL, IndexOutOfRange);

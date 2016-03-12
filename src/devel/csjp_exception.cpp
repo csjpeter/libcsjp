@@ -105,15 +105,16 @@ const char * errnoName(int errNo)
 		case ETIMEDOUT : return "ETIMEDOUT";
 		case EDQUOT : return "EDQUOT";
 		case ETXTBSY : return "ETXTBSY";
+		case ECONNRESET : return "ECONNRESET";
 		default: return "-";
 	}
 }
 
 PrimeException::PrimeException(const PrimeException & orig) :
 	std::exception(),
+	name(orig.name),
 	id(orig.id),
 	noMem(orig.noMem),
-	name(orig.name),
 	lastNode(orig.lastNode),
 	whatMessage(0)
 {
@@ -126,23 +127,23 @@ PrimeException::PrimeException(const PrimeException & orig) :
 
 PrimeException::PrimeException(PrimeException && temp) :
 	std::exception(),
+	name(temp.name),
 	id(temp.id),
 	noMem(temp.noMem),
-	name(temp.name),
 	lastNode(temp.lastNode),
 	whatMessage(0)
 {
+	temp.name = 0;
 	temp.id = 0;
 	temp.noMem = false;
-	temp.name = 0;
 	temp.lastNode = 0;
 }
 
 PrimeException::PrimeException() :
 	std::exception(),
+	name("PrimeException"),
 	id(nextId()),
 	noMem(false),
-	name("PrimeException"),
 	lastNode(NULL),
 	whatMessage(0)
 {
@@ -155,9 +156,9 @@ PrimeException::PrimeException() :
 
 PrimeException::PrimeException(const std::exception & e) :
 	std::exception(),
+	name("PrimeException"),
 	id(nextId()),
 	noMem(false),
-	name("PrimeException"),
 	lastNode(NULL),
 	whatMessage(0)
 {
@@ -170,9 +171,9 @@ PrimeException::PrimeException(const std::exception & e) :
 
 PrimeException::PrimeException(int err) :
 	std::exception(),
+	name("PrimeException"),
 	id(nextId()),
 	noMem(false),
-	name("PrimeException"),
 	lastNode(NULL),
 	whatMessage(0)
 {
