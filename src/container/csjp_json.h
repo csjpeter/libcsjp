@@ -49,6 +49,11 @@ public:
 		value = str;
 		return *this;
 	}
+	const Json & operator=(const StringChunk & str)
+	{
+		value = String(str.str, str.length);
+		return *this;
+	}
 	const Json & operator=(const char * str)
 	{
 		value = str;

@@ -16,8 +16,6 @@
 
 #undef DEBUG
 
-#include <string>
-
 #include "csjp_socket.h"
 
 namespace csjp {
@@ -83,8 +81,7 @@ bool Socket::readToBuffer()
 	if(file < 0)
 		throw InvalidState("Socket is closed.");
 
-	//char buffer[4096];
-	char buffer[4096*1024];
+	char buffer[64*1024];
 	ssize_t readIn = 0;
 
 	do{

@@ -32,8 +32,10 @@ public:
 
 	explicit StringChunk();
 	explicit StringChunk(const char * str, size_t length);
-	inline StringChunk(const char * str) : ref(str), len(0), length(len), str(ref)
-			{ if(str){ const char *c = str; while(*c != 0) c++; len = c - str; } }
+	inline StringChunk(const char * str) : ref(str), len(0),
+			length(len), str(ref)
+		{ if(str){ const char *c = str;
+				 while(*c != 0) c++; len = c - str; } }
 	explicit StringChunk(const StringChunk & str, size_t from, size_t until);
 	explicit StringChunk(const StringChunk & str, size_t from);
 	explicit StringChunk(const StringChunk & str);
@@ -151,7 +153,14 @@ inline String & operator<<(String & lhs, const StringChunk & rhs)
 Array<StringChunk> split(const String & str,
 		const char * delimiters, bool avoidEmptyResults = true);
 
-bool subStringByRegexp(const String & str, Array<StringChunk> & result, const char * regexp);
+bool subStringByRegexp(
+		const String & str,
+		Array<StringChunk> & result,
+		const char * regexp);
+Array<StringChunk> subStringByRegexp(
+		const String & str,
+		const char * regexp,
+		unsigned numOfExpectedMatches = 100);
 
 
 }

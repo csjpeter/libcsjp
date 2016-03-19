@@ -75,7 +75,6 @@ public:
 		temp.eofbit = false;
 		temp.locked = false;
 		temp.fileSize = 0;
-		temp.fileName.clear();
 	}
 	const File & operator=(File && temp)
 	{

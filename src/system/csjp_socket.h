@@ -15,18 +15,12 @@
  * http://hea-www.harvard.edu/~fine/Tech/addrinuse.html
  * http://www.softlab.ntua.gr/facilities/documentation/unix/unix-socket-faq/unix-socket-faq.html#toc4
  *
- * Planned usage
- *  class File : public Socket
- *  class Client : public Socket
+ * Basic architecture:
+ *  class Socket
  *  class Listener : public Socket
  *  class Server : public Socket
+ *  class Client : public Socket
  *  class EPoll : public Socket
- *  {
- *	addSocket(Socket & socket);
- *	Socket & wait();
- *  }
- *
- * Problem: how to avoid casting of returned Socket object to any of File, CLient, Listener, Server?
  *
  */
 
@@ -69,8 +63,10 @@ public:
 	}
 
 	String receive(size_t length);
-	String receiveAll();
+	String receiveAll(); // FIXME remove this
 	bool send(const String & data); //returns false on EAGAIN or EWOULDBLOCK
+	bool findFirst(size_t & pos, const String & str) {
+		return readBuffer.findFirst(pos, str); }
 
 protected:
 	Socket();

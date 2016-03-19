@@ -108,7 +108,7 @@ int StringChunk::compare(const char * str, size_t _length) const
 {
 	ENSURE(str || !_length,  InvalidArgument);
 
-	DBG("'%' (%) == '%' (%)",  ref, len, str, _length);
+	//DBG("'%' (%) == '%' (%)",  ref, len, str, _length);
 
 	if(!_length)
 		return (len == 0) ? 0 : 1;
@@ -875,10 +875,13 @@ Array<StringChunk> split(const String & str,
 	return chunk.split(delimiters, avoidEmptyResults);
 }
 
-/** Tries to mine the first matching group and make
+/** Tries to mine the matching groups and make
  * result to refer to it if matching was successfull.
  * FIXME : write standalone regexp class. */
-bool subStringByRegexp(const String & str, Array<StringChunk> & result, const char * regexp)
+bool subStringByRegexp(
+		const String & str,
+		Array<StringChunk> & result,
+		const char * regexp)
 {
 	regex_t regexpCompiled;
 	unsigned matchesSize = result.capacity + 1;
@@ -886,7 +889,9 @@ bool subStringByRegexp(const String & str, Array<StringChunk> & result, const ch
 
 	memset(matches, 0, sizeof(matches));
 	if(regcomp(&regexpCompiled, regexp, 0))
-		throw ParseError(errno, "Failed to compile regular expression: '%'.", regexp);
+		throw ParseError(errno,
+				"Failed to compile regular expression: '%'.",
+				regexp);
 	int res = regexec(&regexpCompiled, str, matchesSize, matches, 0);
 	regfree(&regexpCompiled);
 	if(res)
@@ -899,13 +904,47 @@ bool subStringByRegexp(const String & str, Array<StringChunk> & result, const ch
                                 matches[i].rm_eo < matches[i].rm_so)
 			break;
 		if(result.capacity < i)
-			throw new InvalidArgument("Regular expression contains more groups than "
-					"the capacity of the result array given as parameter.");
-		result.add(str.c_str() + matches[i].rm_so, matches[i].rm_eo - matches[i].rm_so);
-		DBG("Got substring: '%' by using regexp: '%'.", result[i-1], regexp);
+			throw new InvalidArgument(
+			"Regular expression contains more groups than "
+			"the capacity of the result array given as parameter.");
+		result.add(str.c_str() + matches[i].rm_so, matches[i].rm_eo -
+				matches[i].rm_so);
+		//DBG("Match: '%' by using regexp: '%'.", result[i-1], regexp);
 	}
 
 	return true;
+}
+
+Array<StringChunk> subStringByRegexp(
+		const String & str, const char * regexp,
+		unsigned numOfExpectedMatches)
+{
+	Array<StringChunk> result;
+
+	regex_t regexpCompiled;
+	unsigned matchesSize = numOfExpectedMatches + 1;
+	regmatch_t matches[matchesSize];
+
+	memset(matches, 0, sizeof(matches));
+	if(regcomp(&regexpCompiled, regexp, 0))
+		throw ParseError(errno,
+				"Failed to compile regular expression: '%'.",
+				regexp);
+	regexec(&regexpCompiled, str, matchesSize, matches, 0);
+	regfree(&regexpCompiled);
+
+	result.clear();
+        for(unsigned i = 1; i < matchesSize; i++){
+                if(matches[i].rm_eo == -1 || matches[i].rm_so == -1 ||
+                                // avoid posible regex bug :
+                                matches[i].rm_eo < matches[i].rm_so)
+			break;
+		result.add(str.c_str() + matches[i].rm_so,
+				matches[i].rm_eo - matches[i].rm_so);
+		//DBG("Match: '%' by using regexp: '%'.", result[i-1], regexp);
+	}
+
+	return result;
 }
 
 }

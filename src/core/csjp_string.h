@@ -401,44 +401,50 @@ public:
 
 #ifdef DEBUG
 #define DBG(...){ \
-			csjp::String str; \
-			str.cat(VT_MAGENTA VT_TA_BOLD "DEBUG    " VT_NORMAL \
-					VT_BLUE, __PRETTY_FUNCTION__, ":", \
+			csjp::String _csjpStr; \
+			_csjpStr.cat(VT_MAGENTA VT_TA_BOLD "DEBUG    " \
+					VT_NORMAL VT_BLUE, \
+					__PRETTY_FUNCTION__, ":", \
 					__LINE__, VT_NORMAL); \
-			str.catf(__VA_ARGS__); \
-			csjp::msgLogger(csjp::verboseMode ? stderr : NULL, str, str.length); \
+			_csjpStr.catf(__VA_ARGS__); \
+			csjp::msgLogger(csjp::verboseMode ? stderr : NULL, \
+					_csjpStr, _csjpStr.length); \
 		}
 #else
 #define DBG(...) {;}
 #endif
 
 #define LOG(...){ \
-			csjp::String str; \
-			str.append(VT_CYAN VT_TA_BOLD "LOG      " VT_NORMAL); \
-			str.catf(__VA_ARGS__); \
-			csjp::msgLogger(csjp::verboseMode ? stderr : NULL, str, str.length); \
+			csjp::String _csjpStr; \
+			_csjpStr.append(VT_CYAN VT_TA_BOLD "LOG      " \
+					VT_NORMAL); \
+			_csjpStr.catf(__VA_ARGS__); \
+			csjp::msgLogger(csjp::verboseMode ? stderr : NULL, \
+					_csjpStr, _csjpStr.length); \
 		}
 
 #define FATAL(...){ \
-			csjp::String str; \
-			str.append(VT_RED VT_TA_UNDERSCORE VT_TA_BOLD \
+			csjp::String _csjpStr; \
+			_csjpStr.append(VT_RED VT_TA_UNDERSCORE VT_TA_BOLD \
 					"FATAL    " VT_NORMAL); \
-			str.catf(__VA_ARGS__); \
+			_csjpStr.catf(__VA_ARGS__); \
 			fflush(stdout); \
-			csjp::msgLogger(stderr, str, str.length); \
+			csjp::msgLogger(stderr, _csjpStr, _csjpStr.length); \
 			fflush(stderr); \
 			exit(-1); \
 		}
 
 #define EXCEPTION(exc)	{ \
-				csjp::String str; \
-				str.catf("% %, details are below:\n", \
-						VT_RED VT_TA_BOLD "EXCEPTION" \
+				csjp::String _csjpStr; \
+				_csjpStr.catf("% %, details are below:\n", \
+						VT_RED VT_TA_BOLD \
+						"EXCEPTION" \
 						VT_NORMAL, exc.name); \
 				for(const auto & iter : exc) \
-					str.cat(iter, '\n'); \
+					_csjpStr.cat(iter, '\n'); \
 				fflush(stdout); \
-				csjp::msgLogger(stderr, str, str.length); \
+				csjp::msgLogger(stderr, _csjpStr, \
+						_csjpStr.length); \
 				fflush(stderr); \
 			}
 
@@ -485,7 +491,8 @@ public:
 			note(msg); \
 		}\
 		template<typename... Args> \
-		exc(const std::exception & e, const char * fmt, const Args & ... args) : parent(e) \
+		exc(const std::exception & e, const char * fmt, \
+				const Args & ... args) : parent(e) \
 		{ \
 			name = #exc; \
 			note(fmt, args...); \
@@ -500,7 +507,8 @@ public:
 			note(msg); \
 		}\
 		template<typename... Args> \
-		exc(int err, const char * fmt, const Args & ... args) : parent(err) \
+		exc(int err, const char * fmt, const Args & ... args) : \
+			parent(err) \
 		{ \
 			name = #exc; \
 			note(fmt, args...); \

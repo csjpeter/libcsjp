@@ -68,10 +68,12 @@ public:
 };
 
 
+
 class SocketFloodServer : public csjp::Server
 {
 public:
-	SocketFloodServer(const csjp::Listener & l) : csjp::Server(l) {}
+	SocketFloodServer(const csjp::Listener/*FIXME circular dependency*/ & l) :
+		csjp::Server(l) {}
 	virtual ~SocketFloodServer() {}
 
 	virtual void dataReceived()
@@ -82,6 +84,21 @@ public:
 		}
 	}
 };
+
+bool operator<(const SocketFloodServer & lhs, const SocketFloodServer & rhs)
+{
+	return &lhs < &rhs;
+}
+
+bool operator<(const csjp::Socket & lhs, const SocketFloodServer & rhs)
+{
+	return &lhs < &rhs;
+}
+
+bool operator<(const SocketFloodServer & lhs, const csjp::Socket & rhs)
+{
+	return &lhs < &rhs;
+}
 
 csjp::OwnerContainer<SocketFloodServer> floodServers;
 
@@ -102,21 +119,6 @@ public:
 		VERIFY(false);
 	}
 };
-
-bool operator<(const SocketFloodServer & lhs, const SocketFloodServer & rhs)
-{
-	return &lhs < &rhs;
-}
-
-bool operator<(const csjp::Socket & lhs, const SocketFloodServer & rhs)
-{
-	return &lhs < &rhs;
-}
-
-bool operator<(const SocketFloodServer & lhs, const csjp::Socket & rhs)
-{
-	return &lhs < &rhs;
-}
 
 class SocketFloodClient : public csjp::Client
 {
