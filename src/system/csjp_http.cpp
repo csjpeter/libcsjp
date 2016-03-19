@@ -8,7 +8,7 @@
 /* TODO
  * - convert header keys to lowercase before storing them
  * - support multiline header values
- *
+ * - HTTP 1.1 continue, keep-alive, chunked transfer support
  */
 
 namespace csjp {
