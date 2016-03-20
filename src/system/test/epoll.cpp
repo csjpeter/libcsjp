@@ -129,7 +129,7 @@ public:
 
 	virtual void dataReceived()
 	{
-		clientReceived = receiveAll();
+		clientReceived = receive(bytesAvailable);
 	}
 
 	void close(){ Client::close(); }

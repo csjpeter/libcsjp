@@ -63,7 +63,6 @@ public:
 	}
 
 	String receive(size_t length);
-	String receiveAll(); // FIXME remove this
 	bool send(const String & data); //returns false on EAGAIN or EWOULDBLOCK
 	bool findFirst(size_t & pos, const String & str) {
 		return readBuffer.findFirst(pos, str); }

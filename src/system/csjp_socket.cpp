@@ -122,15 +122,6 @@ String Socket::receive(size_t length)
 	return ret;
 }
 
-String Socket::receiveAll()
-{
-	if(file < 0)
-		throw InvalidState("Socket is closed.");
-
-	readToBuffer();
-	return String(move_cast(readBuffer));
-}
-
 bool Socket::writeFromBuffer()
 {
 	if(file < 0)
