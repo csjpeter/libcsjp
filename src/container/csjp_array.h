@@ -91,10 +91,7 @@ public:
 	 */
 	virtual ~Array()
 	{
-		for(DataType ** i = val; i < val + len; i++)
-			delete *i;
-		if(val)
-			free(val);
+		clear();
 	}
 
 private:
@@ -353,7 +350,12 @@ public:
 	 */
 	void clear()
 	{
+		for(DataType ** i = val; i < val + len; i++)
+			delete *i;
 		len = 0;
+		if(val)
+			free(val);
+		val = 0;
 	}
 
 	/**
