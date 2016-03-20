@@ -92,6 +92,8 @@ public:
 	virtual ~Array()
 	{
 		clear();
+		if(val)
+			free(val);
 	}
 
 private:
@@ -355,8 +357,7 @@ public:
 			delete *i;
 		len = 0;
 		if(val)
-			free(val);
-		val = 0;
+			val[len] = 0;
 	}
 
 	/**
