@@ -187,6 +187,23 @@ public:
 	explicit HTTPResponse(const HTTPResponse & orig) = delete;
 	const HTTPResponse & operator=(const HTTPResponse &) = delete;
 
+	HTTPResponse(HTTPResponse && temp) :
+		version(move_cast(temp.version)),
+		headers(move_cast(temp.headers)),
+		body(move_cast(temp.body)),
+		statusCode(move_cast(temp.statusCode)),
+		reasonPhrase(move_cast(temp.reasonPhrase))
+	{}
+	const HTTPResponse & operator=(HTTPResponse && temp)
+	{
+		temp = move_cast(temp.version);
+		headers = move_cast(temp.headers);
+		body = move_cast(temp.body);
+		statusCode = move_cast(temp.statusCode);
+		reasonPhrase = move_cast(temp.reasonPhrase);
+		return *this;
+	}
+
 	HTTPResponse() {}
 
 	HTTPResponse(HTTPStatusCode statusCode,
