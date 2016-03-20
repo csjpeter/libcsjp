@@ -178,6 +178,19 @@ bool StringChunk::isEqual(const StringChunk & str) const
 	return isEqual(str.ref, str.len);
 }
 
+StringChunk StringChunk::read(size_t from, size_t until) const
+{
+	ENSURE(until <= len,  InvalidArgument);
+	ENSURE(from <= until,  InvalidArgument);
+
+	StringChunk str;
+
+	if(from != until)
+		str.assign(ref + from, until - from);
+
+	return str;
+}
+
 void StringChunk::clear()
 {
 	len = 0;

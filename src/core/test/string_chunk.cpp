@@ -174,6 +174,59 @@ void TestStringChunk::compare()
 	}
 }
 
+void TestStringChunk::read()
+{
+	TESTSTEP("Default construction");
+	csjp::StringChunk text;
+	csjp::StringChunk str;
+
+	VERIFY(str.length == 0);
+	VERIFY(str.str == 0);
+	VERIFY(str == "");
+	NOEXC_VERIFY(str = text.read(0, 0));
+	VERIFY(text.length == 0);
+	VERIFY(text.str == 0);
+	VERIFY(text == "");
+
+	TESTSTEP("const char* assignment and move copy assignment");
+	text = csjp::StringChunk("Hello big-big world!!!");
+
+	TESTSTEP("empty read");
+	NOEXC_VERIFY(str = text.read(0, 0));
+	DBG("str: %", str);
+	VERIFY(str.length == 0);
+	VERIFY(str.str == 0);
+	VERIFY(str == "");
+
+	TESTSTEP("read from begining");
+	NOEXC_VERIFY(str = text.read(0, 5));
+	VERIFY(str.length == 5);
+	VERIFY(str.str != 0);
+	EXC_VERIFY(str[5], csjp::IndexOutOfRange);
+	VERIFY(str == "Hello");
+
+	TESTSTEP("ending read");
+	NOEXC_VERIFY(str = text.read(14, 22));
+	VERIFY(str.length == 8);
+	VERIFY(str.str != 0);
+	EXC_VERIFY(str[8], csjp::IndexOutOfRange);
+	VERIFY(str == "world!!!");
+
+	TESTSTEP("one char read");
+	NOEXC_VERIFY(str = text.read(0, 1));
+	VERIFY(str.length == 1);
+	VERIFY(str.str != 0);
+	EXC_VERIFY(str[1], csjp::IndexOutOfRange);
+	VERIFY(str == "H");
+
+	TESTSTEP("middle read");
+	NOEXC_VERIFY(str = text.read(6, 13));
+	VERIFY(str.length == 7);
+	VERIFY(str.str != 0);
+	EXC_VERIFY(str[7], csjp::IndexOutOfRange);
+	VERIFY(str == "big-big");
+}
+
 void TestStringChunk::findFirst()
 {
 	size_t pos = 100;
@@ -712,6 +765,7 @@ TEST_INIT(StringChunk)
 
 	TEST_RUN(constructs);
 	TEST_RUN(compare);
+	TEST_RUN(read);
 	TEST_RUN(findFirst);
 	TEST_RUN(findFirstOf);
 	TEST_RUN(findFirstNotOf);

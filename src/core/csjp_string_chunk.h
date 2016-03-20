@@ -28,7 +28,14 @@ public:
 	const char * const & str;
 
 public:
-	const StringChunk & operator=(StringChunk && temp) = delete;
+	const StringChunk & operator=(StringChunk && temp)
+	{
+		ref = temp.ref;
+		temp.ref = 0;
+		len = temp.len;
+		temp.len = 0;
+		return *this;
+	}
 
 	explicit StringChunk();
 	explicit StringChunk(const char * str, size_t length);
@@ -59,6 +66,8 @@ public:
 	bool isEqual(const char * str, size_t _length) const;
 	bool isEqual(const char * str) const;
 	bool isEqual(const StringChunk & str) const;
+
+	StringChunk read(size_t from, size_t until) const;
 
 	void clear();
 
