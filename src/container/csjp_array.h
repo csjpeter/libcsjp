@@ -136,11 +136,12 @@ public:
 	{
 		ENSURE(len <= _cap,  InvalidArgument);
 
-		// Preallocate 10% more bytes (or 100% more if 10% was less than 64 objects).
-		size_t inc = _cap << 2;
-		if(_cap < 512)
-			inc = 64;
-		_cap += inc;
+		if(_cap < 32)
+			_cap = 64;
+		else if(_cap < 256)
+			_cap = 512;
+		else
+			_cap *= 2;
 
 		setCapacity(_cap);
 	}
