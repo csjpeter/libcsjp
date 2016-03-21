@@ -23,6 +23,10 @@ HTTPRequest::HTTPRequest(
 	version(version),
 	body(body)
 {
+	requestLine.catf("% % HTTP/%",
+			method.length ? method : "GET",
+			uri.length ? uri : "/",
+			version.length ? version : "1.0");
 }
 
 HTTPRequest HTTPRequest::get(
@@ -45,10 +49,7 @@ HTTPRequest HTTPRequest::post(
 HTTPRequest::operator String () const
 {
 	String request;
-	request.catf("% % HTTP/%\r\n",
-			method.length ? method : "GET",
-			uri.length ? uri : "/",
-			version.length ? version : "1.0");
+	request.catf("%\r\n", requestLine);
 	for(auto & h : headers.properties){
 		if(h.key == "content-length")
 			continue;
@@ -59,18 +60,19 @@ HTTPRequest::operator String () const
 	return request;
 }
 
-bool HTTPRequest::receive(Server & server)
+unsigned HTTPRequest::parse(const StringChunk & data)
 {
 	if(!method.length){
 		size_t pos;
-		if(!server.findFirst(pos, String("\r\n")))
+		if(!data.findFirst(pos, "\r\n"))
 			return false;
-		String line = server.receive(pos+2);
+		requestLine <<= data.read(0, pos);
 		Array<StringChunk> result(3);
-		if(!subStringByRegexp(line, result,
-				"\\([^ ]*\\) \\([^ ]*\\) HTTP/\\(.*\\)\r\n"))
+		if(!subStringByRegexp(requestLine, result,
+				"\\([^ ]*\\) \\([^ ]*\\) HTTP/\\(.*\\)$"))
 			throw HttpProtocolError(
-					"Invalid HTTP request line: %", line);
+					"Invalid HTTP request line: %",
+					requestLine);
 		method <<= result[0];
 		uri <<= result[1];
 		version <<= result[2];
@@ -78,10 +80,9 @@ bool HTTPRequest::receive(Server & server)
 
 	if(!headers.value.length){
 		size_t pos;
-		if(!server.findFirst(pos, String("\r\n\r\n")))
+		if(!data.findFirst(pos, "\r\n\r\n", requestLine.length+2))
 			return false;
-		headers.value = server.receive(pos+4);
-		headers.value.trim("\r\n");
+		headers.value <<= data.read(requestLine.length+2, pos);
 		Array<StringChunk> array = split(headers.value, "\r\n");
 		for(auto & str : array){
 			if(!str.findFirst(pos, ":"))
@@ -97,11 +98,12 @@ bool HTTPRequest::receive(Server & server)
 	}
 
 	if(!body.length){
+		size_t readIn = requestLine.length+2 + headers.value.length+4;
 		size_t bodyLength = 0;
 		bodyLength <<= headers["content-length"];
-		if(server.bytesAvailable < bodyLength)
+		if(data.length < readIn + bodyLength)
 			return false;
-		body = server.receive(bodyLength);
+		body <<= data.read(readIn, readIn + bodyLength);
 	}
 
 	return true;
@@ -121,6 +123,9 @@ HTTPResponse::HTTPResponse(
 {
 	statusCode <<= code;
 	reasonPhrase <<= code.phrase();
+	statusLine.catf("HTTP-% % %",
+			version.length ? version : "1.0",
+			statusCode, reasonPhrase);
 }
 
 HTTPResponse::HTTPResponse(
@@ -132,14 +137,15 @@ HTTPResponse::HTTPResponse(
 	HTTPStatusCode code = HTTPStatusCode::Enum::OK;
 	statusCode <<= code;
 	reasonPhrase <<= code.phrase();
+	statusLine.catf("HTTP-% % %",
+			version.length ? version : "1.0",
+			statusCode, reasonPhrase);
 }
 
 HTTPResponse::operator String () const
 {
 	String response;
-	response.catf("HTTP-% % %\r\n",
-			version.length ? version : "1.0",
-			statusCode, reasonPhrase);//FIXME can these be empty?
+	response.catf("%\r\n", statusLine);
 	for(auto & h : headers.properties){
 		if(h.key == "content-length")
 			continue;
@@ -150,18 +156,19 @@ HTTPResponse::operator String () const
 	return response;
 }
 
-bool HTTPResponse::receive(Client & client)
+unsigned HTTPResponse::parse(const StringChunk & data)
 {
 	if(!statusCode.length){
 		size_t pos;
-		if(!client.findFirst(pos, String("\r\n")))
+		if(!data.findFirst(pos, String("\r\n")))
 			return false;
-		String line = client.receive(pos+2);
+		statusLine = String(data.str, pos);
 		Array<StringChunk> result(3);
-		if(!subStringByRegexp(line, result,
-				"HTTP-\\([^ ]*\\) \\([^ ]*\\) \\(.*\\)\r\n"))
+		if(!subStringByRegexp(statusLine, result,
+				"HTTP-\\([^ ]*\\) \\([^ ]*\\) \\(.*\\)$"))
 			throw HttpProtocolError(
-					"Invalid HTTP request line: %", line);
+					"Invalid HTTP status line: %",
+					statusLine);
 		version <<= result[0];
 		statusCode <<= result[1];
 		reasonPhrase <<= result[2];
@@ -169,10 +176,9 @@ bool HTTPResponse::receive(Client & client)
 
 	if(!headers.value.length){
 		size_t pos;
-		if(!client.findFirst(pos, String("\r\n\r\n")))
+		if(!data.findFirst(pos, "\r\n\r\n", statusLine.length+2))
 			return false;
-		headers.value = client.receive(pos+4);
-		headers.value.trim("\r\n");
+		headers.value <<= data.read(statusLine.length+2, pos);
 		Array<StringChunk> array = split(headers.value, "\r\n");
 		for(auto & str : array){
 			if(!str.findFirst(pos, ":"))
@@ -188,11 +194,12 @@ bool HTTPResponse::receive(Client & client)
 	}
 
 	if(!body.length){
+		size_t readIn = statusLine.length+2 + headers.value.length+4;
 		size_t bodyLength = 0;
 		bodyLength <<= headers["content-length"];
-		if(client.bytesAvailable < bodyLength)
+		if(data.length < readIn + bodyLength)
 			return false;
-		body = client.receive(bodyLength);
+		body <<= data.read(readIn, readIn + bodyLength);
 	}
 
 	return true;

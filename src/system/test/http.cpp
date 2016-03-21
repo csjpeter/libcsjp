@@ -3,6 +3,8 @@
  * Copyright (C) 2016 Csaszar, Peter
  */
 
+#undef DEBUG
+
 #include <csjp_signal.h>
 #include <csjp_server.h>
 #include <csjp_client.h>
@@ -21,29 +23,31 @@ public:
 
 	virtual void dataReceived()
 	{
-		if(!request.receive(*this))
+		if(!receive(request))
 			return;
 
-		//DBG("request method: %", request.method);
+		DBG("request line: %", request.getRequestLine());
+		VERIFY(request.getRequestLine() == "POST / HTTP/1.0");
+		DBG("request method: %", request.method);
 		VERIFY(request.method == "POST");
-		//DBG("request uri: %", request.uri);
+		DBG("request uri: %", request.uri);
 		VERIFY(request.uri == "/");
-		//DBG("request version: %", request.version);
+		DBG("request version: %", request.version);
 		VERIFY(request.version == "1.0");
-		//DBG("request headers: %", request.headers.value);
+		DBG("request headers: %", request.headers.value);
 		VERIFY(request.headers.value == "content-length: 4");
 		VERIFY(request.headers.properties.size() == 1);
 		VERIFY(request.headers["content-length"] == "4");
-		//DBG("request body: %", request.body);
+		DBG("request body: %", request.body);
 		VERIFY(request.body = "body");
 
-		//DBG("received request:\n%", request);
+		DBG("received request:\n%", request);
 		VERIFY(request == requestStr);
 
 		csjp::HTTPResponse response(csjp::String("answer"));
 		responseStr = response;
 		send(response);
-		//DBG("sent response:\n%", response);
+		DBG("sent response:\n%", response);
 	}
 
 	csjp::HTTPRequest request;
@@ -93,23 +97,25 @@ public:
 
 	virtual void dataReceived()
 	{
-		if(!response.receive(*this))
+		if(!receive(response))
 			return;
 
-		//DBG("response status code: %", response.status());
+		DBG("response status line: %", response.getStatusLine());
+		VERIFY(response.getStatusLine() == "HTTP-1.0 200 OK");
+		DBG("response status code: %", response.status());
 		VERIFY(response.status() == "200");
-		//DBG("response reason phrase: %", response.reason());
+		DBG("response reason phrase: %", response.reason());
 		VERIFY(response.reason() == "OK");
-		//DBG("response version: %", response.version);
+		DBG("response version: %", response.version);
 		VERIFY(response.version == "1.0");
-		//DBG("response headers: %", response.headers.value);
+		DBG("response headers: %", response.headers.value);
 		VERIFY(response.headers.value == "content-length: 6");
 		VERIFY(response.headers.properties.size() == 1);
 		VERIFY(response.headers["content-length"] == "6");
-		//DBG("response body: %", response.body);
+		DBG("response body: %", response.body);
 		VERIFY(response.body == "answer");
 
-		//DBG("received response:\n%", response);
+		DBG("received response:\n%", response);
 		VERIFY(response == responseStr);
 	}
 
@@ -121,7 +127,7 @@ public:
 				csjp::String("body"));
 		requestStr = request;
 		send(request);
-		//DBG("sent request:\n%", request);
+		DBG("sent request:\n%", request);
 	}
 
 	csjp::HTTPResponse response;
@@ -144,7 +150,6 @@ void TestHTTP::create()
 		HTTPServer server(listener);
 		VERIFY(false);
 	} catch(csjp::SocketNoneConnecting & e){
-		//EXCEPTION(e);
 		VERIFY(true);
 	} catch(csjp::SocketError & e){
 		EXCEPTION(e);

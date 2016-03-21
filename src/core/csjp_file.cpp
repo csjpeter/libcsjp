@@ -46,7 +46,7 @@ File::File(const StringChunk & fileName) :
 	eofbit(false),
 	locked(false),
 	fileSize(0),
-	fileName(fileName, fileName.length)
+	fileName(fileName.str, fileName.length)
 {
 }
 

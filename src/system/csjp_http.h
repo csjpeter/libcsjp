@@ -25,7 +25,8 @@ public:
 		uri(move_cast(temp.uri)),
 		version(move_cast(temp.version)),
 		headers(move_cast(temp.headers)),
-		body(move_cast(temp.body))
+		body(move_cast(temp.body)),
+		requestLine(move_cast(requestLine))
 	{}
 	const HTTPRequest & operator=(HTTPRequest && temp)
 	{
@@ -34,15 +35,16 @@ public:
 		temp = move_cast(temp.version);
 		headers = move_cast(temp.headers);
 		body = move_cast(temp.body);
+		requestLine = move_cast(temp.requestLine);
 		return *this;
 	}
 
 	HTTPRequest() {}
 
-	HTTPRequest(const String & method,
-		const String & uri = String("/"),
-		const String & body = String(""),
-		const String & version = String("1.0"));
+	HTTPRequest(	const String & method,
+			const String & uri = String("/"),
+			const String & body = String(""),
+			const String & version = String("1.0"));
 
 	static HTTPRequest get(const String & uri,
 		const String & version = String("1.0"));
@@ -53,13 +55,17 @@ public:
 
 	operator String () const;
 
-	bool receive(Server & server);
+	unsigned parse(const StringChunk & data);
+
+	const String & getRequestLine(){ return requestLine; }
 
 	String method;
 	String uri;
 	String version;
 	Json headers;
 	String body;
+private:
+	String requestLine;
 };
 
 class HTTPStatusCode /*{{{*/
@@ -192,7 +198,8 @@ public:
 		headers(move_cast(temp.headers)),
 		body(move_cast(temp.body)),
 		statusCode(move_cast(temp.statusCode)),
-		reasonPhrase(move_cast(temp.reasonPhrase))
+		reasonPhrase(move_cast(temp.reasonPhrase)),
+		statusLine(move_cast(statusLine))
 	{}
 	const HTTPResponse & operator=(HTTPResponse && temp)
 	{
@@ -201,6 +208,7 @@ public:
 		body = move_cast(temp.body);
 		statusCode = move_cast(temp.statusCode);
 		reasonPhrase = move_cast(temp.reasonPhrase);
+		statusLine = move_cast(statusLine);
 		return *this;
 	}
 
@@ -215,10 +223,11 @@ public:
 
 	operator String () const;
 
-	bool receive(Client & client);
+	unsigned parse(const StringChunk & data);
 
 	const String & status(){ return statusCode; }
 	const String & reason(){ return reasonPhrase; }
+	const String & getStatusLine(){ return statusLine; }
 
 	String version;
 	Json headers;
@@ -226,6 +235,7 @@ public:
 private:
 	String statusCode;
 	String reasonPhrase;
+	String statusLine;
 };
 
 

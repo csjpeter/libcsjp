@@ -64,8 +64,17 @@ public:
 
 	String receive(size_t length);
 	bool send(const String & data); //returns false on EAGAIN or EWOULDBLOCK
-	bool findFirst(size_t & pos, const String & str) {
-		return readBuffer.findFirst(pos, str); }
+
+	template <typename TypeReceive>
+	bool receive(TypeReceive & parser)
+	{
+		const StringChunk input(readBuffer);
+		unsigned length = parser.parse(input);
+		if(!length)
+			return false;
+		readBuffer.chopFront(length);
+		return true;
+	}
 
 protected:
 	Socket();
