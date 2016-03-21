@@ -6,7 +6,6 @@
 #include "csjp_http.h"
 
 /* TODO
- * - convert header keys to lowercase before storing them
  * - support multiline header values
  * - HTTP 1.1 continue, keep-alive, chunked transfer support
  */
@@ -53,7 +52,9 @@ HTTPRequest::operator String () const
 	for(auto & h : headers.properties){
 		if(h.key == "content-length")
 			continue;
-		request.catf("%: %\r\n", h.key, h.value);
+		String k(h.key);
+		k.lower();
+		request.catf("%: %\r\n", k, h.value);
 	}
 	request.catf("content-length: %\r\n", body.length);
 	request.catf("\r\n%", body);
@@ -88,8 +89,10 @@ unsigned HTTPRequest::parse(const StringChunk & data)
 			if(!str.findFirst(pos, ":"))
 				throw HttpProtocolError(
 						"Invalid header line: %", str);
-			StringChunk key(str.str, pos);
+			String key;
+			key <<= str.read(0, pos);
 			key.trim(" \t");
+			key.lower();
 			StringChunk value(str.str + pos + 1,
 					str.length - pos - 1);
 			value.trim(" \t");
@@ -149,7 +152,9 @@ HTTPResponse::operator String () const
 	for(auto & h : headers.properties){
 		if(h.key == "content-length")
 			continue;
-		response.catf("%: %\r\n", h.key, h.value);
+		String k(h.key);
+		k.lower();
+		response.catf("%: %\r\n", k, h.value);
 	}
 	response.catf("content-length: %\r\n", body.length);
 	response.catf("\r\n%", body);
@@ -184,11 +189,13 @@ unsigned HTTPResponse::parse(const StringChunk & data)
 			if(!str.findFirst(pos, ":"))
 				throw HttpProtocolError(
 						"Invalid header line: %", str);
-			StringChunk key(str.str, pos);
+			String key;
+			key <<= str.read(0, pos);
 			key.trim(" \t");
 			StringChunk value(str.str + pos + 1,
 					str.length - pos - 1);
 			value.trim(" \t");
+			key.lower();
 			headers[key] = value;
 		}
 	}
