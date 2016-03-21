@@ -971,7 +971,7 @@ void String::appendPrintf(const char * format, ...)
 	int _length = vsnprintf(NULL, 0, format, args);
 	va_end(args);
 	if(_length < 0)
-		throw InvalidArgument(_length, "Libc vsnprintf() failed in %.",
+		throw InvalidArgument(errno, "Libc vsnprintf() failed in %.",
 				__PRETTY_FUNCTION__);
 
 	va_start(args, format);
@@ -1390,6 +1390,26 @@ void String::adopt(char *& str)
 		_length = strlen(str);
 
 	adopt(str, _length, _length + 1);
+}
+
+void String::lower()
+{
+	char diff = 'a' - 'A';
+	char * start =  val;
+	const char * end =  start + len;
+	for(char * iter = start; iter < end; iter++)
+		if('A' <= *iter && *iter <= 'Z')
+			*iter += diff;
+}
+
+void String::upper()
+{
+	char diff = 'a' - 'A';
+	char * start =  val;
+	const char * end =  start + len;
+	for(char * iter = start; iter < end; iter++)
+		if('a' <= *iter && *iter <= 'z')
+			*iter -= diff;
 }
 
 }

@@ -51,6 +51,7 @@ public:
 	void swap();
 	void appendOperator();
 	void conversionOperator();
+	void lowerUpper();
 };
 
 void TestString::constructs()
@@ -1189,6 +1190,21 @@ void TestString::conversionOperator()
 	VERIFY(i == 0);
 }
 
+void TestString::lowerUpper()
+{
+	csjp::String str("aA Zz");
+
+	TESTSTEP("To lower");
+	csjp::String toLower(str);
+	toLower.lower();
+	VERIFY(toLower == "aa zz");
+
+	TESTSTEP("To upper");
+	csjp::String toUpper(str);
+	toUpper.upper();
+	VERIFY(toUpper == "AA ZZ");
+}
+
 TEST_INIT(String)
 
 	TEST_RUN(constructs);
@@ -1226,5 +1242,6 @@ TEST_INIT(String)
 	TEST_RUN(swap);
 	TEST_RUN(appendOperator);
 	TEST_RUN(conversionOperator);
+	TEST_RUN(lowerUpper);
 
 TEST_FINISH(String)

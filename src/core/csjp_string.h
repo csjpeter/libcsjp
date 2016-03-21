@@ -302,6 +302,9 @@ public:
 	void adopt(char *& str, size_t _length, size_t size);
 	void adopt(char *& str, size_t size);
 	void adopt(char *& str);
+
+	void lower();
+	void upper();
 };
 
 inline bool operator==(const String & a, const char * b) { return a.isEqual(b); }
