@@ -16,7 +16,7 @@ public:
 
 void TestListener::create()
 {
-	csjp::Listener listener(csjp::String("127.0.0.1"), 10101);
+	csjp::Listener listener("127.0.0.1", 10101);
 	// and  just destruct ...
 }
 

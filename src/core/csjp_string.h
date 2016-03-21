@@ -92,7 +92,6 @@ public:
 	explicit String(const char * str) StringInitializer { assign(str); }
 
 	const char * c_str() const { return val; }
-	operator const char * () const { return val; }
 
 	const char& operator[](unsigned char i) const { return val[i]; }
 	inline char& operator[](unsigned char i){ return val[i]; }
@@ -332,6 +331,7 @@ inline String & operator<<(String & lhs, const long double rhs) { lhs.append(rhs
 inline String & operator<<(String & lhs, const UInt & rhs) { lhs << rhs.val; return lhs; }
 inline String & operator<<(String & lhs, const Double & rhs) { lhs << rhs.val; return lhs; }
 
+inline String & operator<<=(String & lhs, const char * rhs) { lhs.chop(); lhs << rhs; return lhs; }
 inline String & operator<<=(String & lhs, char rhs) { lhs.chop(); lhs << rhs; return lhs; }
 inline String & operator<<=(String & lhs, const unsigned rhs){ lhs.chop(); lhs << rhs; return lhs; }
 inline String & operator<<=(String & lhs, const long unsigned rhs){lhs.chop();lhs<<rhs; return lhs;}
@@ -351,23 +351,23 @@ inline String & operator<<=(String & lhs, const Double & rhs){ lhs.chop(); lhs <
 
 
 inline int & operator<<=(int & i, const String & str)
-		{ if(!str) i = 0; else i <<= CString(str); return i; }
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
 inline long int & operator<<=(long int & i, const String & str)
-		{ if(!str) i = 0; else i <<= CString(str); return i; }
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
 inline long long int & operator<<=(long long int & i, const String & str)
-		{ if(!str) i = 0; else i <<= CString(str); return i; }
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
 inline unsigned & operator<<=(unsigned & i, const String & str)
-		{ if(!str) i = 0; else i <<= CString(str); return i; }
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
 inline long unsigned & operator<<=(long unsigned & i, const String & str)
-		{ if(!str) i = 0; else i <<= CString(str); return i; }
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
 inline long long unsigned & operator<<=(long long unsigned & i, const String & str)
-		{ if(!str) i = 0; else i <<= CString(str); return i; }
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
 inline float & operator<<=(float & i, const String & str)
-		{ if(!str) i = 0; else i <<= CString(str); return i; }
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
 inline double & operator<<=(double & i, const String & str)
-		{ if(!str) i = 0; else i <<= CString(str); return i; }
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
 inline long double & operator<<=(long double & i, const String & str)
-		{ if(!str) i = 0; else i <<= CString(str); return i; }
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
 
 
 
@@ -408,7 +408,7 @@ public:
 					__LINE__, VT_NORMAL); \
 			_csjpStr.catf(__VA_ARGS__); \
 			csjp::msgLogger(csjp::verboseMode ? stderr : NULL, \
-					_csjpStr, _csjpStr.length); \
+					_csjpStr.c_str(), _csjpStr.length); \
 		}
 #else
 #define DBG(...) {;}
@@ -420,7 +420,7 @@ public:
 					VT_NORMAL); \
 			_csjpStr.catf(__VA_ARGS__); \
 			csjp::msgLogger(csjp::verboseMode ? stderr : NULL, \
-					_csjpStr, _csjpStr.length); \
+					_csjpStr.c_str(), _csjpStr.length); \
 		}
 
 #define FATAL(...){ \
@@ -429,7 +429,8 @@ public:
 					"FATAL    " VT_NORMAL); \
 			_csjpStr.catf(__VA_ARGS__); \
 			fflush(stdout); \
-			csjp::msgLogger(stderr, _csjpStr, _csjpStr.length); \
+			csjp::msgLogger(stderr, _csjpStr.c_str(), \
+					_csjpStr.length); \
 			fflush(stderr); \
 			exit(-1); \
 		}
@@ -443,7 +444,7 @@ public:
 				for(const auto & iter : exc) \
 					_csjpStr.cat(iter, '\n'); \
 				fflush(stdout); \
-				csjp::msgLogger(stderr, _csjpStr, \
+				csjp::msgLogger(stderr, _csjpStr.c_str(), \
 						_csjpStr.length); \
 				fflush(stderr); \
 			}
@@ -465,7 +466,7 @@ public:
 		{\
 			csjp::String buf; \
 			buf.catf(fmt, args...); \
-			note(buf); \
+			note(buf.c_str()); \
 		}\
 		exc(const char * msg){\
 			name = #exc; \

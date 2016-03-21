@@ -49,7 +49,7 @@ void TestClient::receiveMsg()
 	csjp::String msg("Hi there!");
 
 	TESTSTEP("Listening");
-	csjp::Listener listener(csjp::String("127.0.0.1"), 30303);
+	csjp::Listener listener("127.0.0.1", 30303);
 
 	TESTSTEP("Connecting client");
 	SocketClient client("127.0.0.1", 30303);
@@ -75,7 +75,7 @@ void TestClient::serverSendsToClosedClient()
 	csjp::String msg("Hi there!");
 
 	TESTSTEP("Setting up client server connection");
-	csjp::Listener listener(csjp::String("127.0.0.1"), 30303);
+	csjp::Listener listener("127.0.0.1", 30303);
 	SocketClient client("127.0.0.1", 30303);
 	SocketServer server(listener);
 	usleep(10 * 1000); // 0.01 sec
@@ -95,7 +95,7 @@ void TestClient::clientSendsToClosedServer()
 	csjp::String msg("Hi there!");
 
 	TESTSTEP("Setting up client server connection");
-	csjp::Listener listener(csjp::String("127.0.0.1"), 30303);
+	csjp::Listener listener("127.0.0.1", 30303);
 	SocketClient client("127.0.0.1", 30303);
 	SocketServer server(listener);
 	usleep(10 * 1000); // 0.01 sec

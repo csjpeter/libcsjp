@@ -38,11 +38,18 @@ public:
 	}
 
 	explicit StringChunk();
-	explicit StringChunk(const char * str, size_t length);
-	inline StringChunk(const char * str) : ref(str), len(0),
+
+	explicit inline StringChunk(const char * str, size_t length) :
+		ref(str), len(length), length(len), str(ref)
+		{ ENSURE(str || !length,  InvalidArgument); }
+	explicit inline StringChunk(const char * str) : ref(str), len(0),
 			length(len), str(ref)
-		{ if(str){ const char *c = str;
-				 while(*c != 0) c++; len = c - str; } }
+		{ if(str){ const char *c=str; while(*c!=0) c++; len=c-str; } }
+
+	explicit inline StringChunk(const String & str) :
+		ref(str.c_str()), len(str.length), length(len), str(ref)
+		{ ENSURE(str.c_str() || !length,  InvalidArgument); }
+
 	explicit StringChunk(const StringChunk & str, size_t from, size_t until);
 	explicit StringChunk(const StringChunk & str, size_t from);
 	explicit StringChunk(const StringChunk & str);
@@ -148,9 +155,9 @@ inline bool operator<(const StringChunk & a, const char * b) { return a.compare(
 inline bool operator<(const char * a, const StringChunk & b) { return b.compare(a) == 1; }
 
 inline bool operator<(const StringChunk & a, const String & b)
-	{ StringChunk chunk(b, b.length); return a < chunk; }
+	{ StringChunk chunk(b); return a < chunk; }
 inline bool operator<(const String & a, const StringChunk & b)
-	{ StringChunk chunk(a, a.length); return chunk < b; }
+	{ StringChunk chunk(a); return chunk < b; }
 
 inline String & operator<<=(String & lhs, const StringChunk & rhs)
 	{ lhs.assign(rhs.str, rhs.length); return lhs; }

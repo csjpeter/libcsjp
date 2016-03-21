@@ -15,19 +15,22 @@
 				csjp::String str; \
 				str.append(VT_GREEN VT_TA_BOLD "TEST     " VT_NORMAL); \
 				str.catf(__VA_ARGS__); \
-				csjp::msgLogger(stdout, str, str.length); \
+				csjp::msgLogger(stdout, str.c_str(), \
+						str.length); \
 			}
 #define TESTSTEP(...)	{ \
 				csjp::String str; \
 				str.append(VT_BLUE VT_TA_BOLD "TESTSTEP " VT_NORMAL); \
 				str.catf(__VA_ARGS__); \
-				csjp::msgLogger(stdout, str, str.length); \
+				csjp::msgLogger(stdout, str.c_str(), \
+						str.length); \
 			}
 #define FAIL(...)	{ \
 				csjp::String str; \
 				str.append(VT_RED VT_TA_BOLD "FAIL     " VT_NORMAL); \
 				str.catf(__VA_ARGS__); \
-				csjp::msgLogger(stdout, str, str.length); \
+				csjp::msgLogger(stdout, str.c_str(), \
+						str.length); \
 			}
 
 /* Excepts true return value. */

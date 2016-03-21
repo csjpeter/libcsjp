@@ -109,6 +109,16 @@ void TestStringChunk::constructs()
 		VERIFY(copy == "nocsak");
 	}
 
+	{
+		csjp::String str("data");
+
+		TESTSTEP("Construct StringChunk from String");
+		csjp::StringChunk chunk(str);
+		VERIFY(chunk.str == str.c_str());
+		VERIFY(chunk.length == str.length);
+		VERIFY(chunk == str.c_str());
+	}
+
 #ifndef PERFMODE
 	EXC_VERIFY(csjp::StringChunk copy(str, 8), csjp::InvalidArgument);
 #endif

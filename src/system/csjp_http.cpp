@@ -24,9 +24,9 @@ HTTPRequest::HTTPRequest(
 	body(body)
 {
 	requestLine.catf("% % HTTP/%",
-			method.length ? method : "GET",
-			uri.length ? uri : "/",
-			version.length ? version : "1.0");
+			method.length ? method.c_str() : "GET",
+			uri.length ? uri.c_str() : "/",
+			version.length ? version.c_str() : "1.0");
 }
 
 HTTPRequest HTTPRequest::get(
@@ -124,7 +124,7 @@ HTTPResponse::HTTPResponse(
 	statusCode <<= code;
 	reasonPhrase <<= code.phrase();
 	statusLine.catf("HTTP-% % %",
-			version.length ? version : "1.0",
+			version.length ? version.c_str() : "1.0",
 			statusCode, reasonPhrase);
 }
 
@@ -138,7 +138,7 @@ HTTPResponse::HTTPResponse(
 	statusCode <<= code;
 	reasonPhrase <<= code.phrase();
 	statusLine.catf("HTTP-% % %",
-			version.length ? version : "1.0",
+			version.length ? version.c_str() : "1.0",
 			statusCode, reasonPhrase);
 }
 
@@ -160,9 +160,9 @@ unsigned HTTPResponse::parse(const StringChunk & data)
 {
 	if(!statusCode.length){
 		size_t pos;
-		if(!data.findFirst(pos, String("\r\n")))
+		if(!data.findFirst(pos, "\r\n"))
 			return false;
-		statusLine = String(data.str, pos);
+		statusLine <<= data.read(0, pos);
 		Array<StringChunk> result(3);
 		if(!subStringByRegexp(statusLine, result,
 				"HTTP-\\([^ ]*\\) \\([^ ]*\\) \\(.*\\)$"))

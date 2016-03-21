@@ -22,15 +22,6 @@ StringChunk::StringChunk() :
 {
 }
 
-StringChunk::StringChunk(const char * str, size_t _length) :
-	ref(str),
-	len(_length),
-	length(len),
-	str(ref)
-{
-	ENSURE(str || !_length,  InvalidArgument);
-}
-
 StringChunk::StringChunk(const StringChunk & str, size_t from, size_t until) :
 	ref(str.ref),
 	len(str.len),
@@ -884,7 +875,7 @@ Array<StringChunk> StringChunk::split(const char * delimiters, bool avoidEmptyRe
 Array<StringChunk> split(const String & str,
 		const char * delimiters, bool avoidEmptyResults)
 {
-	StringChunk chunk(str, str.length);
+	StringChunk chunk(str.c_str(), str.length);
 	return chunk.split(delimiters, avoidEmptyResults);
 }
 
@@ -905,7 +896,8 @@ bool subStringByRegexp(
 		throw ParseError(errno,
 				"Failed to compile regular expression: '%'.",
 				regexp);
-	int res = regexec(&regexpCompiled, str, matchesSize, matches, 0);
+	int res = regexec(&regexpCompiled, str.c_str(),
+			matchesSize, matches, 0);
 	regfree(&regexpCompiled);
 	if(res)
 		return false;
@@ -943,7 +935,7 @@ Array<StringChunk> subStringByRegexp(
 		throw ParseError(errno,
 				"Failed to compile regular expression: '%'.",
 				regexp);
-	regexec(&regexpCompiled, str, matchesSize, matches, 0);
+	regexec(&regexpCompiled, str.c_str(), matchesSize, matches, 0);
 	regfree(&regexpCompiled);
 
 	result.clear();

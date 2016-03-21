@@ -16,7 +16,7 @@ public:
 
 void TestServer::create()
 {
-	csjp::Listener listener(csjp::String("127.0.0.1"), 20202);
+	csjp::Listener listener("127.0.0.1", 20202);
 	try{
 		csjp::Server server(listener);
 		VERIFY(false);

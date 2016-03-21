@@ -116,7 +116,7 @@ bool File::exists() const
 {
 	struct stat fileStat;
 	int err = 0;
-	if(stat(fileName, &fileStat) < 0){
+	if(stat(fileName.c_str(), &fileStat) < 0){
 		err = errno;
 		if(err == ENOENT || err == ENOTDIR)
 			return false;
@@ -129,7 +129,7 @@ bool File::exists() const
 bool File::isRegular() const
 {
 	struct stat fileStat;
-	if(stat(fileName, &fileStat) < 0)
+	if(stat(fileName.c_str(), &fileStat) < 0)
 		throw FileError(errno, "Could not check if file (%) is regular file.",
 				fileName);
 
@@ -141,7 +141,7 @@ bool File::isRegular() const
 bool File::isDir() const
 {
 	struct stat fileStat;
-	if(stat(fileName, &fileStat) < 0)
+	if(stat(fileName.c_str(), &fileStat) < 0)
 		throw FileError(errno, "Could not check if (%) is directory.", fileName);
 
 	if(S_ISDIR(fileStat.st_mode))
@@ -177,7 +177,7 @@ void File::rename(const char * name)
 //	char buf[PATH_MAX];
 //	String cwd(char *getcwd(buf, PATH_MAX));
 	fileName.assign(name);
-	int fn = ::rename(oldFileName, name);
+	int fn = ::rename(oldFileName.c_str(), name);
 	if(fn < 0){
 		int errNo = errno;
 		fileName = move_cast(oldFileName);
@@ -197,7 +197,7 @@ void File::resize(long unsigned size)
 	if(0 <= file)
 		close();
 
-	int fn = open(fileName, O_RDWR);
+	int fn = open(fileName.c_str(), O_RDWR);
 	if(fn < 0)
 		throw FileError(errno, "Could not get file number to be used for resizing "
 				 "file % to size of %.", fileName, size);
@@ -217,7 +217,7 @@ void File::create()
 	if(exists())
 		return;
 
-	file = open(fileName, O_CREAT|O_WRONLY|O_TRUNC, 0600);
+	file = open(fileName.c_str(), O_CREAT|O_WRONLY|O_TRUNC, 0600);
 	if(file < 0)
 		throw FileError(errno, "Could not create file %.", fileName);
 	close();
@@ -232,13 +232,13 @@ void File::createDir()
 		return;
 	}
 
-	if(mkdir(fileName, 0700) < 0)
+	if(mkdir(fileName.c_str(), 0700) < 0)
 		throw FileError(errno, "Failed to create directory (%).", fileName);
 }
 
 void File::removeDir()
 {
-	if(rmdir(fileName) < 0)
+	if(rmdir(fileName.c_str()) < 0)
 		throw FileError(errno, "Failed to remove directory (%).", fileName);
 }
 
@@ -246,7 +246,7 @@ void File::unlink()
 {
 	if(0 <= file)
 		close();
-	if(::unlink(fileName) < 0)
+	if(::unlink(fileName.c_str()) < 0)
 		throw FileError(errno, "Could not unlink file %.", fileName);
 }
 
@@ -257,7 +257,7 @@ void File::openForRead() const
 	if(0 <= file)
 		close();
 
-	file = open(fileName, O_RDONLY, 0600);
+	file = open(fileName.c_str(), O_RDONLY, 0600);
 	if(file < 0)
 		throw FileError(errno, "Could not open file (%) for reading.", fileName);
 	writable = false;
@@ -273,7 +273,7 @@ void File::openForWrite()
 	if(0 <= file)
 		close();
 
-	file = open(fileName, O_RDWR, 0600);
+	file = open(fileName.c_str(), O_RDWR, 0600);
 	if(file < 0)
 		throw FileError(errno, "Could not open file (%) for writing (and reading).",
 				fileName);

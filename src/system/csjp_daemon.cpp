@@ -73,7 +73,7 @@ void Daemon::daemonize(bool exitParent)
 
 	umask(S_IRWXO | S_IRWXG); // Only owner shall have acces to daemon created files, etc
 
-	setLogDir(logDirName); // We want to log into the daemon's own log file
+	setLogDir(logDirName.c_str()); // We want to log into the daemon's own log file
 
 	LOG("Daemon process forked"); // First note into own log file to give life sign
 

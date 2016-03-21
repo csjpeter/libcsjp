@@ -39,7 +39,7 @@ public:
 		VERIFY(request.headers.properties.size() == 1);
 		VERIFY(request.headers["content-length"] == "4");
 		DBG("request body: %", request.body);
-		VERIFY(request.body = "body");
+		VERIFY(request.body == "body");
 
 		DBG("received request:\n%", request);
 		VERIFY(request == requestStr);
@@ -145,7 +145,7 @@ public:
 
 void TestHTTP::create()
 {
-	HTTPListener listener(csjp::String("127.0.0.1"), 20202);
+	HTTPListener listener("127.0.0.1", 20202);
 	try{
 		HTTPServer server(listener);
 		VERIFY(false);
@@ -182,6 +182,7 @@ void TestHTTP::requestResponseOverSocket()
 			break;
 		case csjp::EPoll::ControlEventCode::Exception:
 			EXCEPTION(event.exception);
+			throw;
 			break;
 		}
 	}
@@ -198,6 +199,7 @@ void TestHTTP::requestResponseOverSocket()
 				break;
 			case csjp::EPoll::ControlEventCode::Exception:
 				EXCEPTION(event.exception);
+				throw;
 				break;
 			}
 		}
