@@ -141,6 +141,7 @@ class TestHTTP
 public:
 	void create();
 	void requestResponseOverSocket();
+	void multiLineHeaders();
 };
 
 void TestHTTP::create()
@@ -209,9 +210,116 @@ void TestHTTP::requestResponseOverSocket()
 	TESTSTEP("Destructors do the rest of cleanup");
 }
 
+void TestHTTP::multiLineHeaders()
+{
+	TESTSTEP("Parse multiline header with \\n\\r character in it");
+	{
+		csjp::HTTPRequest request(csjp::String("POST"));
+
+		request.headers["multiline-test-header-key"] =
+			"multiline-test-\n\r\theader-value";
+
+		DBG("Whole request:\n%", request);
+
+		csjp::HTTPRequest request2;
+		request2.parse(csjp::StringChunk(request));
+
+		DBG("Parsed request header: %",
+				request2.headers["multiline-test-header-key"].value);
+		VERIFY(request2.headers["multiline-test-header-key"].value ==
+				"multiline-test-header-value");
+	}
+
+	TESTSTEP("Parse multiline header with \\n characters in it");
+	{
+		csjp::HTTPRequest request(csjp::String("POST"));
+
+		request.headers["multiline-test-header-key"] =
+			"multiline-test-\n header-value";
+
+		DBG("Whole request:\n%", request);
+
+		csjp::HTTPRequest request2;
+		request2.parse(csjp::StringChunk(request));
+
+		DBG("Parsed request header: %",
+				request2.headers["multiline-test-header-key"].value);
+		VERIFY(request2.headers["multiline-test-header-key"].value ==
+				"multiline-test-header-value");
+	}
+
+	TESTSTEP("Parse multiline header without "
+			"starting whitespace character");
+	{
+		csjp::HTTPRequest request(csjp::String("POST"));
+
+		request.headers["multiline-test-header-key"] =
+			"multiline-test-\nheader-value";
+
+		DBG("Whole request:\n%", request);
+
+		csjp::HTTPRequest request2;
+		EXC_VERIFY(request2.parse(csjp::StringChunk(request)),
+				csjp::HttpProtocolError);
+	}
+
+	TESTSTEP("Parse multiline response header with \\n\\r character in it");
+	{
+		csjp::HTTPResponse response(csjp::String("POST"));
+
+		response.headers["multiline-test-header-key"] =
+			"multiline-test-\n\r\theader-value";
+
+		DBG("Whole response:\n%", response);
+
+		csjp::HTTPResponse response2;
+		response2.parse(csjp::StringChunk(response));
+
+		DBG("Parsed response header: %",
+				response2.headers["multiline-test-header-key"].value);
+		VERIFY(response2.headers["multiline-test-header-key"].value ==
+				"multiline-test-header-value");
+	}
+
+	TESTSTEP("Parse multiline response header with \\n characters in it");
+	{
+		csjp::HTTPResponse response(csjp::String("POST"));
+
+		response.headers["multiline-test-header-key"] =
+			"multiline-test-\n header-value";
+
+		DBG("Whole response:\n%", response);
+
+		csjp::HTTPResponse response2;
+		response2.parse(csjp::StringChunk(response));
+
+		DBG("Parsed response header: %",
+				response2.headers["multiline-test-header-key"].value);
+		VERIFY(response2.headers["multiline-test-header-key"].value ==
+				"multiline-test-header-value");
+	}
+
+	TESTSTEP("Parse multiline response header without "
+			"starting whitespace character");
+	{
+		csjp::HTTPResponse response(csjp::String("POST"));
+
+		response.headers["multiline-test-header-key"] =
+			"multiline-test-\nheader-value";
+
+		DBG("Whole response:\n%", response);
+
+		csjp::HTTPResponse response2;
+		EXC_VERIFY(response2.parse(csjp::StringChunk(response)),
+				csjp::HttpProtocolError);
+	}
+}
+
 TEST_INIT(HTTP)
 
 	TEST_RUN(create);
 	TEST_RUN(requestResponseOverSocket);
+	TEST_RUN(multiLineHeaders);
 
 TEST_FINISH(HTTP)
+

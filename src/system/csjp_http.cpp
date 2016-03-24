@@ -6,7 +6,6 @@
 #include "csjp_http.h"
 
 /* TODO
- * - support multiline header values
  * - HTTP 1.1 continue, keep-alive, chunked transfer support
  */
 
@@ -85,18 +84,26 @@ unsigned HTTPRequest::parse(const StringChunk & data)
 			return false;
 		headers.value <<= data.read(requestLine.length+2, pos);
 		Array<StringChunk> array = split(headers.value, "\r\n");
+		String key;
 		for(auto & str : array){
-			if(!str.findFirst(pos, ":"))
-				throw HttpProtocolError(
+			if(str.findFirst(pos, ":")){
+				key <<= str.read(0, pos);
+				pos++;
+				key.trim(" \t");
+				key.lower();
+			} else {
+				if(!key.length)
+					throw HttpProtocolError(
 						"Invalid header line: %", str);
-			String key;
-			key <<= str.read(0, pos);
-			key.trim(" \t");
-			key.lower();
-			StringChunk value(str.str + pos + 1,
-					str.length - pos - 1);
+				pos = 0;
+			}
+			StringChunk value(str.str + pos, str.length - pos);
+			if(!value.startsWith(" ") && !value.startsWith("\t"))
+				throw HttpProtocolError(
+						"Invalid multiline header "
+						"line: %", str);
 			value.trim(" \t");
-			headers[key] = value;
+			headers[key].value << value;
 		}
 	}
 
@@ -185,18 +192,26 @@ unsigned HTTPResponse::parse(const StringChunk & data)
 			return false;
 		headers.value <<= data.read(statusLine.length+2, pos);
 		Array<StringChunk> array = split(headers.value, "\r\n");
+		String key;
 		for(auto & str : array){
-			if(!str.findFirst(pos, ":"))
-				throw HttpProtocolError(
+			if(str.findFirst(pos, ":")){
+				key <<= str.read(0, pos);
+				key.trim(" \t");
+				key.lower();
+				pos++;
+			} else {
+				if(!key.length)
+					throw HttpProtocolError(
 						"Invalid header line: %", str);
-			String key;
-			key <<= str.read(0, pos);
-			key.trim(" \t");
-			StringChunk value(str.str + pos + 1,
-					str.length - pos - 1);
+				pos = 0;
+			}
+			StringChunk value(str.str + pos, str.length - pos);
+			if(!value.startsWith(" ") && !value.startsWith("\t"))
+				throw HttpProtocolError(
+						"Invalid multiline header "
+						"line: %", str);
 			value.trim(" \t");
-			key.lower();
-			headers[key] = value;
+			headers[key].value << value;
 		}
 	}
 
