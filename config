@@ -12,7 +12,7 @@ VERSION=${VERSION_API}.${VERSION_PATCH}
 PKGNAME_BASE=${PRJNAME}${VERSION_API}
 
 PRJDESC="Experimental general base library for C++."
-PRJDESCRIPTION=" The purpose of this library to provide an alternative general\n\
+PRJDESCRIPTION=" The purpose of this library is to provide an alternative general\n\
  purpose base library, which is platform independent, lightweight,\n\
  easier to use and more productive than the standard C++ library.\n\
  Note, this library is only an experiment for now."
