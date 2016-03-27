@@ -249,7 +249,7 @@ public:
 		if(cap < len + array.length)
 			extendCapacity(len + array.length);
 
-		for(auto i = 0; i < array.length; i++){
+		for(size_t i = 0; i < array.length; i++){
 			val[len] = array.val[i];
 			len++;
 			val[len] = 0;
