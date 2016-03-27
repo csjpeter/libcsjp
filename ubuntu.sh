@@ -4,21 +4,24 @@ JOBS=$(expr $(cat /proc/cpuinfo | grep processor | wc -l) + 1)
 #JOBS=1
 
 # ubuntu ditributions
-trusty=14.04
-raring=13.04
-quantal=12.10
-precise=12.04
-oneiric=11.10
-lucid=10.04
-hardy=8.04
+#trusty=14.04
+#raring=13.04
+#quantal=12.10
+#precise=12.04
+#oneiric=11.10
+#lucid=10.04
+#hardy=8.04
 
 # debian distributions
-wheezy=7.0
-squeeze=6.0
-lenny=5.0
-etch=4.0
+#wheezy=7.0
+#squeeze=6.0
+#lenny=5.0
+#etch=4.0
 
-source /etc/lsb-release
+#source /etc/lsb-release
+source /etc/os-release
+
+DISTRIB_CODENAME=${ID}"-"${VERSION_ID}
 
 function exec_in_dir ()
 {
