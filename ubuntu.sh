@@ -13,6 +13,7 @@ lucid=10.04
 hardy=8.04
 
 # debian distributions
+wheezy=7.0
 squeeze=6.0
 lenny=5.0
 etch=4.0
