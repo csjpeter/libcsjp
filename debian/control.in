@@ -5,7 +5,7 @@ Maintainer: @AUTHOR@ <@EMAIL@>
 Standards-Version: 3.9.3
 Build-Depends: make (>=3.0.0), dpkg (>=1.15.0), gawk | mawk, tar (>=1.0.0), gzip (>=1.0.0),
  debhelper (>= 9), pkg-config (>= 0.25), libc6 (>=2.0.0), libicu-dev (>= 4.8.0),
- doxygen (>= 1.7.6), graphviz (>= 2.26.0), gcc-4.6, filepp (>= 1.8.0)
+ doxygen (>= 1.7.6), graphviz (>= 2.26.0), gcc (>= 4.6), filepp (>= 1.8.0)
 
 Package: @PKGNAME@
 Section: libs
