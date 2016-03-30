@@ -248,6 +248,12 @@ build-indep: \
 	@DOCDIR@/containers.png \
 	@DOCDIR@/html/index.html
 
+test:
+	true
+
+distclean: \
+	clean
+
 clean:
 	test "x" = "x$(shell find . | grep \\~$$)" || rm $(shell find . | grep \\~$$)
 	test "x" = "x$(shell find . | grep \\.swp$$)" || rm $(shell find . | grep \\.swp$$)
