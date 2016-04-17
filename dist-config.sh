@@ -2,8 +2,7 @@
 
 source config
 
-source /etc/os-release
-DISTRIB_CODENAME=${ID}"-"${VERSION_ID}
+DISTRIB_CODENAME=$(source /etc/os-release; echo ${ID}"-"${VERSION_ID})
 
 BUILD_DIST=${DISTRIB_CODENAME}
 HOST_DIST=${DISTRIB_CODENAME}

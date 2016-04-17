@@ -2,8 +2,7 @@
 
 JOBS=$(expr $(cat /proc/cpuinfo | grep processor | wc -l) + 1)
 
-source /etc/os-release
-DISTRIB_CODENAME=${ID}"-"${VERSION_ID}
+DISTRIB_CODENAME=$(source /etc/os-release; echo ${ID}"-"${VERSION_ID})
 
 function exec_in_dir ()
 {
