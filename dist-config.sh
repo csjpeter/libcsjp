@@ -2,7 +2,8 @@
 
 source config
 
-source /etc/lsb-release
+source /etc/os-release
+DISTRIB_CODENAME=${ID}"-"${VERSION_ID}
 
 BUILD_DIST=${DISTRIB_CODENAME}
 HOST_DIST=${DISTRIB_CODENAME}

@@ -2,7 +2,8 @@
 
 JOBS=$(expr $(cat /proc/cpuinfo | grep processor | wc -l) + 1)
 
-source /etc/lsb-release
+source /etc/os-release
+DISTRIB_CODENAME=${ID}"-"${VERSION_ID}
 
 function exec_in_dir ()
 {
