@@ -161,7 +161,7 @@ void TestHTTP::create()
 void TestHTTP::requestResponseOverSocket()
 {
 	TESTSTEP("SigPipe handler, EPoll, listening, connecting with client");
-	csjp::Signal termSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
+	csjp::Signal pipeSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
 	csjp::EPoll epoll(5);
 	HTTPListener listener("127.0.0.1", 30303);
 	epoll.add(listener);

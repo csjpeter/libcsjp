@@ -151,7 +151,7 @@ void TestEPoll::create()
 void TestEPoll::receiveMsg()
 {
 	TESTSTEP("Register SIGPIPE handler");
-	csjp::Signal termSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
+	csjp::Signal pipeSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
 
 	TESTSTEP("Creating EPoll");
 	csjp::EPoll epoll(5);
@@ -199,7 +199,7 @@ void TestEPoll::receiveMsg()
 void TestEPoll::flood()
 {
 	TESTSTEP("Register SIGPIPE handler");
-	csjp::Signal termSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
+	csjp::Signal pipeSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
 
 	TESTSTEP("Creating EPoll, listening, connecting with client");
 	csjp::EPoll epoll(5);

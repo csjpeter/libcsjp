@@ -84,7 +84,7 @@ void TestClient::serverSendsToClosedClient()
 	client.close();
 	
 	TESTSTEP("Register SIGPIPE handler");
-	csjp::Signal termSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
+	csjp::Signal pipeSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
 
 	TESTSTEP("Server write should end up in closed socket");
 	EXC_VERIFY(server.send(msg), csjp::SocketClosedByPeer);
@@ -104,7 +104,7 @@ void TestClient::clientSendsToClosedServer()
 	server.close();
 	
 	TESTSTEP("Register SIGPIPE handler");
-	csjp::Signal termSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
+	csjp::Signal pipeSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
 
 	TESTSTEP("Client write should fail with proper exception");
 	EXC_VERIFY(client.send(msg), csjp::SocketClosedByPeer);
