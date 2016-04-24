@@ -37,6 +37,7 @@ public:
 		file(temp.file),
 		totalReceived(temp.totalReceived),
 		totalSent(temp.totalSent),
+		closeOnSent(temp.closeOnSent),
 		bytesAvailable(readBuffer.length),
 		bytesToSend(writeBuffer.length),
 		totalBytesReceived(totalReceived),
@@ -53,11 +54,13 @@ public:
 		address = temp.address; // FIXME is this right?
 		totalReceived = temp.totalReceived;
 		totalSent = temp.totalSent;
+		closeOnSent = temp.closeOnSent;
 
 		temp.file = -1;
 		bzero((char *) &address, sizeof(address));
 		temp.totalReceived = 0;
 		temp.totalSent = 0;
+		temp.closeOnSent = false;
 
 		return *this;
 	}
@@ -99,6 +102,8 @@ private:
 	size_t totalSent;
 
 public:
+	bool closeOnSent; // close connection when writeBuffer empty
+
 	const size_t & bytesAvailable;
 	const size_t & bytesToSend;
 	const size_t & totalBytesReceived;

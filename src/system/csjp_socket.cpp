@@ -24,6 +24,7 @@ Socket::Socket() :
 	file(-1),
 	totalReceived(0),
 	totalSent(0),
+	closeOnSent(false),
 	bytesAvailable(readBuffer.length),
 	bytesToSend(writeBuffer.length),
 	totalBytesReceived(totalReceived),
@@ -150,6 +151,9 @@ bool Socket::writeFromBuffer()
 	if(justWritten < 0 && ( errNo != EAGAIN /*&& errNo != EWOULDBLOCK*/))
 		throw SocketError(errNo, "Error after writting % bytes "
 				"to socket.", written);
+
+	if(closeOnSent && writeBuffer.length == 0)
+		close();
 
 	return 0 <= justWritten; // false if EAGAIN or EWOULDBLOCK happened
 }

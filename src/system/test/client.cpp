@@ -100,8 +100,11 @@ void TestClient::clientSendsToClosedServer()
 	SocketServer server(listener);
 	usleep(10 * 1000); // 0.01 sec
 	
-	TESTSTEP("Server closes");
-	server.close();
+	TESTSTEP("Server should close after sent all data");
+	server.closeOnSent = true;
+	server.send(csjp::String());
+	// Closed socket is expected to throw InvalidState
+	EXC_VERIFY(server.send(csjp::String()), csjp::InvalidState);
 	
 	TESTSTEP("Register SIGPIPE handler");
 	csjp::Signal pipeSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
