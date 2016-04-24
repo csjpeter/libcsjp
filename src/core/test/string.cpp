@@ -52,6 +52,7 @@ public:
 	void appendOperator();
 	void conversionOperator();
 	void lowerUpper();
+	void exceptionLastMessage();
 };
 
 void TestString::constructs()
@@ -1205,6 +1206,15 @@ void TestString::lowerUpper()
 	VERIFY(toUpper == "AA ZZ");
 }
 
+void TestString::exceptionLastMessage()
+{
+	TESTSTEP("construct exception");
+	csjp::Exception e("test message");
+
+	TESTSTEP("Test last message's value");
+	VERIFY(strcmp(e.lastMessage(), "test message") == 0);
+}
+
 TEST_INIT(String)
 
 	TEST_RUN(constructs);
@@ -1243,5 +1253,6 @@ TEST_INIT(String)
 	TEST_RUN(appendOperator);
 	TEST_RUN(conversionOperator);
 	TEST_RUN(lowerUpper);
+	TEST_RUN(exceptionLastMessage);
 
 TEST_FINISH(String)

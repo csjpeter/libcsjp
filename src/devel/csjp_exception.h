@@ -64,6 +64,7 @@ public:
 	void notePrintf(const char * format, ...) __attribute__ ((format (printf, 2, 3)));
 	void vnotePrintf(const char * format, va_list args);
 	virtual const char * what() const throw();
+	const char * lastMessage();
 	iterator begin() const { return iterator(lastNode); }
 	iterator end() const { return iterator(0); }
 

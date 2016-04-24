@@ -390,6 +390,11 @@ static void print_backtrace()
 #endif
 }
 
+const char * PrimeException::lastMessage()
+{
+	return lastNode ? lastNode->msg : "";
+}
+
 static void segmentation_fault_signal_handler(int signalNumber)
 {
 	fprintf(stderr, "Error: signal %d:\n", signalNumber);
