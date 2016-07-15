@@ -87,6 +87,7 @@ public:
 	iterator end() const { return iterator(val + len); }
 
 public:
+	// FIXME remove, allow only construction by value, not by config parameter
 	explicit String(size_t s) StringInitializer { setCapacity(s); }
 	explicit String(const char * str, size_t _length) StringInitializer {assign(str, _length);}
 	explicit String(const char * str) StringInitializer { assign(str); }
