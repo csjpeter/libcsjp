@@ -152,7 +152,6 @@ public:
 protected:
 	void close(bool throws) const;
 
-private:
 	mutable int file;
 	mutable bool writable;
 	mutable bool eofbit;
@@ -162,6 +161,22 @@ private:
 	long unsigned fileSize;
 
 	String fileName;
+};
+
+class TempFile : public File
+{
+public:
+	/** Param templateFileName should have such form: temp_file_XXXXXX,
+	 * where "temp_file_" will remain as is and last six characters
+	 * of template must be "XXXXXX" that will be changed by generated
+	 * random such that the resulted file name will be unique.
+	 * For details see linux man page mkstemp in section 3.
+	 */
+	explicit TempFile(const String & templateFileName);
+	explicit TempFile(const char * templateFileName);
+	virtual ~TempFile();
+
+	explicit TempFile() = delete;
 };
 
 }

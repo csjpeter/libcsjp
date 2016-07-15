@@ -15,6 +15,7 @@ public:
 	void read();
 	void append();
 	//void lock();
+	void temporary();
 };
 
 void TestFile::createAndUnlink()
@@ -239,6 +240,26 @@ void TestFile::lock()
 	NOEXC_VERIFY(file.unlock());
 }
 #endif
+
+void TestFile::temporary()
+{
+	csjp::TempFile file(TESTDIR "/textfile.test.XXXXXX");
+	csjp::String str;
+
+	TESTSTEP("Append a string to file");
+	LOG("Temporary file name: %", file.name());
+	str = "kutyus";
+	NOEXC_VERIFY(file.append(str));
+	str.clear();
+	NOEXC_VERIFY(file.rewind());
+	NOEXC_VERIFY(str = file.readAll());
+	VERIFY(str == "kutyus");
+
+	TESTSTEP("Unlink file");
+	NOEXC_VERIFY(file.unlink());
+	VERIFY(!file.exists());
+}
+
 TEST_INIT(File)
 
 	TEST_RUN(createAndUnlink);
@@ -247,5 +268,6 @@ TEST_INIT(File)
 	TEST_RUN(read);
 	TEST_RUN(append);
 	//TEST_RUN(lock);
+	TEST_RUN(temporary);
 
 TEST_FINISH(File)

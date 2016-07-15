@@ -20,6 +20,30 @@
 
 namespace csjp {
 
+TempFile::TempFile(const char * templateFileName) :
+	File(templateFileName)
+{
+	file = mkstemp((char *)fileName.c_str());
+	if(file == -1)
+		throw FileError(errno, "Could not create temporary file %.", fileName);
+	writable = true;
+}
+
+TempFile::TempFile(const String & templateFileName) :
+	File(templateFileName)
+{
+	file = mkstemp((char *)fileName.c_str());
+	if(file == -1)
+		throw FileError(errno, "Could not create temporary file %.", fileName);
+	writable = true;
+}
+
+TempFile::~TempFile()
+{
+	if(0 <= file)
+		close(false);
+}
+
 File::File(const char * fileName) :
 	file(-1),
 	writable(false),
