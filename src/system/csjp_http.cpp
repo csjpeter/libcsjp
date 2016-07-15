@@ -133,7 +133,7 @@ HTTPResponse::HTTPResponse(
 {
 	statusCode <<= code;
 	reasonPhrase <<= code.phrase();
-	statusLine.catf("HTTP-% % %",
+	statusLine.catf("HTTP/% % %",
 			version.length ? version.c_str() : "1.0",
 			statusCode, reasonPhrase);
 }
@@ -147,7 +147,7 @@ HTTPResponse::HTTPResponse(
 	HTTPStatusCode code = HTTPStatusCode::Enum::OK;
 	statusCode <<= code;
 	reasonPhrase <<= code.phrase();
-	statusLine.catf("HTTP-% % %",
+	statusLine.catf("HTTP/% % %",
 			version.length ? version.c_str() : "1.0",
 			statusCode, reasonPhrase);
 }
