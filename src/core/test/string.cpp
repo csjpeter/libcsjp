@@ -53,6 +53,7 @@ public:
 	void conversionOperator();
 	void lowerUpper();
 	void exceptionLastMessage();
+	void base64();
 };
 
 void TestString::constructs()
@@ -1215,6 +1216,18 @@ void TestString::exceptionLastMessage()
 	VERIFY(strcmp(e.lastMessage(), "test message") == 0);
 }
 
+void TestString::base64()
+{
+	TESTSTEP("Convert string 'test' to base64 and back.");
+
+	csjp::String test("test");
+	csjp::String base64 = test.encodeBase64();
+	VERIFY(base64 == "");
+
+	csjp::String str = base64.decodeBase64();
+	VERIFY(str == test);
+}
+
 TEST_INIT(String)
 
 	TEST_RUN(constructs);
@@ -1254,5 +1267,6 @@ TEST_INIT(String)
 	TEST_RUN(conversionOperator);
 	TEST_RUN(lowerUpper);
 	TEST_RUN(exceptionLastMessage);
+	TEST_RUN(base64);
 
 TEST_FINISH(String)

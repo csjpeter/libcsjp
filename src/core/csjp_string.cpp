@@ -1412,4 +1412,17 @@ void String::upper()
 			*iter -= diff;
 }
 
+String String::encodeBase64() const
+{
+	String base64;
+	
+	return base64;
+}
+
+String String::decodeBase64() const
+{
+	String str;
+	return str;
+}
+
 }

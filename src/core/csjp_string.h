@@ -306,6 +306,8 @@ public:
 
 	void lower();
 	void upper();
+	String encodeBase64() const;
+	String decodeBase64() const;
 };
 
 inline bool operator==(const String & a, const char * b) { return a.isEqual(b); }
