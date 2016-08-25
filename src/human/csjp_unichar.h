@@ -57,7 +57,7 @@ public:
 	double numericValue() const;
 
 	void name(String & str) const;
-	void isoComment(String & str) const;
+	//void isoComment(String & str) const;
 
 	bool isIdStarter() const;
 	bool isAlpha() const;

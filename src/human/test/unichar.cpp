@@ -91,7 +91,7 @@ void TestUniChar::info(const csjp::UniChar & c)
 	low = c;
 	low.toLower();
 	c.name(name);
-	c.isoComment(comment);
+	//c.isoComment(comment); FIXME deprecated
 	DBG(	"Character: %; Upper: %; Lower: %; "
 		"IDStarter: %; digitValue: %; numericValue: %; "
 		"Name: %; Iso comment: %",

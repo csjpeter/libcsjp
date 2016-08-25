@@ -36,7 +36,7 @@ static inline bool unicodePointValidity(UChar32 cp)
 		return false;
 	if(UCHAR_MAX_VALUE < cp)
 		return false;
-	if((cp && 0xfffe) == 0xfffe)
+	if((cp & 0xfffe) == 0xfffe)
 		return false;
 
 	/* NOTE : These codes should be valid, but only if encountered in pairs. */
@@ -354,12 +354,13 @@ void UniChar::name(String & str) const
 
 	str.adopt(buffer.ptr, len, size);
 }
-
+/*
 void UniChar::isoComment(String & str) const
 {
 	UErrorCode err = U_ZERO_ERROR;
 	CArray<char> buffer;
 
+	// FIXME deprecated, what to use instead?
 	unsigned len = u_getISOComment(priv->val, buffer.ptr, 0, &err);
 
 	unsigned size = len + 1;
@@ -377,7 +378,7 @@ void UniChar::isoComment(String & str) const
 
 	str.adopt(buffer.ptr, len, size);
 }
-
+*/
 bool UniChar::isIdStarter() const
 {
 	return u_isIDStart(priv->val);
