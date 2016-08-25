@@ -1218,14 +1218,36 @@ void TestString::exceptionLastMessage()
 
 void TestString::base64()
 {
-	TESTSTEP("Convert string 'test' to base64 and back.");
+	{
+		TESTSTEP("Convert string 'test' to base64 and back.");
 
-	csjp::String test("test");
-	csjp::String base64 = test.encodeBase64();
-	VERIFY(base64 == "");
+		csjp::String test("test");
+		csjp::String base64 = test.encodeBase64();
+		VERIFY(base64 == "dGVzdA==");
 
-	csjp::String str = base64.decodeBase64();
-	VERIFY(str == test);
+		csjp::String str = base64.decodeBase64();
+		VERIFY(str == test);
+	}
+	{
+		TESTSTEP("Convert string 'test!' to base64 and back.");
+
+		csjp::String test("test!");
+		csjp::String base64 = test.encodeBase64();
+		VERIFY(base64 == "dGVzdCE=");
+
+		csjp::String str = base64.decodeBase64();
+		VERIFY(str == test);
+	}
+	{
+		TESTSTEP("Convert string 'árvíztűrőtükörfúrógép' to base64 and back.");
+
+		csjp::String test("árvíztűrőtükörfúrógép");
+		csjp::String base64 = test.encodeBase64();
+		VERIFY(base64 == "w6FydsOtenTFsXLFkXTDvGvDtnJmw7pyw7Nnw6lw");
+
+		csjp::String str = base64.decodeBase64();
+		VERIFY(str == test);
+	}
 }
 
 TEST_INIT(String)
