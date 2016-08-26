@@ -101,7 +101,7 @@ public:
 			return;
 
 		DBG("response status line: %", response.getStatusLine());
-		VERIFY(response.getStatusLine() == "HTTP-1.0 200 OK");
+		VERIFY(response.getStatusLine() == "HTTP/1.0 200 OK");
 		DBG("response status code: %", response.status());
 		VERIFY(response.status() == "200");
 		DBG("response reason phrase: %", response.reason());

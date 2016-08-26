@@ -177,7 +177,7 @@ unsigned HTTPResponse::parse(const StringChunk & data)
 		statusLine <<= data.read(0, pos);
 		Array<StringChunk> result(3);
 		if(!subStringByRegexp(statusLine, result,
-				"HTTP-\\([^ ]*\\) \\([^ ]*\\) \\(.*\\)$"))
+				"HTTP/\\([^ ]*\\) \\([^ ]*\\) \\(.*\\)$"))
 			throw HttpProtocolError(
 					"Invalid HTTP status line: %",
 					statusLine);
