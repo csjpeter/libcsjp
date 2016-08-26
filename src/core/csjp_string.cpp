@@ -14,6 +14,47 @@
 
 namespace csjp {
 
+void String::setCapacity(size_t _cap)
+{
+	char *dst = (char *)realloc(val, _cap + 1);
+	if(!dst)
+		throw OutOfMemory("No enough memory for string allocation with size of % bytes.",
+				size);
+
+	size = _cap + 1;
+	val = dst;
+	if(_cap < len)
+		len = _cap;
+	val[len] = 0;
+}
+
+void String::extendCapacity(size_t _cap)
+{
+	ENSURE(len <= _cap,  InvalidArgument);
+
+	/* Preallocate 10% more bytes (or 100% more if 10% was less than 2048 bytes). */
+	size_t inc = _cap / 10;
+	if(inc < 2048)
+		inc = _cap;
+	_cap += inc;
+
+	setCapacity(_cap);
+}
+
+size_t String::capacity() const
+{
+	return (0 < size) ? size - 1 : 0;
+}
+
+void String::setLength(size_t length)
+{
+	if(size <= length)
+		throw InvalidArgument(
+				"String capacity is %, requested length to set is %.",
+				size-1, length);
+	len = length;
+}
+
 int String::compare(const char * str, size_t _length) const
 {
 	ENSURE(str || !_length,  InvalidArgument);
@@ -619,38 +660,6 @@ void String::assign(const String & str)
 	ENSURE(str.len,  InvalidArgument);
 
 	assign(str.val, str.len);
-}
-
-void String::setCapacity(size_t _cap)
-{
-	char *dst = (char *)realloc(val, _cap + 1);
-	if(!dst)
-		throw OutOfMemory("No enough memory for string allocation with size of % bytes.",
-				size);
-
-	size = _cap + 1;
-	val = dst;
-	if(_cap < len)
-		len = _cap;
-	val[len] = 0;
-}
-
-void String::extendCapacity(size_t _cap)
-{
-	ENSURE(len <= _cap,  InvalidArgument);
-
-	/* Preallocate 10% more bytes (or 100% more if 10% was less than 2048 bytes). */
-	size_t inc = _cap / 10;
-	if(inc < 2048)
-		inc = _cap;
-	_cap += inc;
-
-	setCapacity(_cap);
-}
-
-size_t String::capacity() const
-{
-	return (0 < size) ? size - 1 : 0;
 }
 
 void String::fill(char _fill, size_t _length)
@@ -1495,7 +1504,7 @@ String String::decodeBase64() const
 	str.setCapacity(( len / 4 ) * 3);
 	size_t j = 0;
 
-	unsigned d0, d1, d2, d3;
+	unsigned d0, d1, d2=0, d3=0;
 	for(size_t i = 0; i < len; i += 4){
 		d0 = base64DecodeArray[(unsigned char)val[i]];
 		d1 = base64DecodeArray[(unsigned char)val[i+1]];

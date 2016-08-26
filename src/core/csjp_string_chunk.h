@@ -144,6 +144,9 @@ public:
 	void trimBack(const StringChunk &);
 
 	Array<StringChunk> split(const char * delimiters, bool avoidEmptyResults = true) const;
+
+	String encodeBase64() const;
+	String decodeBase64() const;
 };
 
 inline bool operator==(const StringChunk & a, const char * b) { return a.isEqual(b); }

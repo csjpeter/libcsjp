@@ -92,6 +92,11 @@ public:
 	explicit String(const char * str, size_t _length) StringInitializer {assign(str, _length);}
 	explicit String(const char * str) StringInitializer { assign(str); }
 
+	void setCapacity(size_t);
+	void extendCapacity(size_t); // reserves extra space for later usage
+	size_t capacity() const;
+	void setLength(size_t length);
+
 	const char * c_str() const { return val; }
 
 	const char& operator[](unsigned char i) const { return val[i]; }
@@ -183,12 +188,6 @@ public:
 	void assign(const char *, size_t _length);
 	void assign(const char *);
 	void assign(const String &);
-
-	void setCapacity(size_t);
-
-	void extendCapacity(size_t); // reserves extra space over the given size for future usage
-
-	size_t capacity() const;
 
 	void fill(char, size_t);
 

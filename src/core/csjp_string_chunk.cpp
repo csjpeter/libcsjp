@@ -879,6 +879,123 @@ Array<StringChunk> split(const String & str,
 	return chunk.split(delimiters, avoidEmptyResults);
 }
 
+static const unsigned char * base64EncodeArray = (unsigned char*)
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"abcdefghijklmnopqrstuvwxyz"
+		"0123456789+/";
+
+String StringChunk::encodeBase64() const
+{
+	String base64;
+	base64.setCapacity(len + len / 3 + 4);
+	size_t j = 0;
+
+	size_t l = len - len % 3;
+	for(size_t i = 0; i < l; i += 3){
+		unsigned char d0 = ref[i];
+		unsigned char d1 = ref[i+1];
+		unsigned char d2 = ref[i+2];
+		base64[j++] = base64EncodeArray[(d0 & 0xfc) >> 2];
+		base64[j++] = base64EncodeArray[((d0 & 0x03) << 4) | ((d1 & 0xf0) >> 4)];
+		base64[j++] = base64EncodeArray[((d1 & 0x0f) << 2) | ((d2 & 0xc0) >> 6)];
+		base64[j++] = base64EncodeArray[(d2 & 0x3f)];
+	}
+
+	if(len % 3 == 1){
+		unsigned char d0 = ref[l];
+		base64[j++] = base64EncodeArray[(d0 & 0xfc) >> 2];
+		base64[j++] = base64EncodeArray[((d0 & 0x03) << 4)];
+		base64[j++] = '=';
+		base64[j++] = '=';
+	} else if(len % 3 == 2){
+		unsigned char d0 = ref[l];
+		unsigned char d1 = ref[l+1];
+		base64[j++] = base64EncodeArray[(d0 & 0xfc) >> 2];
+		base64[j++] = base64EncodeArray[((d0 & 0x03) << 4) | ((d1 & 0xf0) >> 4)];
+		base64[j++] = base64EncodeArray[((d1 & 0x0f) << 2)];
+		base64[j++] = '=';
+	}
+
+	base64.setLength(j);
+	base64[j] = 0;
+
+	return base64;
+}
+
+/* At position of ie. 'B', lets find the index of 'B' (1) in base64EncodeArray.
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,'+',768,768,768,'/',
+	'0','1','2','3','4','5','6','7','8','9',768,768,768,'=',768,768,
+	768,'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O',
+	'P','Q','R','S','T','U','V','W','X','Y','Z',768,768,768,768,768,
+	768,'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o',
+	'p','q','r','s','t','u','v','w','x','y','z',768,768,768,768,768
+*/
+static const unsigned base64DecodeArray[] = {
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768, 62,768,768,768, 63,
+	 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,768,768,768,256,768,768,
+	768,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
+	 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 25,768,768,768,768,
+	768, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+	 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768
+};
+
+String StringChunk::decodeBase64() const
+{
+	if(len % 4)
+		throw InvalidArgument("This string is not in base64 format "
+				"(length % 4 != 0).");
+
+	String str;
+	str.setCapacity(( len / 4 ) * 3);
+	size_t j = 0;
+
+	unsigned d0, d1, d2=0, d3=0;
+	for(size_t i = 0; i < len; i += 4){
+		d0 = base64DecodeArray[(unsigned char)ref[i]];
+		d1 = base64DecodeArray[(unsigned char)ref[i+1]];
+		d2 = base64DecodeArray[(unsigned char)ref[i+2]];
+		d3 = base64DecodeArray[(unsigned char)ref[i+3]];
+#ifndef PERFMODE
+		if(i < len - 4) {
+			if(256 <= (d0 + d1 + d2 + d3))
+				throw InvalidArgument("Unexpected character found "
+						"near position %", i);
+		} else {
+			if(768 <= (d0 + d1 + d2 + d3) ||
+				512 <= (d0 + d1 + d2) ||
+				256 <= (d0 + d1) ||
+				(d2 == 256 && d3 != 256))
+				throw InvalidArgument("Unexpected character found "
+						"near position %", i);
+		}
+#endif
+		str[j++] = (d0 << 2) | (d1 >> 4);
+		str[j++] = (d1 << 4) | ((unsigned char)d2 >> 2);
+		str[j++] = ((unsigned char)d2 << 6) | (unsigned char)d3;
+	}
+
+	if(d3 == 256)
+		j--;
+	if(d2 == 256)
+		j--;
+	str.setLength(j);
+	str[j] = 0;
+
+	return str;
+}
+
 /** Tries to mine the matching groups and make
  * result to refer to it if matching was successfull.
  * FIXME : write standalone regexp class. */
@@ -909,7 +1026,7 @@ bool subStringByRegexp(
                                 matches[i].rm_eo < matches[i].rm_so)
 			break;
 		if(result.capacity < i)
-			throw new InvalidArgument(
+			throw InvalidArgument(
 			"Regular expression contains more groups than "
 			"the capacity of the result array given as parameter.");
 		result.add(str.c_str() + matches[i].rm_so, matches[i].rm_eo -

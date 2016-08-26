@@ -38,7 +38,7 @@ Signal::Signal(int signum, SignalHandlerFunction func) :
         action.sa_sigaction = func;
 
         if(sigaction(signum, &action, &oldAction) < 0)
-                throw new SystemError("Could not set terminate signal handler. Error: %",
+                throw SystemError("Could not set terminate signal handler. Error: %",
 				csjp::ErrNo());
 }
 
