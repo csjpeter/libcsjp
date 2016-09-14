@@ -19,8 +19,18 @@ class Json
  */
 #define JsonInitializer
 public:
+	enum class Type
+	{
+		Null,
+		Boolean,
+		Number,
+		String,
+		Object
+	};
+
 	explicit Json(const Json & orig) :
 		key(orig.key),
+		type(Type::Null),
 		value(orig.value),
 		properties(orig.properties)
 	{}
@@ -28,6 +38,7 @@ public:
 
 	Json(Json && temp) :
 		key(move_cast(temp.key)),
+		type(temp.type),
 		value(move_cast(temp.value)),
 		properties(move_cast(temp.properties))
 	{}
@@ -35,6 +46,7 @@ public:
 	const Json & operator=(Json && temp)
 	{
 		//key = move_cast(temp.key);
+		type = move_cast(temp.type);
 		value = move_cast(temp.value);
 		properties = move_cast(temp.properties);
 		return *this;
@@ -104,6 +116,8 @@ public:
 		return const_cast<Json &>(properties.query(obj));
 	}
 
+	operator const csjp::String & () const { return value; }
+
 private:
 	static Json fromString(const String & data);
 	csjp::String toString(int depth) const;
@@ -114,6 +128,7 @@ public:
 
 public:
 	const String key;
+	Type type;
 	String value;
 	OwnerContainer<Json> properties;
 };
@@ -133,6 +148,8 @@ inline bool operator<(const StringChunk& a, const Json& b) { return b.isMore(a);
 inline bool operator<(const Json& a, const char * b) { return a.isLess(String(b)); }
 inline bool operator<(const char * a, const Json& b) { return b.isMore(String(a)); }
 
+inline String &	operator<<(csjp::String & lhs, const csjp::Json & rhs)
+		{ lhs += rhs.value; return lhs; }
 inline String &	operator<<=(csjp::String & lhs, const csjp::Json & rhs)
 		{ lhs = rhs.value; return lhs; }
 inline int & operator<<=(int & lhs, const Json & rhs)

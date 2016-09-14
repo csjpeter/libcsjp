@@ -36,8 +36,10 @@ void TestJson::onlyValues()
 	VERIFY(ot.key == "");
 	VERIFY(ot.properties.size() == 2);
 	VERIFY(ot.properties.has("gyümölcs"));
+	VERIFY(ot["gyümölcs"].type == csjp::Json::Type::String);
 	VERIFY(ot["gyümölcs"] == "alma");
 	VERIFY(ot.properties.has("zöldség"));
+	VERIFY(ot["zöldség"].type == csjp::Json::Type::String);
 	VERIFY(ot["zöldség"] == "répa");
 
 	csjp::String str;
@@ -69,9 +71,11 @@ void TestJson::onlyObjects()
 	VERIFY(ot.properties.size() == 2);
 	VERIFY(ot.properties.has("gyümölcs"));
 	VERIFY(ot["gyümölcs"].key == "gyümölcs");
+	VERIFY(ot["gyümölcs"].type == csjp::Json::Type::Object);
 	VERIFY(ot["gyümölcs"].properties.size() == 0);
 	VERIFY(ot.properties.has("zöldség"));
 	VERIFY(ot["zöldség"].key == "zöldség");
+	VERIFY(ot["zöldség"].type == csjp::Json::Type::Object);
 	VERIFY(ot["zöldség"].properties.size() == 0);
 
 	csjp::String str;

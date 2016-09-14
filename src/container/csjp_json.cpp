@@ -51,7 +51,7 @@ private:
 	bool readFreeString(String & token); /* string without quotation and ecaped characters */
 	bool readString(String & token);
 	bool readNumber(String & token);
-	bool readValue(String & token);
+	bool readValue(String & token, Json::Type & type);
 	bool readPair(bool must = false);
 	bool readMembers(bool must = false);
 	bool readObject();
@@ -350,24 +350,31 @@ bool JsonParser::readNumber(String & token)
 	}
 }
 
-bool JsonParser::readValue(String & token)
+bool JsonParser::readValue(String & token, Json::Type & type)
 {
-	if(readNumber(token))
+	if(readNumber(token)){
+		type = Json::Type::Number;
 		return true;
+	}
 	if(readKeyword("true")){
+		type = Json::Type::Boolean;
 		token = "true";
 		return true;
 	}
 	if(readKeyword("false")){
+		type = Json::Type::Boolean;
 		token = "false";
 		return true;
 	}
 	if(readKeyword("null")){
-		token = "null";
+		type = Json::Type::Null;
+		token = "";
 		return true;
 	}
-	if(readString(token))
+	if(readString(token)){
+		type = Json::Type::String;
 		return true;
+	}
 	if(readObject())
 		return true;
 	return false;
@@ -376,6 +383,7 @@ bool JsonParser::readValue(String & token)
 bool JsonParser::readPair(bool must)
 {
 	String value;
+	Json::Type type;
 
 	if(!readString(key)){
 		if(must) {
@@ -387,12 +395,14 @@ bool JsonParser::readPair(bool must)
 	if(!readCharacter(':'))
 		PARSE_ERROR(":", "pair");
 	skipWhiteSpace();
-	if(!readValue(value))
+	if(!readValue(value, type))
 		PARSE_ERROR("language element value", "pair");
 
 	if(key.length){
 		DBG("Inserting key '%', value '%'", key, value);
-		objectStack.last()[key] = move_cast(value);
+		auto & json = objectStack.last()[key];
+		json = move_cast(value);
+		json.type = type;
 		key.clear();
 	}
 
@@ -411,7 +421,6 @@ bool JsonParser::readMembers(bool must)
 	return true;
 }
 
-/* FIXME : process 'null' object here instead as property, by just begining and ending it. */
 bool JsonParser::readObject()
 {
 	if(!readCharacter('{'))
@@ -422,12 +431,14 @@ bool JsonParser::readObject()
 	if(objectStack.empty()){
 		ENSURE(key.length == 0, ParseError);
 		objectStack.add(target);
+		target.type = Json::Type::Object;
 	} else {
 		ENSURE(key.length, ParseError);
 		Object<Json> obj(new Json(key));
-		Json *j = obj.ptr;
+		Json & json = *(obj.ptr);
+		json.type = Json::Type::Object;
 		objectStack.last().properties.add(obj.ptr);
-		objectStack.add(*j);
+		objectStack.add(json);
 		key.clear();
 	}
 
