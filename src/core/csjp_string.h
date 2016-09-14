@@ -552,6 +552,10 @@ DECL_EXCEPTION(LogicError, ObjectNotFound);
 DECL_EXCEPTION(LogicError, InvariantFailure);
 DECL_EXCEPTION(LogicError, TestFailure);
 
+
+inline String &	operator<<(csjp::String & lhs, const csjp::PrimeException & rhs)
+		{ lhs += *(rhs.begin()); return lhs; }
+
 }
 
 
