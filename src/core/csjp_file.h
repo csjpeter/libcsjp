@@ -139,7 +139,8 @@ public:
 /* FIXME : getline() system call is not supported on android-9
 	void getLine(String & buffer) const;*/
 
-	void write(const String & data);
+	void write(const String & data) { StringChunk chunk(data.c_str(), data.length); write(chunk); }
+	void write(const StringChunk & data);
 	void writeAtPos(const String & data, long unsigned pos);
 	void append(const String & data);
 	void appendPrintf(const char * format, ...)

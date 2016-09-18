@@ -474,7 +474,7 @@ void File::getLine(String & buffer) const
 }
 */
 
-void File::write(const String & data)
+void File::write(const StringChunk & data)
 {
 	if(file < 0 || !writable)
 		openForWrite();
@@ -482,7 +482,7 @@ void File::write(const String & data)
 	long unsigned written = 0;
 	while(written < data.length){
 		errno = 0;
-		int justWritten = ::write(file, data.c_str() + written, data.length - written);
+		int justWritten = ::write(file, data.str + written, data.length - written);
 		if(errno){
 			int errNo = errno;
 			FileError e(errNo, "Error after writting % bytes into file %.",
