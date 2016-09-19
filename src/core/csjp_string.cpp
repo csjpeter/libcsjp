@@ -14,18 +14,514 @@
 
 namespace csjp {
 
+int AStr::compare(const char * str, size_t _length) const
+{
+	ENSURE(str || !_length,  InvalidArgument);
+
+	//DBG("'%' (%) == '%' (%)", data, len, str, _length);
+
+	if(!_length)
+		return (len == 0) ? 0 : 1;
+	if(!len)
+		return -1;
+
+	const char * ptr = data;
+	const char * const endPtr = data + len;
+	const char * const strEndPtr = str + _length;
+
+	for(; ptr < endPtr && str < strEndPtr; str++, ptr++){
+		if(*ptr == *str)
+			continue;
+		if(*ptr < *str)
+			return -1;
+		else
+			return 1;
+	}
+
+	if(len < _length)
+		return -1;
+	else if(_length < len)
+		return 1;
+
+	return 0;
+}
+
+int AStr::compare(const char * str) const
+{
+	if(!str)
+		return (len == 0) ? 0 : 1;
+
+	size_t _length = strlen(str);
+
+	return compare(str, _length);
+}
+
+bool AStr::isEqual(const char * str, size_t _length) const
+{
+	ENSURE(str || !_length,  InvalidArgument);
+
+	if(!_length)
+		return len == 0;
+	if(len != _length)
+		return false;
+
+	return !compare(str, _length);
+}
+
+bool AStr::isEqual(const char * str) const
+{
+	if(!str)
+		return len == 0;
+
+	size_t _length = strlen(str);
+
+	return !compare(str, _length);
+}
+
+bool AStr::findFirst(size_t & pos, const char * str, size_t _length, size_t from, size_t until)
+	const
+{
+	ENSURE(until <= len,  InvalidArgument);
+	ENSURE(from <= until,  InvalidArgument);
+	ENSURE(str,  InvalidArgument);
+	ENSURE(_length,  InvalidArgument);
+
+	if(until - from < _length)
+		return false;
+	if(!data)
+		return false;
+
+	size_t p = 0;
+
+	const char * refPtr = data + from;
+	const char * const refEndPtr = data + until;
+	const char * strPtr = str;
+	const char * const strEndPtr = str + _length;
+
+	for(; refPtr < refEndPtr; refPtr++){
+		if(*refPtr != *strPtr){
+			if(strPtr == str)
+				continue;
+			strPtr = str;
+		}
+		if(*refPtr == *strPtr){
+			if(strPtr == str)
+				p = refPtr - data;
+			strPtr++;
+			if(strPtr == strEndPtr){
+				pos = p;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool AStr::findFirstOf(size_t & pos, const char * str, size_t _length, size_t from, size_t until)
+	const
+{
+	ENSURE(until <= len,  InvalidArgument);
+	ENSURE(from <= until,  InvalidArgument);
+	ENSURE(str,  InvalidArgument);
+	ENSURE(_length,  InvalidArgument);
+
+	if(until - from < _length)
+		return false;
+	if(!data)
+		return false;
+
+	const char * refPtr = data + from;
+	const char * const refEndPtr = data + until;
+	const char * strPtr = str;
+	const char * const strEndPtr = str + _length;
+
+	for(; refPtr < refEndPtr; refPtr++){
+		for(strPtr = str; strPtr < strEndPtr; strPtr++){
+			if(*refPtr == *strPtr){
+				pos = refPtr - data;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool AStr::findFirstNotOf(size_t & pos, const char * str, size_t _length, size_t from, size_t until)
+	const
+{
+	ENSURE(until <= len,  InvalidArgument);
+	ENSURE(from <= until,  InvalidArgument);
+	ENSURE(str,  InvalidArgument);
+	ENSURE(_length,  InvalidArgument);
+
+	if(!data)
+		return false;
+
+	const char * refPtr = data + from;
+	const char * const refEndPtr = data + until;
+	const char * strPtr = str;
+	const char * const strEndPtr = str + _length;
+
+	for(; refPtr < refEndPtr; refPtr++){
+		bool stranger = true;
+		for(strPtr = str; strPtr < strEndPtr; strPtr++){
+			if(*refPtr == *strPtr){
+				stranger = false;
+				break;
+			}
+		}
+		if(stranger){
+			pos = refPtr - data;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool AStr::findLast(size_t & pos, const char * str, size_t _length, size_t until) const
+{
+	ENSURE(until <= len,  InvalidArgument);
+	ENSURE(str,  InvalidArgument);
+	ENSURE(_length,  InvalidArgument);
+
+	if(!data)
+		return false;
+
+	const char * refPtr = data + until - 1;
+	const char * strLastPtr = str + _length - 1;
+	const char * strPtr = strLastPtr;
+
+	for(; data <= refPtr; refPtr--){
+		if(*refPtr != *strPtr){
+			if(strPtr == strLastPtr)
+				continue;
+			strPtr = strLastPtr;
+		}
+		if(*refPtr == *strPtr){
+			strPtr--;
+			if(strPtr < str){
+				pos = refPtr - data;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool AStr::findLastOf(size_t & pos, const char * str, size_t _length, size_t until) const
+{
+	ENSURE(until <= len,  InvalidArgument);
+	ENSURE(str,  InvalidArgument);
+	ENSURE(_length,  InvalidArgument);
+
+	if(!data)
+		return false;
+
+	const char * refPtr = data + until - 1;
+	const char * strPtr = str;
+	const char * const strEndPtr = str + _length;
+
+	for(; data <= refPtr; refPtr--){
+		for(strPtr = str; strPtr < strEndPtr; strPtr++){
+			if(*refPtr == *strPtr){
+				pos = refPtr - data;
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool AStr::findLastNotOf(size_t & pos, const char * str, size_t _length, size_t until) const
+{
+	ENSURE(until <= len,  InvalidArgument);
+	ENSURE(str || !_length,  InvalidArgument);
+
+	if(!until)
+		return false;
+	if(!data)
+		return false;
+	if(!str){
+		/* len != 0 ; if len was 0, until is either greater (invalid)
+		 * or 0 what is already handled by returning false. */
+		pos = len - 1;
+		return true;
+	}
+
+	const char * refPtr = data + until - 1;
+	const char * strPtr = str;
+	const char * const strEndPtr = str + _length;
+
+	for(; data <= refPtr; refPtr--){
+		bool stranger = true;
+		for(strPtr = str; strPtr < strEndPtr; strPtr++){
+			if(*refPtr == *strPtr){
+				stranger = false;
+				break;
+			}
+		}
+		if(stranger){
+			pos = refPtr - data;
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool AStr::startsWith(const char * str, size_t _length) const
+{
+	ENSURE(str || !_length,  InvalidArgument);
+
+	if(!_length)
+		return true;
+	if(!len)
+		return false;
+	if(len < _length)
+		return false;
+
+	const char * ptr = data;
+	const char * const strEndPtr = str + _length;
+
+	for(; str < strEndPtr; str++, ptr++)
+		if(*ptr != *str)
+			return false;
+
+	return true;
+}
+
+bool AStr::endsWith(const char * str, size_t _length) const
+{
+	ENSURE(str || !_length,  InvalidArgument);
+
+	if(!_length)
+		return true;
+	if(!len)
+		return false;
+	if(len < _length)
+		return false;
+
+	const char * refPtr = data + len - 1;
+	const char * strPtr = str + _length - 1;
+
+	for(; data <= refPtr && str <= strPtr; refPtr--, strPtr--){
+		if(*refPtr == *strPtr)
+			continue;
+		return false;
+	}
+
+	return true;
+}
+
+size_t AStr::count(const char * str, size_t _length, size_t from, size_t until) const
+{
+	ENSURE(until <= len,  InvalidArgument);
+	ENSURE(from <= until,  InvalidArgument);
+	ENSURE(str,  InvalidArgument);
+
+	if(until - from < _length)
+		return 0;
+
+	size_t pos = from;
+	size_t matches = 0;
+
+	while(findFirst(pos, str, _length, pos, until)){
+		pos += _length;
+		matches++;
+	}
+
+	return matches;
+}
+
+Array<Str> AStr::split(const char * delimiters, bool avoidEmptyResults) const
+{
+	Array<Str> result;
+
+	if(!delimiters || delimiters[0] == 0){
+		if(avoidEmptyResults && len == 0)
+			return result;
+		result.setCapacity(1);
+		result.add(data, len);
+		return result;
+	}
+
+	const char * until = data + len;
+	size_t d_len = strlen(delimiters);
+	const char * d_until = delimiters + d_len;
+
+	const char * res_start = data;
+	size_t res_len = 0;
+	const char * iter = data;
+
+	while(iter < until){
+		const char * d_iter = delimiters;
+		for(; d_iter < d_until; d_iter++)
+			if(*iter == *d_iter)
+				break;
+
+		if(d_iter == d_until){
+			iter++;
+			res_len++;
+			continue;
+		}
+
+		if(!avoidEmptyResults || res_len)
+			result.add(res_start, res_len);
+		iter++;
+		res_start = iter;
+		res_len = 0;
+	}
+	if(!avoidEmptyResults || res_len)
+		result.add(res_start, res_len);
+
+	return result;
+}
+
+static const unsigned char * base64EncodeArray = (unsigned char*)
+		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+		"abcdefghijklmnopqrstuvwxyz"
+		"0123456789+/";
+
+String AStr::encodeBase64() const
+{
+	String base64;
+	base64.setCapacity(len + len / 3 + 4);
+	size_t j = 0;
+
+	size_t l = len - len % 3;
+	for(size_t i = 0; i < l; i += 3){
+		unsigned char d0 = data[i];
+		unsigned char d1 = data[i+1];
+		unsigned char d2 = data[i+2];
+		base64[j++] = base64EncodeArray[(d0 & 0xfc) >> 2];
+		base64[j++] = base64EncodeArray[((d0 & 0x03) << 4) | ((d1 & 0xf0) >> 4)];
+		base64[j++] = base64EncodeArray[((d1 & 0x0f) << 2) | ((d2 & 0xc0) >> 6)];
+		base64[j++] = base64EncodeArray[(d2 & 0x3f)];
+	}
+
+	if(len % 3 == 1){
+		unsigned char d0 = data[l];
+		base64[j++] = base64EncodeArray[(d0 & 0xfc) >> 2];
+		base64[j++] = base64EncodeArray[((d0 & 0x03) << 4)];
+		base64[j++] = '=';
+		base64[j++] = '=';
+	} else if(len % 3 == 2){
+		unsigned char d0 = data[l];
+		unsigned char d1 = data[l+1];
+		base64[j++] = base64EncodeArray[(d0 & 0xfc) >> 2];
+		base64[j++] = base64EncodeArray[((d0 & 0x03) << 4) | ((d1 & 0xf0) >> 4)];
+		base64[j++] = base64EncodeArray[((d1 & 0x0f) << 2)];
+		base64[j++] = '=';
+	}
+
+	base64.len = j;
+	base64[j] = 0;
+	
+	return base64;
+}
+
+/* At position of ie. 'B', lets find the index of 'B' (1) in base64EncodeArray.
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,'+',768,768,768,'/',
+	'0','1','2','3','4','5','6','7','8','9',768,768,768,'=',768,768,
+	768,'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O',
+	'P','Q','R','S','T','U','V','W','X','Y','Z',768,768,768,768,768,
+	768,'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o',
+	'p','q','r','s','t','u','v','w','x','y','z',768,768,768,768,768
+*/
+static const unsigned base64DecodeArray[] = {
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768, 62,768,768,768, 63,
+	 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,768,768,768,256,768,768,
+	768,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
+	 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 25,768,768,768,768,
+	768, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+	 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
+	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768
+};
+
+String AStr::decodeBase64() const
+{
+	if(len % 4)
+		throw InvalidArgument("This string is not in base64 format "
+				"(length % 4 != 0).");
+
+	String str;
+	str.setCapacity(( len / 4 ) * 3);
+	size_t j = 0;
+
+	unsigned d0, d1, d2=0, d3=0;
+	for(size_t i = 0; i < len; i += 4){
+		d0 = base64DecodeArray[(unsigned char)data[i]];
+		d1 = base64DecodeArray[(unsigned char)data[i+1]];
+		d2 = base64DecodeArray[(unsigned char)data[i+2]];
+		d3 = base64DecodeArray[(unsigned char)data[i+3]];
+#ifndef PERFMODE
+		if(i < len - 4) {
+			if(256 <= (d0 + d1 + d2 + d3))
+				throw InvalidArgument("Unexpected character found "
+						"near position %", i);
+		} else {
+			if(768 <= (d0 + d1 + d2 + d3) ||
+				512 <= (d0 + d1 + d2) ||
+				256 <= (d0 + d1) ||
+				(d2 == 256 && d3 != 256))
+				throw InvalidArgument("Unexpected character found "
+						"near position %", i);
+		}
+#endif
+		str[j++] = (d0 << 2) | (d1 >> 4);
+		str[j++] = (d1 << 4) | ((unsigned char)d2 >> 2);
+		str[j++] = ((unsigned char)d2 << 6) | (unsigned char)d3;
+	}
+
+	if(d3 == 256)
+		j--;
+	if(d2 == 256)
+		j--;
+	str.len = j;
+	str[j] = 0;
+
+	return str;
+}
+
+
+
+
+
+
+
+
+
+
+
+
 void String::setCapacity(size_t _cap)
 {
-	char *dst = (char *)realloc(val, _cap + 1);
+	char *dst = (char *)realloc(data, _cap + 1);
 	if(!dst)
 		throw OutOfMemory("No enough memory for string allocation with size of % bytes.",
 				size);
 
 	size = _cap + 1;
-	val = dst;
+	data = dst;
 	if(_cap < len)
 		len = _cap;
-	val[len] = 0;
+	data[len] = 0;
 }
 
 void String::extendCapacity(size_t _cap)
@@ -55,117 +551,10 @@ void String::setLength(size_t length)
 	len = length;
 }
 
-int String::compare(const char * str, size_t _length) const
+bool String::findFirst(size_t & pos, const char * str, size_t _length, size_t from, size_t until)
+	const
 {
-	ENSURE(str || !_length,  InvalidArgument);
-
-	//DBG("'%' (%) == '%' (%)", val, len, str, _length);
-
-	if(!_length)
-		return (len == 0) ? 0 : 1;
-	if(!len)
-		return -1;
-
-	const char * ptr = val;
-	const char * const endPtr = val + len;
-	const char * const strEndPtr = str + _length;
-
-	for(; ptr < endPtr && str < strEndPtr; str++, ptr++){
-		if(*ptr == *str)
-			continue;
-		if(*ptr < *str)
-			return -1;
-		else
-			return 1;
-	}
-
-	if(len < _length)
-		return -1;
-	else if(_length < len)
-		return 1;
-
-	return 0;
-}
-
-int String::compare(const char * str) const
-{
-	if(!str)
-		return (len == 0) ? 0 : 1;
-
-	size_t _length = strlen(str);
-
-	return compare(str, _length);
-}
-
-int String::compare(const String & str) const
-{
-	return compare(str.val, str.len);
-}
-
-bool String::isEqual(const char * str, size_t _length) const
-{
-	ENSURE(str || !_length,  InvalidArgument);
-
-	if(!_length)
-		return len == 0;
-	if(len != _length)
-		return false;
-
-	return !compare(str, _length);
-}
-
-bool String::isEqual(const char * str) const
-{
-	if(!str)
-		return len == 0;
-
-	size_t _length = strlen(str);
-
-	return !compare(str, _length);
-}
-
-bool String::isEqual(const String & str) const
-{
-	return isEqual(str.val, str.len);
-}
-
-bool String::findFirst(size_t & pos, const char * str, size_t _length, size_t from, size_t until) const
-{
-	ENSURE(until <= len,  InvalidArgument);
-	ENSURE(from <= until,  InvalidArgument);
-	ENSURE(str,  InvalidArgument);
-	ENSURE(_length,  InvalidArgument);
-
-	if(until - from < _length)
-		return false;
-	if(!val)
-		return false;
-
-	size_t p = 0;
-
-	const char * refPtr = val + from;
-	const char * const refEndPtr = val + until;
-	const char * strPtr = str;
-	const char * const strEndPtr = str + _length;
-
-	for(; refPtr < refEndPtr; refPtr++){
-		if(*refPtr != *strPtr){
-			if(strPtr == str)
-				continue;
-			strPtr = str;
-		}
-		if(*refPtr == *strPtr){
-			if(strPtr == str)
-				p = refPtr - val;
-			strPtr++;
-			if(strPtr == strEndPtr){
-				pos = p;
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return AStr::findFirst(pos, str, _length, from, until);
 }
 
 bool String::findFirst(size_t & pos, const char * str, size_t from, size_t until) const
@@ -188,12 +577,12 @@ bool String::findFirst(size_t & pos, const char * str, size_t from) const
 
 bool String::findFirst(size_t & pos, const String & str, size_t from, size_t until) const
 {
-	return findFirst(pos, str.val, str.len, from, until);
+	return findFirst(pos, str.data, str.len, from, until);
 }
 
 bool String::findFirst(size_t & pos, const String & str, size_t from) const
 {
-	return findFirst(pos, str.val, str.len, from, len);
+	return findFirst(pos, str.data, str.len, from, len);
 }
 
 bool String::findFirst(size_t & pos, char c, size_t from) const
@@ -203,31 +592,7 @@ bool String::findFirst(size_t & pos, char c, size_t from) const
 
 bool String::findFirstOf(size_t & pos, const char * str, size_t _length, size_t from, size_t until) const
 {
-	ENSURE(until <= len,  InvalidArgument);
-	ENSURE(from <= until,  InvalidArgument);
-	ENSURE(str,  InvalidArgument);
-	ENSURE(_length,  InvalidArgument);
-
-	if(until - from < _length)
-		return false;
-	if(!val)
-		return false;
-
-	const char * refPtr = val + from;
-	const char * const refEndPtr = val + until;
-	const char * strPtr = str;
-	const char * const strEndPtr = str + _length;
-
-	for(; refPtr < refEndPtr; refPtr++){
-		for(strPtr = str; strPtr < strEndPtr; strPtr++){
-			if(*refPtr == *strPtr){
-				pos = refPtr - val;
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return AStr::findFirstOf(pos, str, _length, from, until);
 }
 
 bool String::findFirstOf(size_t & pos, const char * str, size_t from, size_t until) const
@@ -250,44 +615,17 @@ bool String::findFirstOf(size_t & pos, const char * str, size_t from) const
 
 bool String::findFirstOf(size_t & pos, const String & str, size_t from, size_t until) const
 {
-	return findFirstOf(pos, str.val, str.len, from, until);
+	return findFirstOf(pos, str.data, str.len, from, until);
 }
 
 bool String::findFirstOf(size_t & pos, const String & str, size_t from) const
 {
-	return findFirstOf(pos, str.val, str.len, from, len);
+	return findFirstOf(pos, str.data, str.len, from, len);
 }
 
 bool String::findFirstNotOf(size_t & pos, const char * str, size_t _length, size_t from, size_t until) const
 {
-	ENSURE(until <= len,  InvalidArgument);
-	ENSURE(from <= until,  InvalidArgument);
-	ENSURE(str,  InvalidArgument);
-	ENSURE(_length,  InvalidArgument);
-
-	if(!val)
-		return false;
-
-	const char * refPtr = val + from;
-	const char * const refEndPtr = val + until;
-	const char * strPtr = str;
-	const char * const strEndPtr = str + _length;
-
-	for(; refPtr < refEndPtr; refPtr++){
-		bool stranger = true;
-		for(strPtr = str; strPtr < strEndPtr; strPtr++){
-			if(*refPtr == *strPtr){
-				stranger = false;
-				break;
-			}
-		}
-		if(stranger){
-			pos = refPtr - val;
-			return true;
-		}
-	}
-
-	return false;
+	return AStr::findFirstNotOf(pos, str, _length, from, until);
 }
 
 bool String::findFirstNotOf(size_t & pos, const char * str, size_t from, size_t until) const
@@ -310,43 +648,17 @@ bool String::findFirstNotOf(size_t & pos, const char * str, size_t from) const
 
 bool String::findFirstNotOf(size_t & pos, const String & str, size_t from, size_t until) const
 {
-	return findFirstNotOf(pos, str.val, str.len, from, until);
+	return findFirstNotOf(pos, str.data, str.len, from, until);
 }
 
 bool String::findFirstNotOf(size_t & pos, const String & str, size_t from) const
 {
-	return findFirstNotOf(pos, str.val, str.len, from, len);
+	return findFirstNotOf(pos, str.data, str.len, from, len);
 }
 
 bool String::findLast(size_t & pos, const char * str, size_t _length, size_t until) const
 {
-	ENSURE(until <= len,  InvalidArgument);
-	ENSURE(str,  InvalidArgument);
-	ENSURE(_length,  InvalidArgument);
-
-	if(!val)
-		return false;
-
-	const char * refPtr = val + until - 1;
-	const char * strLastPtr = str + _length - 1;
-	const char * strPtr = strLastPtr;
-
-	for(; val <= refPtr; refPtr--){
-		if(*refPtr != *strPtr){
-			if(strPtr == strLastPtr)
-				continue;
-			strPtr = strLastPtr;
-		}
-		if(*refPtr == *strPtr){
-			strPtr--;
-			if(strPtr < str){
-				pos = refPtr - val;
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return AStr::findLast(pos, str, _length, until);
 }
 
 bool String::findLast(size_t & pos, const char * str, size_t until) const
@@ -369,12 +681,12 @@ bool String::findLast(size_t & pos, const char * str) const
 
 bool String::findLast(size_t & pos, const String & str, size_t until) const
 {
-	return findLast(pos, str.val, str.len, until);
+	return findLast(pos, str.data, str.len, until);
 }
 
 bool String::findLast(size_t & pos, const String & str) const
 {
-	return findLast(pos, str.val, str.len, len);
+	return findLast(pos, str.data, str.len, len);
 }
 
 bool String::findLast(size_t & pos, char c, size_t until) const
@@ -389,27 +701,7 @@ bool String::findLast(size_t & pos, char c) const
 
 bool String::findLastOf(size_t & pos, const char * str, size_t _length, size_t until) const
 {
-	ENSURE(until <= len,  InvalidArgument);
-	ENSURE(str,  InvalidArgument);
-	ENSURE(_length,  InvalidArgument);
-
-	if(!val)
-		return false;
-
-	const char * refPtr = val + until - 1;
-	const char * strPtr = str;
-	const char * const strEndPtr = str + _length;
-
-	for(; val <= refPtr; refPtr--){
-		for(strPtr = str; strPtr < strEndPtr; strPtr++){
-			if(*refPtr == *strPtr){
-				pos = refPtr - val;
-				return true;
-			}
-		}
-	}
-
-	return false;
+	return AStr::findLastOf(pos, str, _length, until);
 }
 
 bool String::findLastOf(size_t & pos, const char * str, size_t until) const
@@ -432,49 +724,17 @@ bool String::findLastOf(size_t & pos, const char * str) const
 
 bool String::findLastOf(size_t & pos, const String & str, size_t until) const
 {
-	return findLastOf(pos, str.val, str.len, until);
+	return findLastOf(pos, str.data, str.len, until);
 }
 
 bool String::findLastOf(size_t & pos, const String & str) const
 {
-	return findLastOf(pos, str.val, str.len, len);
+	return findLastOf(pos, str.data, str.len, len);
 }
 
 bool String::findLastNotOf(size_t & pos, const char * str, size_t _length, size_t until) const
 {
-	ENSURE(until <= len,  InvalidArgument);
-	ENSURE(str || !_length,  InvalidArgument);
-
-	if(!until)
-		return false;
-	if(!val)
-		return false;
-	if(!str){
-		/* len != 0 ; if len was 0, until is either greater (invalid)
-		 * or 0 what is already handled by returning false. */
-		pos = len - 1;
-		return true;
-	}
-
-	const char * refPtr = val + until - 1;
-	const char * strPtr = str;
-	const char * const strEndPtr = str + _length;
-
-	for(; val <= refPtr; refPtr--){
-		bool stranger = true;
-		for(strPtr = str; strPtr < strEndPtr; strPtr++){
-			if(*refPtr == *strPtr){
-				stranger = false;
-				break;
-			}
-		}
-		if(stranger){
-			pos = refPtr - val;
-			return true;
-		}
-	}
-
-	return false;
+	return AStr::findLastNotOf(pos, str, _length, until);
 }
 
 bool String::findLastNotOf(size_t & pos, const char * str, size_t until) const
@@ -497,33 +757,17 @@ bool String::findLastNotOf(size_t & pos, const char * str) const
 
 bool String::findLastNotOf(size_t & pos, const String & str, size_t until) const
 {
-	return findLastNotOf(pos, str.val, str.len, until);
+	return findLastNotOf(pos, str.data, str.len, until);
 }
 
 bool String::findLastNotOf(size_t & pos, const String & str) const
 {
-	return findLastNotOf(pos, str.val, str.len, len);
+	return findLastNotOf(pos, str.data, str.len, len);
 }
 
 bool String::startsWith(const char * str, size_t _length) const
 {
-	ENSURE(str || !_length,  InvalidArgument);
-
-	if(!_length)
-		return true;
-	if(!len)
-		return false;
-	if(len < _length)
-		return false;
-
-	const char * ptr = val;
-	const char * const strEndPtr = str + _length;
-
-	for(; str < strEndPtr; str++, ptr++)
-		if(*ptr != *str)
-			return false;
-
-	return true;
+	return AStr::startsWith(str, _length);
 }
 
 bool String::startsWith(const char * str) const
@@ -538,25 +782,7 @@ bool String::startsWith(const char * str) const
 
 bool String::endsWith(const char * str, size_t _length) const
 {
-	ENSURE(str || !_length,  InvalidArgument);
-
-	if(!_length)
-		return true;
-	if(!len)
-		return false;
-	if(len < _length)
-		return false;
-
-	const char * refPtr = val + len - 1;
-	const char * strPtr = str + _length - 1;
-
-	for(; val <= refPtr && str <= strPtr; refPtr--, strPtr--){
-		if(*refPtr == *strPtr)
-			continue;
-		return false;
-	}
-
-	return true;
+	return AStr::endsWith(str, _length);
 }
 
 bool String::endsWith(const char * str) const
@@ -571,22 +797,7 @@ bool String::endsWith(const char * str) const
 
 size_t String::count(const char * str, size_t _length, size_t from, size_t until) const
 {
-	ENSURE(until <= len,  InvalidArgument);
-	ENSURE(from <= until,  InvalidArgument);
-	ENSURE(str,  InvalidArgument);
-
-	if(until - from < _length)
-		return 0;
-
-	size_t pos = from;
-	size_t matches = 0;
-
-	while(findFirst(pos, str, _length, pos, until)){
-		pos += _length;
-		matches++;
-	}
-
-	return matches;
+	return AStr::count(str, _length, from, until);
 }
 
 size_t String::count(const char * str, size_t from, size_t until) const
@@ -609,12 +820,12 @@ size_t String::count(const char * str, size_t from) const
 
 size_t String::count(const String & str, size_t from, size_t until) const
 {
-	return count(str.val, str.len, from, until);
+	return count(str.data, str.len, from, until);
 }
 
 size_t String::count(const String & str, size_t from) const
 {
-	return count(str.val, str.len, from, len);
+	return count(str.data, str.len, from, len);
 }
 
 const String & String::operator+=(const String & str)
@@ -632,9 +843,9 @@ void String::assign(const char * str, size_t _length)
 
 	len = _length;
 
-	memcpy(val, str, _length);
+	memcpy(data, str, _length);
 
-	val[len] = 0;
+	data[len] = 0;
 }
 
 void String::assign(const char * str)
@@ -655,22 +866,23 @@ void String::assign(const String & str)
 		clear();
 		return;
 	}
-	ENSURE(str.val,  InvalidArgument);
+	ENSURE(str.data,  InvalidArgument);
 	ENSURE(str.length,  InvalidArgument);
 	ENSURE(str.len,  InvalidArgument);
 
-	assign(str.val, str.len);
+	assign(str.data, str.len);
 }
 
 void String::fill(char _fill, size_t _length)
 {
-	if(len < _length)
+	if(len <= _length)
 		if(size <= _length)
 			extendCapacity(_length);
 
-	memset(val, _fill, _length);
+	if(_length)
+		memset(data, _fill, _length);
 	len = _length;
-	val[len] = 0;
+	data[len] = 0;
 }
 
 /**
@@ -682,12 +894,12 @@ void String::shiftForward(size_t from, size_t until, size_t offset)
 	ENSURE(from <= until,  InvalidArgument);
 	ENSURE(offset <= from,  InvalidArgument);
 
-	if(!val)
+	if(!data)
 		return;
 
-	const char * const srcUntil = val + until; /* points to the first not to move */
-	const char * srcPtr = val + from;
-	char * dstPtr = val + from - offset;
+	const char * const srcUntil = data + until; /* points to the first not to move */
+	const char * srcPtr = data + from;
+	char * dstPtr = data + from - offset;
 
 	size_t bs = sizeof(unsigned);
 	if(1 < bs){
@@ -704,7 +916,7 @@ void String::shiftForward(size_t from, size_t until, size_t offset)
 
 	if(len == until)
 		len -= offset;
-	val[len] = 0;
+	data[len] = 0;
 }
 
 /**
@@ -718,9 +930,9 @@ void String::shiftBackward(size_t from, size_t until, size_t offset)
 	if(size <= until + offset)
 		extendCapacity(len + offset);
 
-	const char * const srcFrom = val + from;
-	const char * srcPtr = val + until - 1;
-	char * dstPtr = val + until - 1 + offset;
+	const char * const srcFrom = data + from;
+	const char * srcPtr = data + until - 1;
+	char * dstPtr = data + until - 1 + offset;
 
 	size_t bs = sizeof(unsigned);
 	if(1 < bs){
@@ -730,8 +942,8 @@ void String::shiftBackward(size_t from, size_t until, size_t offset)
 			*(unsigned*)(dstPtr) = *(unsigned*)(srcPtr);
 		/* Calculate the remaining bytes less then bs; reposition pointers. */
 		size_t chunk = (until - from) % bs;
-		srcPtr = val + from + chunk - 1;
-		dstPtr = val + from + chunk - 1 + offset;
+		srcPtr = data + from + chunk - 1;
+		dstPtr = data + from + chunk - 1 + offset;
 	}
 
 	for(; srcFrom <= srcPtr; srcPtr--, dstPtr--)
@@ -739,13 +951,13 @@ void String::shiftBackward(size_t from, size_t until, size_t offset)
 
 	if(len <= until + offset)
 		len = until + offset;
-	val[len] = 0;
+	data[len] = 0;
 }
 
 void String::prepend(char c)
 {
 	shiftBackward(0, len, 1);
-	val[0] = c;
+	data[0] = c;
 }
 
 void String::prepend(const char * str, size_t _length)
@@ -753,7 +965,7 @@ void String::prepend(const char * str, size_t _length)
 	ENSURE(str || !_length,  InvalidArgument);
 
 	shiftBackward(0, len, _length);
-	memcpy(val, str, _length);
+	memcpy(data, str, _length);
 }
 
 void String::prepend(const char * str)
@@ -768,7 +980,7 @@ void String::prepend(const char * str)
 
 void String::prepend(const String & str)
 {
-	prepend(str.val, str.len);
+	prepend(str.data, str.len);
 }
 
 void String::append(const char * str, size_t _length)
@@ -781,10 +993,10 @@ void String::append(const char * str, size_t _length)
 	if(size <= len + _length)
 		extendCapacity(len + _length);
 
-	memcpy(val + len, str, _length);
+	memcpy(data + len, str, _length);
 
 	len += _length;
-	val[len] = 0;
+	data[len] = 0;
 }
 
 void String::append(const char * str)
@@ -799,7 +1011,7 @@ void String::append(const char * str)
 
 void String::append(const String & str)
 {
-	append(str.val, str.len);
+	append(str.data, str.len);
 }
 
 void String::append(char c)
@@ -807,9 +1019,9 @@ void String::append(char c)
 	if(size <= len + 1)
 		extendCapacity(len + 1);
 
-	val[len] = c;
+	data[len] = c;
 	len++;
-	val[len] = 0;
+	data[len] = 0;
 }
 
 void String::append(unsigned char n)
@@ -945,7 +1157,7 @@ void String::append(long double n, unsigned precision)
 	//printf("n: %Lf\n", n);
 
 	append(buf + i, sizeof(buf) - i - 1);
-	//printf("result: '%s'\n", val);
+	//printf("result: '%s'\n", data);
 }
 
 void String::appendVPrintf(const char * format, va_list args, size_t _length)
@@ -960,7 +1172,7 @@ void String::appendVPrintf(const char * format, va_list args, size_t _length)
 	if(size <= len + _length)
 		extendCapacity(len + _length);
 
-	int _written = vsnprintf(val + len, size - len, format, args);
+	int _written = vsnprintf(data + len, size - len, format, args);
 
 	if(0 <= _written && len + _written < size){
 		len += _length;
@@ -998,7 +1210,7 @@ void String::insert(size_t pos, const char * str, size_t _length)
 		return;
 
 	shiftBackward(pos, len, _length);
-	memcpy(val + pos, str, _length);
+	memcpy(data + pos, str, _length);
 }
 
 void String::insert(size_t pos, const char * str)
@@ -1015,7 +1227,7 @@ void String::insert(size_t pos, const char * str)
 
 void String::insert(size_t pos, const String & str)
 {
-	insert(pos, str.val, str.len);
+	insert(pos, str.data, str.len);
 }
 
 void String::erase(size_t from, size_t until)
@@ -1032,10 +1244,10 @@ void String::write(size_t pos, const char * str, size_t _length)
 	ENSURE(str || !_length,  InvalidArgument);
 	ENSURE(pos + _length <= len,  InvalidArgument);
 
-	if(!val)
+	if(!data)
 		return;
 
-	memcpy(val + pos, str, _length);
+	memcpy(data + pos, str, _length);
 }
 
 void String::write(size_t pos, const char * str)
@@ -1052,7 +1264,7 @@ void String::write(size_t pos, const char * str)
 
 void String::write(size_t pos, const String & str)
 {
-	write(pos, str.val, str.len);
+	write(pos, str.data, str.len);
 }
 
 String String::read(size_t from, size_t until) const
@@ -1063,7 +1275,7 @@ String String::read(size_t from, size_t until) const
 	String str;
 
 	if(from != until)
-		str.assign(val + from, until - from);
+		str.assign(data + from, until - from);
 
 	return str;
 }
@@ -1119,13 +1331,13 @@ void String::replace(const char * what, size_t whatLength, const char * to, size
 			size_t offset = matches * (diffLength);
 			//DBG("pos: %, chunkEndPos: %, offset: %", pos, chunkEndPos, offset);
 			//DBG("Before shiftBackward from: %, until: %, offset: %, str: '%'",
-			//		pos, chunkEndPos, offset, val);
+			//		pos, chunkEndPos, offset, data);
 			shiftBackward(pos, chunkEndPos, offset);
 			//DBG("After shiftBackward from: %, until: %, offset: %, str: '%'",
-			//		pos, chunkEndPos, offset, val);
+			//		pos, chunkEndPos, offset, data);
 			write(pos + offset - toLength, to, toLength);
 			//DBG("After write pos: %, to: %, str: '%'",
-			//		pos + offset - toLength, to, val);
+			//		pos + offset - toLength, to, data);
 			if(matches == 1)
 				break;
 			pos -= whatLength;
@@ -1141,19 +1353,19 @@ void String::replace(const char * what, size_t whatLength, const char * to, size
 		pos = 0;
 		findFirst(pos, what, whatLength, pos, until);
 		for(; 0 < matches; offset += diffLength, matches--) {
-			//DBG("Before write pos: %, to: %, str: '%'", pos , to, val);
+			//DBG("Before write pos: %, to: %, str: '%'", pos , to, data);
 			write(pos, to, toLength);
-			//DBG("After  write pos: %, to: %, str: '%'", pos , to, val);
+			//DBG("After  write pos: %, to: %, str: '%'", pos , to, data);
 			lastPos = pos + toLength;
 			findFirst(pos, what, whatLength, pos + toLength + offset, until); // the last call might not find anything
 			if(matches == 1)
 				pos = len; // for the last replace, we will move the rest of the string
 			//DBG("After findfirst: pos: %, lastPos: %", pos, lastPos);
 			//DBG("Before shiftForward from: %, until: %, offset: %, str: '%'",
-			//		lastPos + offset, pos, offset, val);
+			//		lastPos + offset, pos, offset, data);
 			shiftForward(lastPos + offset, pos, offset);
 			//DBG("After  shiftForward from: %, until: %, offset: %, str: '%'",
-			//		lastPos + offset, pos, offset, val);
+			//		lastPos + offset, pos, offset, data);
 			pos -= offset;
 		}
 	}
@@ -1205,26 +1417,26 @@ void String::replace(const char * what, const char * to, size_t from)
 void String::replace(	const String & what, const String & to,
 			size_t from, size_t until, size_t maxNumOfRepl)
 {
-	replace(what.val, what.len, to.val, to.len, from, until, maxNumOfRepl);
+	replace(what.data, what.len, to.data, to.len, from, until, maxNumOfRepl);
 }
 
 void String::replace(const String & what, const String & to, size_t from, size_t until)
 {
-	replace(what.val, what.len, to.val, to.len, from, until, len);
+	replace(what.data, what.len, to.data, to.len, from, until, len);
 }
 
 void String::replace(const String & what, const String & to, size_t from)
 {
-	replace(what.val, what.len, to.val, to.len, from, len, len);
+	replace(what.data, what.len, to.data, to.len, from, len, len);
 }
 
 void String::clear()
 {
-	if(!val)
+	if(!data)
 		return;
 
-	free(val);
-	val = 0;
+	free(data);
+	data = 0;
 	len = 0;
 	size = 0;
 }
@@ -1241,27 +1453,27 @@ void String::chopBack(size_t _length)
 	ENSURE(_length <= len,  InvalidArgument);
 
 	len -= _length;
-	val[len] = 0;
+	data[len] = 0;
 }
 
 void String::cutAt(size_t _length)
 {
 	ENSURE(_length <= len,  InvalidArgument);
 
-	if(!val)
+	if(!data)
 		return;
 
 	len = _length;
-	val[len] = 0;
+	data[len] = 0;
 }
 
 void String::chop()
 {
-	if(!val)
+	if(!data)
 		return;
 
 	len = 0;
-	val[len] = 0;
+	data[len] = 0;
 }
 
 void String::trim(const char * str, size_t _length)
@@ -1294,7 +1506,7 @@ void String::trim(const char * str)
 
 void String::trim(const String & str)
 {
-	trim(str.val, str.len);
+	trim(str.data, str.len);
 }
 
 void String::trimFront(const char * str, size_t _length)
@@ -1324,7 +1536,7 @@ void String::trimFront(const char * str)
 
 void String::trimFront(const String & str)
 {
-	trimFront(str.val, str.len);
+	trimFront(str.data, str.len);
 }
 
 void String::trimBack(const char * str, size_t _length)
@@ -1352,7 +1564,12 @@ void String::trimBack(const char * str)
 
 void String::trimBack(const String & str)
 {
-	trimBack(str.val, str.len);
+	trimBack(str.data, str.len);
+}
+
+Array<Str> String::split(const char * delimiters, bool avoidEmptyResults) const
+{
+	return AStr::split(delimiters, avoidEmptyResults);
 }
 
 void String::adopt(char *& str, size_t _length, size_t _size)
@@ -1373,15 +1590,15 @@ void String::adopt(char *& str, size_t _length, size_t _size)
 		str = str_;
 	}
 
-	if(val)
-		free(val);
+	if(data)
+		free(data);
 
-	val = str;
+	data = str;
 	str = NULL;
 
 	len = _length;
 	size = _size;
-	val[len] = 0;
+	data[len] = 0;
 }
 
 void String::adopt(char *& str, size_t _size)
@@ -1405,7 +1622,7 @@ void String::adopt(char *& str)
 void String::lower()
 {
 	char diff = 'a' - 'A';
-	char * start =  val;
+	char * start =  data;
 	const char * end =  start + len;
 	for(char * iter = start; iter < end; iter++)
 		if('A' <= *iter && *iter <= 'Z')
@@ -1415,128 +1632,11 @@ void String::lower()
 void String::upper()
 {
 	char diff = 'a' - 'A';
-	char * start =  val;
+	char * start =  data;
 	const char * end =  start + len;
 	for(char * iter = start; iter < end; iter++)
 		if('a' <= *iter && *iter <= 'z')
 			*iter -= diff;
-}
-
-static const unsigned char * base64EncodeArray = (unsigned char*)
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-		"abcdefghijklmnopqrstuvwxyz"
-		"0123456789+/";
-
-String String::encodeBase64() const
-{
-	String base64;
-	base64.setCapacity(len + len / 3 + 4);
-	size_t j = 0;
-
-	size_t l = len - len % 3;
-	for(size_t i = 0; i < l; i += 3){
-		unsigned char d0 = val[i];
-		unsigned char d1 = val[i+1];
-		unsigned char d2 = val[i+2];
-		base64[j++] = base64EncodeArray[(d0 & 0xfc) >> 2];
-		base64[j++] = base64EncodeArray[((d0 & 0x03) << 4) | ((d1 & 0xf0) >> 4)];
-		base64[j++] = base64EncodeArray[((d1 & 0x0f) << 2) | ((d2 & 0xc0) >> 6)];
-		base64[j++] = base64EncodeArray[(d2 & 0x3f)];
-	}
-
-	if(len % 3 == 1){
-		unsigned char d0 = val[l];
-		base64[j++] = base64EncodeArray[(d0 & 0xfc) >> 2];
-		base64[j++] = base64EncodeArray[((d0 & 0x03) << 4)];
-		base64[j++] = '=';
-		base64[j++] = '=';
-	} else if(len % 3 == 2){
-		unsigned char d0 = val[l];
-		unsigned char d1 = val[l+1];
-		base64[j++] = base64EncodeArray[(d0 & 0xfc) >> 2];
-		base64[j++] = base64EncodeArray[((d0 & 0x03) << 4) | ((d1 & 0xf0) >> 4)];
-		base64[j++] = base64EncodeArray[((d1 & 0x0f) << 2)];
-		base64[j++] = '=';
-	}
-
-	base64.len = j;
-	base64[j] = 0;
-	
-	return base64;
-}
-
-/* At position of ie. 'B', lets find the index of 'B' (1) in base64EncodeArray.
-	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
-	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
-	768,768,768,768,768,768,768,768,768,768,768,'+',768,768,768,'/',
-	'0','1','2','3','4','5','6','7','8','9',768,768,768,'=',768,768,
-	768,'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O',
-	'P','Q','R','S','T','U','V','W','X','Y','Z',768,768,768,768,768,
-	768,'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o',
-	'p','q','r','s','t','u','v','w','x','y','z',768,768,768,768,768
-*/
-static const unsigned base64DecodeArray[] = {
-	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
-	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
-	768,768,768,768,768,768,768,768,768,768,768, 62,768,768,768, 63,
-	 52, 53, 54, 55, 56, 57, 58, 59, 60, 61,768,768,768,256,768,768,
-	768,  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14,
-	 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 25,768,768,768,768,
-	768, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-	 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,768,768,768,768,768,
-	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
-	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
-	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
-	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
-	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
-	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
-	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,
-	768,768,768,768,768,768,768,768,768,768,768,768,768,768,768,768
-};
-
-String String::decodeBase64() const
-{
-	if(len % 4)
-		throw InvalidArgument("This string is not in base64 format "
-				"(length % 4 != 0).");
-
-	String str;
-	str.setCapacity(( len / 4 ) * 3);
-	size_t j = 0;
-
-	unsigned d0, d1, d2=0, d3=0;
-	for(size_t i = 0; i < len; i += 4){
-		d0 = base64DecodeArray[(unsigned char)val[i]];
-		d1 = base64DecodeArray[(unsigned char)val[i+1]];
-		d2 = base64DecodeArray[(unsigned char)val[i+2]];
-		d3 = base64DecodeArray[(unsigned char)val[i+3]];
-#ifndef PERFMODE
-		if(i < len - 4) {
-			if(256 <= (d0 + d1 + d2 + d3))
-				throw InvalidArgument("Unexpected character found "
-						"near position %", i);
-		} else {
-			if(768 <= (d0 + d1 + d2 + d3) ||
-				512 <= (d0 + d1 + d2) ||
-				256 <= (d0 + d1) ||
-				(d2 == 256 && d3 != 256))
-				throw InvalidArgument("Unexpected character found "
-						"near position %", i);
-		}
-#endif
-		str[j++] = (d0 << 2) | (d1 >> 4);
-		str[j++] = (d1 << 4) | ((unsigned char)d2 >> 2);
-		str[j++] = ((unsigned char)d2 << 6) | (unsigned char)d3;
-	}
-
-	if(d3 == 256)
-		j--;
-	if(d2 == 256)
-		j--;
-	str.len = j;
-	str[j] = 0;
-
-	return str;
 }
 
 }

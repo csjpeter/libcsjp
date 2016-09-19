@@ -8,7 +8,7 @@
 
 #include <netinet/in.h>
 #include <string>
-#include <csjp_string_chunk.h>
+#include <csjp_str.h>
 
 /**
  * Usefull info:
@@ -71,7 +71,7 @@ public:
 	template <typename TypeReceive>
 	bool receive(TypeReceive & parser)
 	{
-		const StringChunk input(readBuffer);
+		const Str input(readBuffer);
 		unsigned length = parser.parse(input);
 		if(!length)
 			return false;

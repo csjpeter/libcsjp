@@ -8,7 +8,7 @@
 
 #include <csjp_owner_container.h>
 #include <csjp_ref_array.h>
-#include <csjp_string_chunk.h>
+#include <csjp_str.h>
 
 namespace csjp {
 
@@ -61,9 +61,9 @@ public:
 		value = str;
 		return *this;
 	}
-	const Json & operator=(const StringChunk & str)
+	const Json & operator=(const Str & str)
 	{
-		value = String(str.str, str.length);
+		value = String(str.c_str(), str.length);
 		return *this;
 	}
 	const Json & operator=(const char * str)
@@ -79,7 +79,7 @@ public:
 
 public:
 	explicit Json(const String & k) : key(k) {}
-	explicit Json(const StringChunk & k) : key(k.str, k.length) {}
+	explicit Json(const Str & k) : key(k.c_str(), k.length) {}
 	explicit Json(const char * k) : key(k) {}
 
 	bool isEqual(const Json& i) const{
@@ -91,8 +91,8 @@ public:
 	bool isLess(const Json & i) const { return key < i.key; }
 	bool isLess(const String & s) const { return key < s; }
 	bool isMore(const String & s) const { return s < key; }
-	bool isLess(const StringChunk & s) const { return key < s; }
-	bool isMore(const StringChunk & s) const { return s < key; }
+	bool isLess(const Str & s) const { return key < s; }
+	bool isMore(const Str & s) const { return s < key; }
 
 public:
 	template <typename Type>
@@ -143,8 +143,8 @@ inline bool operator!=(const Json & a, const char * b) { return !a.value.isEqual
 inline bool operator<(const Json& a, const Json& b) { return a.isLess(b); }
 inline bool operator<(const Json& a, const String& b) { return a.isLess(b); }
 inline bool operator<(const String& a, const Json& b) { return b.isMore(a); }
-inline bool operator<(const Json& a, const StringChunk& b) { return a.isLess(b); }
-inline bool operator<(const StringChunk& a, const Json& b) { return b.isMore(a); }
+inline bool operator<(const Json& a, const Str& b) { return a.isLess(b); }
+inline bool operator<(const Str& a, const Json& b) { return b.isMore(a); }
 inline bool operator<(const Json& a, const char * b) { return a.isLess(String(b)); }
 inline bool operator<(const char * a, const Json& b) { return b.isMore(String(a)); }
 

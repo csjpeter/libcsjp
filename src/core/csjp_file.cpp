@@ -64,13 +64,13 @@ File::File(const String & fileName) :
 {
 }
 
-File::File(const StringChunk & fileName) :
+File::File(const Str & fileName) :
 	file(-1),
 	writable(false),
 	eofbit(false),
 	locked(false),
 	fileSize(0),
-	fileName(fileName.str, fileName.length)
+	fileName(fileName.c_str(), fileName.length)
 {
 }
 
@@ -474,7 +474,7 @@ void File::getLine(String & buffer) const
 }
 */
 
-void File::write(const StringChunk & data)
+void File::write(const Str & data)
 {
 	if(file < 0 || !writable)
 		openForWrite();
@@ -482,7 +482,7 @@ void File::write(const StringChunk & data)
 	long unsigned written = 0;
 	while(written < data.length){
 		errno = 0;
-		int justWritten = ::write(file, data.str + written, data.length - written);
+		int justWritten = ::write(file, data.c_str() + written, data.length - written);
 		if(errno){
 			int errNo = errno;
 			FileError e(errNo, "Error after writting % bytes into file %.",

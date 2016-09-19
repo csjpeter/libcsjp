@@ -457,20 +457,25 @@ void TestString::capacity()
 
 void TestString::fill()
 {
-	csjp::String str((size_t)0);
+	TESTSTEP("init");
+	csjp::String str;
 
+	TESTSTEP("Fill with 0 length");
 	NOEXC_VERIFY(str.fill(' ', 0));
 	VERIFY(str.length == 0);
 	VERIFY(str == "");
 
+	TESTSTEP("Fill with 1 length");
 	NOEXC_VERIFY(str.fill(' ', 1));
 	VERIFY(str.length == 1);
 	VERIFY(str == " ");
 
+	TESTSTEP("Fill with 2 length");
 	NOEXC_VERIFY(str.fill('-', 2));
 	VERIFY(str.length == 2);
 	VERIFY(str == "--");
 
+	TESTSTEP("Fille with 0 length");
 	NOEXC_VERIFY(str.fill('_', 0));
 	VERIFY(str.length == 0);
 	VERIFY(str == "");

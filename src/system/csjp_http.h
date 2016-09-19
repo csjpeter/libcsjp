@@ -55,7 +55,7 @@ public:
 
 	operator String () const;
 
-	unsigned parse(const StringChunk & data);
+	unsigned parse(const Str & data);
 
 	const String & getRequestLine(){ return requestLine; }
 
@@ -223,7 +223,7 @@ public:
 
 	operator String () const;
 
-	unsigned parse(const StringChunk & data);
+	unsigned parse(const Str & data);
 
 	const String & status(){ return statusCode; }
 	const String & reason(){ return reasonPhrase; }

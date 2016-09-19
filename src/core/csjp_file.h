@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 
-#include <csjp_string_chunk.h>
+#include <csjp_str.h>
 
 namespace csjp {
 
@@ -55,7 +55,7 @@ class File
 public:
 	static String readAll(const char * fileName) { File f(fileName); return f.readAll(); }
 	static String readAll(const String & fileName) { File f(fileName); return f.readAll(); }
-	static String readAll(const StringChunk & fileName) { File f(fileName); return f.readAll();}
+	static String readAll(const Str & fileName) { File f(fileName); return f.readAll();}
 
 public:
 	explicit File() = delete;
@@ -97,7 +97,7 @@ public:
 
 	explicit File(const char * fileName);
 	explicit File(const String & fileName);
-	explicit File(const StringChunk & fileName);
+	explicit File(const Str & fileName);
 	//explicit File(String && fileName);
 	virtual ~File();
 #if 0
@@ -139,8 +139,8 @@ public:
 /* FIXME : getline() system call is not supported on android-9
 	void getLine(String & buffer) const;*/
 
-	void write(const String & data) { StringChunk chunk(data.c_str(), data.length); write(chunk); }
-	void write(const StringChunk & data);
+	void write(const String & data) { Str chunk(data.c_str(), data.length); write(chunk); }
+	void write(const Str & data);
 	void writeAtPos(const String & data, long unsigned pos);
 	void append(const String & data);
 	void appendPrintf(const char * format, ...)

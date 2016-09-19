@@ -153,7 +153,7 @@ void TestFile::read()
 	TESTSTEP("static readAll");
 	NOEXC_VERIFY(input = csjp::File::readAll(TESTDIR "/file.test"));
 	VERIFY(input == "7 bytes");
-	csjp::StringChunk chunk(TESTDIR "/file.test");
+	csjp::Str chunk(TESTDIR "/file.test");
 	NOEXC_VERIFY(input = csjp::File::readAll(chunk));
 	VERIFY(input == "7 bytes");
 	csjp::String str(TESTDIR "/file.test");

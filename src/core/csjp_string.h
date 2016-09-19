@@ -1,6 +1,6 @@
 /*
  * Author: Csaszar, Peter <csjpeter@gmail.com>
- * Copyright (C) 2011 Csaszar, Peter
+ * Copyright (C) 2011-2016 Csaszar, Peter
  */
 
 #ifndef CSJP_STRING_H
@@ -16,7 +16,40 @@
 
 namespace csjp {
 
-class String
+template <typename DataType> class Array;
+class Str;
+class String;
+
+class AStr
+{
+protected:
+	char * data;
+	size_t len;
+protected:
+	AStr() : data(0), len(0) {}
+public:
+	int compare(const char * str, size_t _length) const;
+	int compare(const char * str) const;
+	bool isEqual(const char * str, size_t _length) const;
+	bool isEqual(const char * str) const;
+	bool findFirst(size_t & pos, const char * str, size_t _length, size_t from, size_t until)
+		const;
+	bool findFirstOf(size_t & pos, const char * str, size_t _length, size_t from, size_t until)
+		const;
+	bool findFirstNotOf(size_t & pos, const char * str, size_t _length,
+			size_t from, size_t until) const;
+	bool findLast(size_t & pos, const char * str, size_t _length, size_t until) const;
+	bool findLastOf(size_t & pos, const char * str, size_t _length, size_t until) const;
+	bool findLastNotOf(size_t & pos, const char * str, size_t _length, size_t until) const;
+	bool startsWith(const char * str, size_t _length) const;
+	bool endsWith(const char * str, size_t _length) const;
+	size_t count(const char * str, size_t _length, size_t from, size_t until) const;
+	Array<Str> split(const char * delimiters, bool avoidEmptyResults) const;
+	String encodeBase64() const;
+	String decodeBase64() const;
+};
+
+class String : public AStr
 {
 	class iterator
 	{
@@ -29,98 +62,68 @@ class String
 	private:
 		char * ptr;
 	};
-#define StringInitializer : \
-		val(NULL), \
-		len(0), \
-		size(0), \
-		length(len)
-
-public:
-	explicit String(const String & orig) StringInitializer {
-		assign(orig.val, orig.length);
-	}
-
-	String(String && temp) :
-		val(temp.val),
-		len(temp.len),
-		size(temp.size),
-		length(len)
-	{
-		temp.val = 0;
-		temp.len = 0;
-		temp.size = 0;
-	}
-
-	const String & operator=(String && temp)
-	{
-		val= temp.val;
-		len = temp.len;
-		size = temp.size;
-
-		temp.val = 0;
-		temp.len = 0;
-		temp.size = 0;
-
-		return *this;
-	}
-
-public:
-	explicit String() StringInitializer { }
-	virtual ~String() { if(val) free(val); }
-
 private:
-	char * val;
-	size_t len;
 	size_t size; // != capacity; capacity == size - 1;
 	/*
 	 * Invariants:
-	 * - if val != NULL and points to valid area :
+	 * - if data != NULL and points to valid area :
 	 *   - len < size
-	 *   - val[len] == 0
-	 * - if val == NULL :
+	 *   - data[len] == 0
+	 * - if data == NULL :
 	 *   - len == 0
 	 */
 public:
 	const size_t & length;
 
-	iterator begin() const { if(!val) return 0; return iterator(val); }
-	iterator end() const { return iterator(val + len); }
+#define StringInitializer : \
+	        AStr(), \
+		size(0), \
+		length(len)
 
 public:
-	// FIXME remove, allow only construction by value, not by config parameter
-	explicit String(size_t s) StringInitializer { setCapacity(s); }
-	explicit String(const char * str, size_t _length) StringInitializer {assign(str, _length);}
-	explicit String(const char * str) StringInitializer { assign(str); }
 
+	String()			StringInitializer { }
+	String(const String & orig)	StringInitializer { assign(orig.data, orig.length); }
+	String(const char * str, size_t _length) StringInitializer { assign(str, _length); }
+	String(const char * str)	StringInitializer { assign(str); }
+	~String()			{ if(data) free(data); }
+
+	String(String && temp);
+	const String & operator=(String && temp);
+
+	iterator begin() const { if(!data) return 0; return iterator(data); }
+	iterator end() const { return iterator(data + len); }
+
+public:
 	void setCapacity(size_t);
 	void extendCapacity(size_t); // reserves extra space for later usage
 	size_t capacity() const;
 	void setLength(size_t length);
 
-	const char * c_str() const { return val; }
+	const char * c_str() const { return data; }
 
-	const char& operator[](unsigned char i) const { return val[i]; }
-	inline char& operator[](unsigned char i){ return val[i]; }
-	const char& operator[](int i) const { return val[i]; }
-	inline char& operator[](int i){ return val[i]; }
-	const char& operator[](long int i) const { return val[i]; }
-	inline char& operator[](long int i){ return val[i]; }
-	const char& operator[](long long int i) const { return val[i]; }
-	inline char& operator[](long long int i){ return val[i]; }
-	const char& operator[](unsigned i) const { return val[i]; }
-	inline char& operator[](unsigned i){ return val[i]; }
-	const char& operator[](long unsigned i) const { return val[i]; }
-	inline char& operator[](long unsigned i){ return val[i]; }
-	const char& operator[](long long unsigned i) const { return val[i]; }
-	inline char& operator[](long long unsigned i){ return val[i]; }
+	const char& operator[](unsigned char i) const { return data[i]; }
+	inline char& operator[](unsigned char i){ return data[i]; }
+	const char& operator[](int i) const { return data[i]; }
+	inline char& operator[](int i){ return data[i]; }
+	const char& operator[](long int i) const { return data[i]; }
+	inline char& operator[](long int i){ return data[i]; }
+	const char& operator[](long long int i) const { return data[i]; }
+	inline char& operator[](long long int i){ return data[i]; }
+	const char& operator[](unsigned i) const { return data[i]; }
+	inline char& operator[](unsigned i){ return data[i]; }
+	const char& operator[](long unsigned i) const { return data[i]; }
+	inline char& operator[](long unsigned i){ return data[i]; }
+	const char& operator[](long long unsigned i) const { return data[i]; }
+	inline char& operator[](long long unsigned i){ return data[i]; }
 
-	int compare(const char * str, size_t _length) const;
-	int compare(const char * str) const;
-	int compare(const String & str) const;
+	int compare(const char * str, size_t _length) const { return AStr::compare(str, _length); }
+	int compare(const char * str) const { return AStr::compare(str); }
+	int compare(const String & str) const { return AStr::compare(str.data, str.len); }
 
-	bool isEqual(const char * str, size_t _length) const;
-	bool isEqual(const char * str) const;
-	bool isEqual(const String & str) const;
+	bool isEqual(const char * str, size_t _length) const { return AStr::isEqual(str, _length); }
+	bool isEqual(const char * str) const { return AStr::isEqual(str); }
+	bool isEqual(const String & str) const { return isEqual(str.data, str.len); }
 
 	bool findFirst(size_t &, const char *, size_t _length, size_t from, size_t until) const;
 	bool findFirst(size_t &, const char *, size_t from, size_t until) const;
@@ -135,7 +138,7 @@ public:
 	bool findFirstOf(size_t &, const String &, size_t from, size_t until) const;
 	bool findFirstOf(size_t &, const String &, size_t from = 0) const;
 
-	bool findFirstNotOf(size_t &, const char *, size_t _length, size_t from, size_t until) const;
+	bool findFirstNotOf(size_t &, const char *, size_t _length, size_t from, size_t until)const;
 	bool findFirstNotOf(size_t &, const char *, size_t from, size_t until) const;
 	bool findFirstNotOf(size_t &, const char *, size_t from = 0) const;
 	bool findFirstNotOf(size_t &, const String &, size_t from, size_t until) const;
@@ -221,44 +224,16 @@ public:
 			__attribute__ ((format (printf, 2, 3)));
 
 	// http://goo.gl/19TOHg
-	template<typename Arg> void cat(const Arg & arg) { *this << arg; }
+	template<typename Arg>
+	void cat(const Arg & arg) { *this << arg; }
 	template<typename Arg, typename... Args>
 	void cat(const Arg & arg, const Args & ... args) { *this << arg; cat(args...); }
 
 	void catf(const char * fmt) { append(fmt); }
-	template<typename Arg> void catf(const char * fmt, const Arg & arg)
-	{
-		while(*fmt != 0){
-			if(*fmt == '%'){
-				fmt++;
-				if(*fmt != '%'){
-					*this << arg;
-					append(fmt);
-					return;
-				}
-			}
-			append(*fmt);
-			fmt++;
-		}
-		*this << arg;
-	}
+	template<typename Arg>
+	void catf(const char * fmt, const Arg & arg);
 	template<typename Arg, typename... Args>
-	void catf(const char * fmt, const Arg & arg, const Args & ... args)
-	{
-		while(*fmt != 0){
-			if(*fmt == '%'){
-				fmt++;
-				if(*fmt != '%'){
-					*this << arg;
-					catf(fmt, args...);
-					return;
-				}
-			}
-			append(*fmt);
-			fmt++;
-		}
-		cat(args...);
-	}
+	void catf(const char * fmt, const Arg & arg, const Args & ... args);
 
 	void insert(size_t pos, const char *, size_t _length);
 	void insert(size_t pos, const char *);
@@ -272,13 +247,18 @@ public:
 
 	String read(size_t from, size_t until) const;
 
-	void replace(const char * what, size_t whatLength, const char * to, size_t toLength, size_t from, size_t until, size_t maxNumOfRepl);
-	void replace(const char * what, size_t whatLength, const char * to, size_t toLength, size_t from, size_t until);
-	void replace(const char * what, size_t whatLength, const char * to, size_t toLength, size_t from = 0);
-	void replace(const char * what, const char * to, size_t from, size_t until, size_t maxNumOfRepl);
+	void replace(const char * what, size_t whatLength, const char * to, size_t toLength,
+						size_t from, size_t until, size_t maxNumOfRepl);
+	void replace(const char * what, size_t whatLength, const char * to, size_t toLength,
+						size_t from, size_t until);
+	void replace(const char * what, size_t whatLength, const char * to, size_t toLength,
+						size_t from = 0);
+	void replace(const char * what, const char * to,
+						size_t from, size_t until, size_t maxNumOfRepl);
 	void replace(const char * what, const char * to, size_t from, size_t until);
 	void replace(const char * what, const char * to, size_t from = 0);
-	void replace(const String & what, const String & to, size_t from, size_t until, size_t maxNumOfRepl);
+	void replace(const String & what, const String & to,
+						size_t from, size_t until, size_t maxNumOfRepl);
 	void replace(const String & what, const String & to, size_t from, size_t until);
 	void replace(const String & what, const String & to, size_t from = 0);
 
@@ -299,14 +279,17 @@ public:
 	void trimBack(const char * toTrim);
 	void trimBack(const String &);
 
+	Array<Str> split(const char * delimiters, bool avoidEmptyResults = true) const;
+
 	void adopt(char *& str, size_t _length, size_t size);
 	void adopt(char *& str, size_t size);
 	void adopt(char *& str);
 
 	void lower();
 	void upper();
-	String encodeBase64() const;
-	String decodeBase64() const;
+
+	String encodeBase64() const { return AStr::encodeBase64(); }
+	String decodeBase64() const { return AStr::decodeBase64(); }
 };
 
 inline bool operator==(const String & a, const char * b) { return a.isEqual(b); }
@@ -317,7 +300,9 @@ inline bool operator<(const String & a, const String & b) { return a.compare(b) 
 inline bool operator<(const String & a, const char * b) { return a.compare(b) == -1; }
 inline bool operator<(const char * a, const String & b) { return b.compare(a) == 1; }
 
-inline String & operator<<(String & lhs, const std::exception & e){lhs.append(e.what());return lhs;}
+/* concatenation operators {{{ */
+
+inline String & operator<<(String & lhs, const std::exception & e) { lhs += e.what(); return lhs; }
 
 inline String & operator<<(String & lhs, char rhs) { lhs.append(rhs); return lhs; }
 inline String & operator<<(String & lhs, unsigned char rhs) { lhs.append(rhs); return lhs; }
@@ -355,6 +340,75 @@ inline String & operator<<=(String & lhs, const Double & rhs){ lhs.chop(); lhs <
 
 
 
+int &			operator<<=(int & i,			const String & str);
+long int &		operator<<=(long int & i,		const String & str);
+long long int &		operator<<=(long long int & i,		const String & str);
+unsigned &		operator<<=(unsigned & i,		const String & str);
+long unsigned &		operator<<=(long unsigned & i,		const String & str);
+long long unsigned &	operator<<=(long long unsigned & i,	const String & str);
+float &			operator<<=(float & i,			const String & str);
+double &		operator<<=(double & i,			const String & str);
+long double &		operator<<=(long double & i,		const String & str);
+
+/*}}}*/
+
+
+/* Inline implementations {{{*/
+inline String::String(String && temp) : size(temp.size), length(len)
+{
+	data = temp.data;
+	len = temp.len;
+	temp.data = 0;
+	temp.len = 0;
+	temp.size = 0;
+}
+inline const String & String::operator=(String && temp)
+{
+	data= temp.data;
+	len = temp.len;
+	size = temp.size;
+
+	temp.data = 0;
+	temp.len = 0;
+	temp.size = 0;
+
+	return *this;
+}
+
+template<typename Arg> void String::catf(const char * fmt, const Arg & arg)
+{
+	while(*fmt != 0){
+		if(*fmt == '%'){
+			fmt++;
+			if(*fmt != '%'){
+				*this << arg;
+				append(fmt);
+				return;
+			}
+		}
+		append(*fmt);
+		fmt++;
+	}
+	*this << arg;
+}
+template<typename Arg, typename... Args>
+void String::catf(const char * fmt, const Arg & arg, const Args & ... args)
+{
+	while(*fmt != 0){
+		if(*fmt == '%'){
+			fmt++;
+			if(*fmt != '%'){
+				*this << arg;
+				catf(fmt, args...);
+				return;
+			}
+		}
+		append(*fmt);
+		fmt++;
+	}
+	cat(args...);
+}
+
 inline int & operator<<=(int & i, const String & str)
 	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
 inline long int & operator<<=(long int & i, const String & str)
@@ -374,6 +428,7 @@ inline double & operator<<=(double & i, const String & str)
 inline long double & operator<<=(long double & i, const String & str)
 	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
 
+/*}}}*/
 
 
 
@@ -395,14 +450,15 @@ public:
 #endif
 		int _errNo = errno;
 		if(_errNo)
-			catf("Error in strerror_r: number % - %", _errNo, strerror(_errNo));
+			catf("Error in strerror_r: number % - %",
+					_errNo, strerror(_errNo));
 		catf("% - %", errNo, msg);
 	}
 };
 
 
 
-
+/* Logging macros {{{*/
 
 #ifdef DEBUG
 #define DBG(...){ \
@@ -454,6 +510,9 @@ public:
 				fflush(stderr); \
 			}
 
+/*}}}*/
+
+/* Exception class template (macro) {{{ */
 #define DECL_EXCEPTION(parent, exc) \
 	class exc : public parent \
 	{ \
@@ -529,6 +588,7 @@ public:
 		} \
 		virtual ~exc() throw() {} \
 	}
+/*}}}*/
 
 DECL_EXCEPTION(PrimeException, Exception);
 
@@ -553,10 +613,12 @@ DECL_EXCEPTION(LogicError, InvariantFailure);
 DECL_EXCEPTION(LogicError, TestFailure);
 
 
-inline String &	operator<<(csjp::String & lhs, const csjp::PrimeException & rhs)
+inline String &	operator<<(String & lhs, const PrimeException & rhs)
 		{ lhs += *(rhs.begin()); return lhs; }
 
 }
 
+#include <csjp_array.h>
+#include <csjp_str.h>
 
 #endif

@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include <csjp_object.h>
-#include <csjp_string_chunk.h>
+#include <csjp_str.h>
 //#include <csjp_sorter_reference_container.h>
 
 #include "csjp_json.h"
@@ -156,7 +156,7 @@ bool JsonParser::readKeyword(const char * keyword)
 	if(len <= pos + keyword_len)
 		return false;
 
-	StringChunk comp(data.c_str() + pos, keyword_len);
+	Str comp(data.c_str() + pos, keyword_len);
 	if(comp.compare(keyword))
 		return false;
 

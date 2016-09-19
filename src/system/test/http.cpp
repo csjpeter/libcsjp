@@ -222,7 +222,7 @@ void TestHTTP::multiLineHeaders()
 		DBG("Whole request:\n%", request);
 
 		csjp::HTTPRequest request2;
-		request2.parse(csjp::StringChunk(request));
+		request2.parse(csjp::Str(request));
 
 		DBG("Parsed request header: %",
 				request2.headers["multiline-test-header-key"].value);
@@ -240,7 +240,7 @@ void TestHTTP::multiLineHeaders()
 		DBG("Whole request:\n%", request);
 
 		csjp::HTTPRequest request2;
-		request2.parse(csjp::StringChunk(request));
+		request2.parse(csjp::Str(request));
 
 		DBG("Parsed request header: %",
 				request2.headers["multiline-test-header-key"].value);
@@ -259,7 +259,7 @@ void TestHTTP::multiLineHeaders()
 		DBG("Whole request:\n%", request);
 
 		csjp::HTTPRequest request2;
-		EXC_VERIFY(request2.parse(csjp::StringChunk(request)),
+		EXC_VERIFY(request2.parse(csjp::Str(request)),
 				csjp::HttpProtocolError);
 	}
 
@@ -273,7 +273,7 @@ void TestHTTP::multiLineHeaders()
 		DBG("Whole response:\n%", response);
 
 		csjp::HTTPResponse response2;
-		response2.parse(csjp::StringChunk(response));
+		response2.parse(csjp::Str(response));
 
 		DBG("Parsed response header: %",
 				response2.headers["multiline-test-header-key"].value);
@@ -291,7 +291,7 @@ void TestHTTP::multiLineHeaders()
 		DBG("Whole response:\n%", response);
 
 		csjp::HTTPResponse response2;
-		response2.parse(csjp::StringChunk(response));
+		response2.parse(csjp::Str(response));
 
 		DBG("Parsed response header: %",
 				response2.headers["multiline-test-header-key"].value);
@@ -310,7 +310,7 @@ void TestHTTP::multiLineHeaders()
 		DBG("Whole response:\n%", response);
 
 		csjp::HTTPResponse response2;
-		EXC_VERIFY(response2.parse(csjp::StringChunk(response)),
+		EXC_VERIFY(response2.parse(csjp::Str(response)),
 				csjp::HttpProtocolError);
 	}
 }

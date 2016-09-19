@@ -102,7 +102,7 @@ TEST_LIST=\
 	  container-pod_array \
 	  container-ref_array \
 	  core-string \
-	  core-string_chunk \
+	  core-str \
 	  core-file \
 	  core-mutex \
 	  container-bintree \

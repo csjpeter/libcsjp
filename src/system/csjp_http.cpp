@@ -60,14 +60,14 @@ HTTPRequest::operator String () const
 	return request;
 }
 
-unsigned HTTPRequest::parse(const StringChunk & data)
+unsigned HTTPRequest::parse(const Str & data)
 {
 	if(!method.length){
 		size_t pos;
 		if(!data.findFirst(pos, "\r\n"))
 			return false;
 		requestLine <<= data.read(0, pos);
-		Array<StringChunk> result(3);
+		Array<Str> result(3);
 		if(!subStringByRegexp(requestLine, result,
 				"\\([^ ]*\\) \\([^ ]*\\) HTTP/\\(.*\\)$"))
 			throw HttpProtocolError(
@@ -83,7 +83,7 @@ unsigned HTTPRequest::parse(const StringChunk & data)
 		if(!data.findFirst(pos, "\r\n\r\n", requestLine.length+2))
 			return false;
 		headers.value <<= data.read(requestLine.length+2, pos);
-		Array<StringChunk> array = split(headers.value, "\r\n");
+		Array<Str> array = headers.value.split("\r\n");
 		String key;
 		for(auto & str : array){
 			if(str.findFirst(pos, ":")){
@@ -97,7 +97,7 @@ unsigned HTTPRequest::parse(const StringChunk & data)
 						"Invalid header line: %", str);
 				pos = 0;
 			}
-			StringChunk value(str.str + pos, str.length - pos);
+			Str value(str.c_str() + pos, str.length - pos);
 			if(!value.startsWith(" ") && !value.startsWith("\t"))
 				throw HttpProtocolError(
 						"Invalid multiline header "
@@ -168,14 +168,14 @@ HTTPResponse::operator String () const
 	return response;
 }
 
-unsigned HTTPResponse::parse(const StringChunk & data)
+unsigned HTTPResponse::parse(const Str & data)
 {
 	if(!statusCode.length){
 		size_t pos;
 		if(!data.findFirst(pos, "\r\n"))
 			return false;
 		statusLine <<= data.read(0, pos);
-		Array<StringChunk> result(3);
+		Array<Str> result(3);
 		if(!subStringByRegexp(statusLine, result,
 				"HTTP/\\([^ ]*\\) \\([^ ]*\\) \\(.*\\)$"))
 			throw HttpProtocolError(
@@ -191,7 +191,7 @@ unsigned HTTPResponse::parse(const StringChunk & data)
 		if(!data.findFirst(pos, "\r\n\r\n", statusLine.length+2))
 			return false;
 		headers.value <<= data.read(statusLine.length+2, pos);
-		Array<StringChunk> array = split(headers.value, "\r\n");
+		Array<Str> array = headers.value.split("\r\n");
 		String key;
 		for(auto & str : array){
 			if(str.findFirst(pos, ":")){
@@ -205,7 +205,7 @@ unsigned HTTPResponse::parse(const StringChunk & data)
 						"Invalid header line: %", str);
 				pos = 0;
 			}
-			StringChunk value(str.str + pos, str.length - pos);
+			Str value(str.c_str() + pos, str.length - pos);
 			if(!value.startsWith(" ") && !value.startsWith("\t"))
 				throw HttpProtocolError(
 						"Invalid multiline header "
