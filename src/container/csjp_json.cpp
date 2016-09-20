@@ -6,7 +6,7 @@
 #include <string.h>
 
 #include <csjp_object.h>
-#include <csjp_str.h>
+#include <csjp_string.h>
 //#include <csjp_sorter_reference_container.h>
 
 #include "csjp_json.h"
@@ -27,7 +27,7 @@ class JsonParser
 private:
 	JsonParser & operator=(const JsonParser & src) {(void)src; return *this;} /* forbidden */
 public:
-	static Json parse(const String & data)
+	static Json parse(const Str & data)
 	{
 		Json target;
 		JsonParser parser(target, data);
@@ -36,7 +36,7 @@ public:
 	}
 
 private:
-	explicit JsonParser(Json & target, const String & data);
+	explicit JsonParser(Json & target, const Str & data);
 	~JsonParser();
 
 	void parse();
@@ -58,7 +58,7 @@ private:
 
 private:
 	RefArray<Json> objectStack;
-	const String & data; /* Json formatted text. */
+	const Str & data; /* Json formatted text. */
 	Json & target; /* Object want to receive findings. */
 	size_t len; /* Length of data */
 	size_t pos; /* Parser position */
@@ -454,7 +454,7 @@ bool JsonParser::readObject()
 	return true;
 }
 
-JsonParser::JsonParser(Json & target, const String & data) :
+JsonParser::JsonParser(Json & target, const Str & data) :
 	data(data),
 	target(target),
 	len(0),
@@ -478,11 +478,11 @@ void JsonParser::parse()
 	PARSE_ERROR("{", "object");
 }
 
-csjp::String Json::toString(int depth) const
+String Json::toString(int depth) const
 {
 	size_t i, s;
 	bool coma = false;
-	csjp::String data;
+	String data;
 
 	if(depth){
 #ifndef PERFMODE
@@ -521,7 +521,7 @@ csjp::String Json::toString(int depth) const
 	return data;
 }
 
-Json Json::fromString(const String & data)
+Json Json::fromString(const Str & data)
 {
 	return JsonParser::parse(data);
 }

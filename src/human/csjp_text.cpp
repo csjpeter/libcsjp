@@ -86,7 +86,7 @@ Text::Text(const char * utf8) :
 	assign(utf8);
 }
 
-Text::Text(const String & utf8) :
+Text::Text(const Str & utf8) :
 	priv(new TextPrivate)
 {
 	priv->len = 0;
@@ -145,19 +145,7 @@ void Text::assign(const char * utf8, size_t _length)
 	priv->dirtyUtf8 = true;
 }
 
-void Text::assign(const char * utf8)
-{
-	if(!utf8){
-		clear();
-		return;
-	}
-
-	size_t length = strlen(utf8);
-
-	assign(utf8, length);
-}
-
-void Text::assign(const String & utf8)
+void Text::assign(const Str & utf8)
 {
 	assign(utf8.c_str(), utf8.length);
 }

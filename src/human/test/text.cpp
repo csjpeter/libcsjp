@@ -46,7 +46,7 @@ void TestText::constructs()
 	}
 
 	{
-		csjp::Text text(csjp::String("répa"));
+		csjp::Text text("répa");
 		VERIFY(text.utf8() == "répa");
 		VERIFY(text == "répa");
 		VERIFY(text.length() == 4);

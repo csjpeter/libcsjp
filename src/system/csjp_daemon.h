@@ -21,7 +21,7 @@ class Daemon {
 		//const Daemon & operator=(Daemon && temp) { /*...impl...*/ return *this; }
 
 		explicit Daemon(bool exitParent = true);
-		explicit Daemon(const String & lockFileName, const String & logDirName,
+		explicit Daemon(const Str & lockFileName, const Str & logDirName,
 				bool exitParent = true);
 		~Daemon();
 

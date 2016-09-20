@@ -175,7 +175,8 @@ void TestString::compare()
 void TestString::findFirst()
 {
 	size_t pos = 100;
-	csjp::String str("Medve\0cukorka", 13);
+	csjp::String str;
+	str.assign("Medve\0cukorka", 13);
 #ifndef PERFMODE
 	char* nullStr = NULL;
 #endif
@@ -207,7 +208,8 @@ void TestString::findFirst()
 void TestString::findFirstOf()
 {
 	size_t pos = 100;
-	csjp::String str("Medve\0cukorka", 13);
+	csjp::String str;
+	str.assign("Medve\0cukorka", 13);
 #ifndef PERFMODE
 	char* nullStr = NULL;
 #endif
@@ -235,7 +237,8 @@ void TestString::findFirstOf()
 void TestString::findFirstNotOf()
 {
 	size_t pos = 100;
-	csjp::String str("Medve\0cukorka", 13);
+	csjp::String str;
+	str.assign("Medve\0cukorka", 13);
 #ifndef PERFMODE
 	char* nullStr = NULL;
 #endif
@@ -263,7 +266,8 @@ void TestString::findFirstNotOf()
 void TestString::findLast()
 {
 	size_t pos = 100;
-	csjp::String str("Medve\0cukorka", 13);
+	csjp::String str;
+	str.assign("Medve\0cukorka", 13);
 #ifndef PERFMODE
 	char* nullStr = NULL;
 #endif
@@ -297,7 +301,8 @@ void TestString::findLast()
 void TestString::findLastOf()
 {
 	size_t pos = 100;
-	csjp::String str("Medve\0cukorka", 13);
+	csjp::String str;
+	str.assign("Medve\0cukorka", 13);
 #ifndef PERFMODE
 	char* nullStr = NULL;
 #endif
@@ -327,7 +332,8 @@ void TestString::findLastOf()
 void TestString::findLastNotOf()
 {
 	size_t pos = 100;
-	csjp::String str("Medve\0cukorka", 13);
+	csjp::String str;
+	str.assign("Medve\0cukorka", 13);
 #ifndef PERFMODE
 	char* nullStr = NULL;
 #endif
@@ -355,7 +361,7 @@ void TestString::startsWith()
 	char* nullStr = NULL;
 
 	{
-		csjp::String str("Medve cukorka", 13);
+		csjp::String str("Medve cukorka");
 
 		VERIFY(str.length == 13);
 #ifndef PERFMODE
@@ -389,7 +395,7 @@ void TestString::endsWith()
 	char* nullStr = NULL;
 
 	{
-		csjp::String str("Medve cukorka", 13);
+		csjp::String str("Medve cukorka");
 
 		VERIFY(str.length == 13);
 #ifndef PERFMODE
@@ -421,7 +427,7 @@ void TestString::endsWith()
 void TestString::count()
 {
 //	char* nullStr = NULL;
-	csjp::String str("Medve cukorka", 13);
+	csjp::String str("Medve cukorka");
 
 #ifndef PERFMODE
 //	EXC_VERIFY(str.count(nullStr), csjp::InvalidArgument);
@@ -809,7 +815,8 @@ void TestString::erase()
 
 void TestString::write()
 {
-	csjp::String str("big\0bang", 8);
+	csjp::String str;
+	str.assign("big\0bang", 8);
 	char* nullPtr = NULL;
 
 	NOEXC_VERIFY(str.write(0, ""));
@@ -906,7 +913,8 @@ void TestString::replace()
 	char* nullStr = NULL;
 #endif
 
-	csjp::String str("Medve\0cukorka", 13);
+	csjp::String str;
+	str.assign("Medve\0cukorka", 13);
 
 	/* replace to same length */
 	VERIFY(str.length == 13);

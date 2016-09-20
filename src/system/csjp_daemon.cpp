@@ -36,7 +36,7 @@ Daemon::Daemon(bool exitParent) :
 	daemonize(exitParent);
 }
 
-Daemon::Daemon(const String & lockFileName, const String & logDirName, bool exitParent) :
+Daemon::Daemon(const Str & lockFileName, const Str & logDirName, bool exitParent) :
 	lockFile(lockFileName),
 	logDirName(logDirName),
 	pid(0)

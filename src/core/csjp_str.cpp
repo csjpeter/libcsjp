@@ -3,26 +3,19 @@
  * Copyright (C) 2012-2016 Csaszar, Peter
  */
 
-#include <stdlib.h>
 #include <stdio.h>
-#include <stdarg.h>
-#include <regex.h>
-#include <string.h>
-#include <errno.h>
 
-#include "csjp_str.h"
+#include "csjp_string.h"
 
 namespace csjp {
 
 Str::Str() :
-	AStr(),
-	length(len)
+	AStr()
 {
 }
 
 Str::Str(const Str & str, size_t from, size_t until) :
-	AStr(),
-	length(len)
+	AStr()
 {
 	ENSURE(until <= str.len,  InvalidArgument);
 	ENSURE(from <= until,  InvalidArgument);
@@ -31,8 +24,7 @@ Str::Str(const Str & str, size_t from, size_t until) :
 }
 
 Str::Str(const Str & str, size_t from) :
-	AStr(),
-	length(len)
+	AStr()
 {
 	ENSURE(from <= str.len,  InvalidArgument);
 
@@ -40,14 +32,13 @@ Str::Str(const Str & str, size_t from) :
 }
 
 Str::Str(const Str & str) :
-	AStr(),
-	length(len)
+	AStr()
 {
 	assign(str.data, str.len);
 }
 
 Str::Str(Str && temp) :
-	length(len)
+	AStr()
 {
 	assign(temp.data, temp.len);
 }
@@ -55,6 +46,47 @@ Str::Str(Str && temp) :
 Str::~Str()
 {
 }
+
+const Str & Str::operator=(Str && temp)
+{
+	data = temp.data;
+	temp.data = 0;
+	len = temp.len;
+	temp.len = 0;
+	return *this;
+}
+
+const Str & Str::operator=(const char * str)
+	{ assign(str); return *this; }
+
+const Str & Str::operator=(const Str & chunk)
+	{ assign(chunk); return *this;}
+
+Str::Str(const char * str, size_t length) : AStr()
+	{ ENSURE(str || !length,  InvalidArgument); assign(str, length); }
+
+Str::Str(const char * str) : AStr()
+{
+	if(str){
+		const char *c=str;
+		while(*c!=0)
+			c++;
+		assign(str, c - str);
+	}
+}
+
+Str::Str(const String & str) : AStr(str)
+	{ assign(str.c_str(), str.length); }
+
+
+int Str::compare(const char * str, size_t _length) const
+	{ return AStr::compare(str, _length); }
+
+int Str::compare(const char * str) const
+	{ return AStr::compare(str); }
+
+int Str::compare(const Str & str) const
+	{ return AStr::compare(str.data, str.len); }
 
 void Str::assign(const char * str, size_t length)
 {
@@ -528,77 +560,15 @@ Array<Str> Str::split(const char * delimiters, bool avoidEmptyResults) const
 	return AStr::split(delimiters, avoidEmptyResults);
 }
 
-/** Tries to mine the matching groups and make
- * result to refer to it if matching was successfull.
- * FIXME : write standalone regexp class. */
-bool subStringByRegexp(
-		const String & str,
-		Array<Str> & result,
-		const char * regexp)
-{
-	regex_t regexpCompiled;
-	unsigned matchesSize = result.capacity + 1;
-	regmatch_t matches[matchesSize];
+bool operator<(const Str & a, const String & b)
+	{ Str chunk(b); return a < chunk; }
+bool operator<(const String & a, const Str & b)
+	{ Str chunk(a); return chunk < b; }
 
-	memset(matches, 0, sizeof(matches));
-	if(regcomp(&regexpCompiled, regexp, 0))
-		throw ParseError(errno,
-				"Failed to compile regular expression: '%'.",
-				regexp);
-	int res = regexec(&regexpCompiled, str.c_str(),
-			matchesSize, matches, 0);
-	regfree(&regexpCompiled);
-	if(res)
-		return false;
-
-	result.clear();
-        for(unsigned i = 1; i < matchesSize; i++){
-                if(matches[i].rm_eo == -1 || matches[i].rm_so == -1 ||
-                                // avoid posible regex bug :
-                                matches[i].rm_eo < matches[i].rm_so)
-			break;
-		if(result.capacity < i)
-			throw InvalidArgument(
-			"Regular expression contains more groups than "
-			"the capacity of the result array given as parameter.");
-		result.add(str.c_str() + matches[i].rm_so, matches[i].rm_eo -
-				matches[i].rm_so);
-		//DBG("Match: '%' by using regexp: '%'.", result[i-1], regexp);
-	}
-
-	return true;
-}
-
-Array<Str> subStringByRegexp(
-		const String & str, const char * regexp,
-		unsigned numOfExpectedMatches)
-{
-	Array<Str> result;
-
-	regex_t regexpCompiled;
-	unsigned matchesSize = numOfExpectedMatches + 1;
-	regmatch_t matches[matchesSize];
-
-	memset(matches, 0, sizeof(matches));
-	if(regcomp(&regexpCompiled, regexp, 0))
-		throw ParseError(errno,
-				"Failed to compile regular expression: '%'.",
-				regexp);
-	regexec(&regexpCompiled, str.c_str(), matchesSize, matches, 0);
-	regfree(&regexpCompiled);
-
-	result.clear();
-        for(unsigned i = 1; i < matchesSize; i++){
-                if(matches[i].rm_eo == -1 || matches[i].rm_so == -1 ||
-                                // avoid posible regex bug :
-                                matches[i].rm_eo < matches[i].rm_so)
-			break;
-		result.add(str.c_str() + matches[i].rm_so,
-				matches[i].rm_eo - matches[i].rm_so);
-		//DBG("Match: '%' by using regexp: '%'.", result[i-1], regexp);
-	}
-
-	return result;
-}
+String & operator<<=(String & lhs, const Str & rhs)
+	{ lhs.assign(rhs.c_str(), rhs.length); return lhs; }
+String & operator<<(String & lhs, const Str & rhs)
+	{ lhs.append(rhs.c_str(), rhs.length); return lhs; }
 
 }
+

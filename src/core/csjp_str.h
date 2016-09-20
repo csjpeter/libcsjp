@@ -6,10 +6,12 @@
 #ifndef CSJP_STR_H
 #define CSJP_STR_H
 
-#include <csjp_array.h>
+#include <csjp_astr.h>
 
 namespace csjp {
 
+class Str : public AStr
+{
 /** This string class is to process already existing or static string datas as constant.
  * It is the developer's responsibility, not to change the string given for such an
  * object.
@@ -17,20 +19,13 @@ namespace csjp {
 /** The inner data might contain 0 byte. Methods are using length property instead of
  * the 0 byte as sentinel.
  */
-class Str : public AStr
-{
-public:
-	const size_t & length;
-	/** Terminating zero is not garanteed. */
-	const char * c_str() const { return data; }
-
 public:
 	const Str & operator=(Str && temp);
 
 	explicit Str();
 	explicit Str(const char * str, size_t length);
-	explicit Str(const char * str);
-	explicit Str(const String & str);
+	Str(const char * str);
+	Str(const String & str);
 	explicit Str(const Str & str, size_t from, size_t until);
 	explicit Str(const Str & str, size_t from);
 	explicit Str(const Str & str);
@@ -127,8 +122,8 @@ public:
 
 	Array<Str> split(const char * delimiters, bool avoidEmptyResults = true) const;
 
-	String encodeBase64() const { return AStr::encodeBase64(); }
-	String decodeBase64() const { return AStr::decodeBase64(); }
+	String encodeBase64() const;
+	String decodeBase64() const;
 };
 
 inline bool operator==(const Str & a, const char * b) { return a.isEqual(b); }
@@ -145,54 +140,6 @@ bool operator<(const String & a, const Str & b);
 String & operator<<=(String & lhs, const Str & rhs);
 String & operator<<(String & lhs, const Str & rhs);
 
-bool subStringByRegexp(const String & str, Array<Str> & result, const char * regexp);
-Array<Str> subStringByRegexp(const String & str, const char * regexp,
-		unsigned numOfExpectedMatches = 100);
-
-
-/* Inline implementations {{{ */
-
-inline const Str & Str::operator=(Str && temp)
-{
-	data = temp.data;
-	temp.data = 0;
-	len = temp.len;
-	temp.len = 0;
-	return *this;
 }
-inline const Str & Str::operator=(const char * str)
-	{ assign(str); return *this; }
-inline const Str & Str::operator=(const Str & chunk)
-	{ assign(chunk); return *this;}
-
-inline Str::Str(const char * str, size_t length) : AStr(), length(len)
-	{ ENSURE(str || !length,  InvalidArgument); assign(str, length); }
-inline Str::Str(const char * str) : AStr(), length(len)
-	{ if(str){ const char *c=str; while(*c!=0) c++; assign(str, c - str); } }
-
-inline Str::Str(const String & str) : AStr(str), length(len)
-	{ assign(str.c_str(), str.length); }
-
-
-inline int Str::compare(const char * str, size_t _length) const
-	{ return AStr::compare(str, _length); }
-inline int Str::compare(const char * str) const
-	{ return AStr::compare(str); }
-inline int Str::compare(const Str & str) const
-	{ return AStr::compare(str.data, str.len); }
-
-inline bool operator<(const Str & a, const String & b)
-	{ Str chunk(b); return a < chunk; }
-inline bool operator<(const String & a, const Str & b)
-	{ Str chunk(a); return chunk < b; }
-
-inline String & operator<<=(String & lhs, const Str & rhs)
-	{ lhs.assign(rhs.c_str(), rhs.length); return lhs; }
-inline String & operator<<(String & lhs, const Str & rhs)
-	{ lhs.append(rhs.c_str(), rhs.length); return lhs; }
-
-}
-
-/*}}}*/
 
 #endif

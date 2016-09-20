@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 
-#include <csjp_str.h>
+#include <csjp_string.h>
 
 namespace csjp {
 
@@ -53,8 +53,6 @@ class File
 		fileSize(0), \
 		fileName()
 public:
-	static String readAll(const char * fileName) { File f(fileName); return f.readAll(); }
-	static String readAll(const String & fileName) { File f(fileName); return f.readAll(); }
 	static String readAll(const Str & fileName) { File f(fileName); return f.readAll();}
 
 public:
@@ -95,10 +93,7 @@ public:
 		return *this;
 	}
 
-	explicit File(const char * fileName);
-	explicit File(const String & fileName);
 	explicit File(const Str & fileName);
-	//explicit File(String && fileName);
 	virtual ~File();
 #if 0
 	void lock(off_t length = 0);
@@ -117,8 +112,7 @@ public:
 	void execute() const; ??? evaluate data ???
 
 	void moveTo(String & path);*/
-	void rename(const char * name);
-	void rename(const String & name);
+	void rename(const Str & name);
 
 	void resize(long unsigned size);
 	void create();
@@ -139,16 +133,15 @@ public:
 /* FIXME : getline() system call is not supported on android-9
 	void getLine(String & buffer) const;*/
 
-	void write(const String & data) { Str chunk(data.c_str(), data.length); write(chunk); }
 	void write(const Str & data);
-	void writeAtPos(const String & data, long unsigned pos);
-	void append(const String & data);
+	void writeAtPos(const Str & data, long unsigned pos);
+	void append(const Str & data);
 	void appendPrintf(const char * format, ...)
 			// We need to use 2, 3 because 'this' pointer is the first parameter.
 			__attribute__ ((format (printf, 2, 3)));
 	template<typename... Args> void appendf(const char * fmt, const Args & ... args)
 		{ String buf; buf.catf(fmt, args...); append(buf); }
-	void overWrite(const String & data) { if(exists()) resize(0); write(data); }
+	void overWrite(const Str & data) { if(exists()) resize(0); write(data); }
 
 protected:
 	void close(bool throws) const;
@@ -173,7 +166,7 @@ public:
 	 * random such that the resulted file name will be unique.
 	 * For details see linux man page mkstemp in section 3.
 	 */
-	explicit TempFile(const String & templateFileName);
+	explicit TempFile(const Str & templateFileName);
 	explicit TempFile(const char * templateFileName);
 	virtual ~TempFile();
 

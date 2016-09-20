@@ -11,43 +11,11 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#include <csjp_str.h>
+
 #include <csjp_exception.h>
-#include <csjp_logger.h>
 
 namespace csjp {
-
-template <typename DataType> class Array;
-class Str;
-class String;
-
-class AStr
-{
-protected:
-	char * data;
-	size_t len;
-protected:
-	AStr() : data(0), len(0) {}
-public:
-	int compare(const char * str, size_t _length) const;
-	int compare(const char * str) const;
-	bool isEqual(const char * str, size_t _length) const;
-	bool isEqual(const char * str) const;
-	bool findFirst(size_t & pos, const char * str, size_t _length, size_t from, size_t until)
-		const;
-	bool findFirstOf(size_t & pos, const char * str, size_t _length, size_t from, size_t until)
-		const;
-	bool findFirstNotOf(size_t & pos, const char * str, size_t _length,
-			size_t from, size_t until) const;
-	bool findLast(size_t & pos, const char * str, size_t _length, size_t until) const;
-	bool findLastOf(size_t & pos, const char * str, size_t _length, size_t until) const;
-	bool findLastNotOf(size_t & pos, const char * str, size_t _length, size_t until) const;
-	bool startsWith(const char * str, size_t _length) const;
-	bool endsWith(const char * str, size_t _length) const;
-	size_t count(const char * str, size_t _length, size_t from, size_t until) const;
-	Array<Str> split(const char * delimiters, bool avoidEmptyResults) const;
-	String encodeBase64() const;
-	String decodeBase64() const;
-};
 
 class String : public AStr
 {
@@ -72,21 +40,18 @@ private:
 	 * - if data == NULL :
 	 *   - len == 0
 	 */
-public:
-	const size_t & length;
 
 #define StringInitializer : \
 	        AStr(), \
-		size(0), \
-		length(len)
+		size(0)
 
 public:
 
-	String()			StringInitializer { }
-	String(const String & orig)	StringInitializer { assign(orig.data, orig.length); }
-	String(const char * str, size_t _length) StringInitializer { assign(str, _length); }
-	String(const char * str)	StringInitializer { assign(str); }
-	~String()			{ if(data) free(data); }
+	explicit String() StringInitializer { }
+	explicit String(const String & orig) StringInitializer { assign(orig.data, orig.length);}
+	explicit String(const AStr & str) StringInitializer { assign(str); }
+	explicit String(const char * str) StringInitializer { assign(str); }
+	virtual ~String() { if(data) free(data); }
 
 	String(String && temp);
 	const String & operator=(String && temp);
@@ -99,8 +64,6 @@ public:
 	void extendCapacity(size_t); // reserves extra space for later usage
 	size_t capacity() const;
 	void setLength(size_t length);
-
-	const char * c_str() const { return data; }
 
 	const char& operator[](unsigned char i) const { return data[i]; }
 	inline char& operator[](unsigned char i){ return data[i]; }
@@ -119,11 +82,11 @@ public:
 
 	int compare(const char * str, size_t _length) const { return AStr::compare(str, _length); }
 	int compare(const char * str) const { return AStr::compare(str); }
-	int compare(const String & str) const { return AStr::compare(str.data, str.len); }
+	int compare(const AStr & str) const { return AStr::compare(str.data, str.len); }
 
 	bool isEqual(const char * str, size_t _length) const { return AStr::isEqual(str, _length); }
 	bool isEqual(const char * str) const { return AStr::isEqual(str); }
-	bool isEqual(const String & str) const { return isEqual(str.data, str.len); }
+	bool isEqual(const AStr & str) const { return isEqual(str.data, str.len); }
 
 	bool findFirst(size_t &, const char *, size_t _length, size_t from, size_t until) const;
 	bool findFirst(size_t &, const char *, size_t from, size_t until) const;
@@ -184,13 +147,14 @@ public:
 	const String & operator=(int i) { chop(); append(i); return *this; }
 	const String & operator=(long int i) { chop(); append(i); return *this; }
 	const String & operator=(long long int i) { chop(); append(i); return *this; }
-	const String & operator=(const String & s) { assign(s); return s; }
+	const String & operator=(const String & s) { assign(s); return *this; }
+	const String & operator=(const AStr & s) { assign(s); return *this; }
 	const String & operator+=(const char * str){ append(str); return *this; }
 	const String & operator+=(const String &);
 
 	void assign(const char *, size_t _length);
 	void assign(const char *);
-	void assign(const String &);
+	void assign(const AStr &);
 
 	void fill(char, size_t);
 
@@ -205,7 +169,7 @@ public:
 	void append(const char *, size_t _length);
 	void append(const char *);
 	void append(const void * ptr) { appendPrintf("%p", ptr); }
-	void append(const String &);
+	void append(const AStr &);
 	void append(bool b) { append( b ? "true" : "false"); }
 	void append(char);
 	void append(unsigned char);
@@ -257,10 +221,10 @@ public:
 						size_t from, size_t until, size_t maxNumOfRepl);
 	void replace(const char * what, const char * to, size_t from, size_t until);
 	void replace(const char * what, const char * to, size_t from = 0);
-	void replace(const String & what, const String & to,
+	void replace(const Str & what, const Str & to,
 						size_t from, size_t until, size_t maxNumOfRepl);
-	void replace(const String & what, const String & to, size_t from, size_t until);
-	void replace(const String & what, const String & to, size_t from = 0);
+	void replace(const Str & what, const Str & to, size_t from, size_t until);
+	void replace(const Str & what, const Str & to, size_t from = 0);
 
 	void clear();
 
@@ -280,6 +244,8 @@ public:
 	void trimBack(const String &);
 
 	Array<Str> split(const char * delimiters, bool avoidEmptyResults = true) const;
+	bool isRegexpMatch(const char * regexp);
+	Array<Str> regexpMatches(const char * regexp, unsigned numOfExpectedMatches = 100);
 
 	void adopt(char *& str, size_t _length, size_t size);
 	void adopt(char *& str, size_t size);
@@ -352,86 +318,6 @@ long double &		operator<<=(long double & i,		const String & str);
 
 /*}}}*/
 
-
-/* Inline implementations {{{*/
-inline String::String(String && temp) : size(temp.size), length(len)
-{
-	data = temp.data;
-	len = temp.len;
-	temp.data = 0;
-	temp.len = 0;
-	temp.size = 0;
-}
-inline const String & String::operator=(String && temp)
-{
-	data= temp.data;
-	len = temp.len;
-	size = temp.size;
-
-	temp.data = 0;
-	temp.len = 0;
-	temp.size = 0;
-
-	return *this;
-}
-
-template<typename Arg> void String::catf(const char * fmt, const Arg & arg)
-{
-	while(*fmt != 0){
-		if(*fmt == '%'){
-			fmt++;
-			if(*fmt != '%'){
-				*this << arg;
-				append(fmt);
-				return;
-			}
-		}
-		append(*fmt);
-		fmt++;
-	}
-	*this << arg;
-}
-template<typename Arg, typename... Args>
-void String::catf(const char * fmt, const Arg & arg, const Args & ... args)
-{
-	while(*fmt != 0){
-		if(*fmt == '%'){
-			fmt++;
-			if(*fmt != '%'){
-				*this << arg;
-				catf(fmt, args...);
-				return;
-			}
-		}
-		append(*fmt);
-		fmt++;
-	}
-	cat(args...);
-}
-
-inline int & operator<<=(int & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline long int & operator<<=(long int & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline long long int & operator<<=(long long int & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline unsigned & operator<<=(unsigned & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline long unsigned & operator<<=(long unsigned & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline long long unsigned & operator<<=(long long unsigned & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline float & operator<<=(float & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline double & operator<<=(double & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline long double & operator<<=(long double & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-
-/*}}}*/
-
-
-
 class ErrNo : public String
 {
 public:
@@ -450,12 +336,10 @@ public:
 #endif
 		int _errNo = errno;
 		if(_errNo)
-			catf("Error in strerror_r: number % - %",
-					_errNo, strerror(_errNo));
+			catf("Error in strerror_r: number % - %", _errNo, strerror(_errNo));
 		catf("% - %", errNo, msg);
 	}
 };
-
 
 
 /* Logging macros {{{*/
@@ -619,6 +503,89 @@ inline String &	operator<<(String & lhs, const PrimeException & rhs)
 }
 
 #include <csjp_array.h>
-#include <csjp_str.h>
+
+namespace csjp {
+
+inline String Str::encodeBase64() const { return AStr::encodeBase64(); }
+inline String Str::decodeBase64() const { return AStr::decodeBase64(); }
+
+/* Inline implementations {{{*/
+inline String::String(String && temp) : size(temp.size)
+{
+	data = temp.data;
+	len = temp.len;
+	temp.data = 0;
+	temp.len = 0;
+	temp.size = 0;
+}
+inline const String & String::operator=(String && temp)
+{
+	data= temp.data;
+	len = temp.len;
+	size = temp.size;
+
+	temp.data = 0;
+	temp.len = 0;
+	temp.size = 0;
+
+	return *this;
+}
+
+template<typename Arg> void String::catf(const char * fmt, const Arg & arg)
+{
+	while(*fmt != 0){
+		if(*fmt == '%'){
+			fmt++;
+			if(*fmt != '%'){
+				*this << arg;
+				append(fmt);
+				return;
+			}
+		}
+		append(*fmt);
+		fmt++;
+	}
+	*this << arg;
+}
+template<typename Arg, typename... Args>
+void String::catf(const char * fmt, const Arg & arg, const Args & ... args)
+{
+	while(*fmt != 0){
+		if(*fmt == '%'){
+			fmt++;
+			if(*fmt != '%'){
+				*this << arg;
+				catf(fmt, args...);
+				return;
+			}
+		}
+		append(*fmt);
+		fmt++;
+	}
+	cat(args...);
+}
+
+inline int & operator<<=(int & i, const String & str)
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
+inline long int & operator<<=(long int & i, const String & str)
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
+inline long long int & operator<<=(long long int & i, const String & str)
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
+inline unsigned & operator<<=(unsigned & i, const String & str)
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
+inline long unsigned & operator<<=(long unsigned & i, const String & str)
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
+inline long long unsigned & operator<<=(long long unsigned & i, const String & str)
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
+inline float & operator<<=(float & i, const String & str)
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
+inline double & operator<<=(double & i, const String & str)
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
+inline long double & operator<<=(long double & i, const String & str)
+	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
+
+/*}}}*/
+
+}
 
 #endif

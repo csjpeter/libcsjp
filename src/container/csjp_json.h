@@ -8,7 +8,7 @@
 
 #include <csjp_owner_container.h>
 #include <csjp_ref_array.h>
-#include <csjp_str.h>
+#include <csjp_string.h>
 
 namespace csjp {
 
@@ -56,17 +56,7 @@ public:
 		value = move_cast(temp);
 		return *this;
 	}
-	const Json & operator=(const String & str)
-	{
-		value = str;
-		return *this;
-	}
 	const Json & operator=(const Str & str)
-	{
-		value = String(str.c_str(), str.length);
-		return *this;
-	}
-	const Json & operator=(const char * str)
 	{
 		value = str;
 		return *this;
@@ -78,8 +68,7 @@ public:
 	~Json() { }
 
 public:
-	explicit Json(const String & k) : key(k) {}
-	explicit Json(const Str & k) : key(k.c_str(), k.length) {}
+	explicit Json(const Str & k) : key(k) {}
 	explicit Json(const char * k) : key(k) {}
 
 	bool isEqual(const Json& i) const{
@@ -89,8 +78,6 @@ public:
 	}
 
 	bool isLess(const Json & i) const { return key < i.key; }
-	bool isLess(const String & s) const { return key < s; }
-	bool isMore(const String & s) const { return s < key; }
 	bool isLess(const Str & s) const { return key < s; }
 	bool isMore(const Str & s) const { return s < key; }
 
@@ -119,11 +106,11 @@ public:
 	operator const csjp::String & () const { return value; }
 
 private:
-	static Json fromString(const String & data);
+	static Json fromString(const Str & data);
 	csjp::String toString(int depth) const;
 
 public:
-	void parse(const String & data) { *this = Json::fromString(data); }
+	void parse(const Str & data) { *this = Json::fromString(data); }
 	csjp::String toString() const { return toString(0); }
 
 public:
@@ -135,8 +122,8 @@ public:
 
 inline bool operator==(const Json& a, const Json& b) { return a.isEqual(b); }
 inline bool operator!=(const Json& a, const Json& b) { return !a.isEqual(b); }
-inline bool operator==(const Json & a, const String & b) { return a.value.isEqual(b); }
-inline bool operator!=(const Json & a, const String & b) { return !a.value.isEqual(b); }
+inline bool operator==(const Json & a, const Str & b) { return a.value.isEqual(b); }
+inline bool operator!=(const Json & a, const Str & b) { return !a.value.isEqual(b); }
 inline bool operator==(const Json & a, const char * b) { return a.value.isEqual(b); }
 inline bool operator!=(const Json & a, const char * b) { return !a.value.isEqual(b); }
 
@@ -175,7 +162,7 @@ inline UInt & operator<<=(UInt & lhs, const Json & rhs)
 inline Double & operator<<=(Double & lhs, const Json & rhs)
 		{ lhs.val <<= rhs; return lhs; }
 
-inline Json & operator<<=(Json & lhs, const csjp::String & rhs)
+inline Json & operator<<=(Json & lhs, const csjp::Str & rhs)
 		{ lhs.value = rhs; return lhs; }
 inline Json & operator<<=(Json & lhs, const unsigned rhs)
 		{ lhs.value.cutAt(0); lhs.value << rhs; return lhs; }

@@ -29,7 +29,7 @@ TempFile::TempFile(const char * templateFileName) :
 	writable = true;
 }
 
-TempFile::TempFile(const String & templateFileName) :
+TempFile::TempFile(const Str & templateFileName) :
 	File(templateFileName)
 {
 	file = mkstemp((char *)fileName.c_str());
@@ -44,33 +44,13 @@ TempFile::~TempFile()
 		close(false);
 }
 
-File::File(const char * fileName) :
-	file(-1),
-	writable(false),
-	eofbit(false),
-	locked(false),
-	fileSize(0),
-	fileName(fileName)
-{
-}
-
-File::File(const String & fileName) :
-	file(-1),
-	writable(false),
-	eofbit(false),
-	locked(false),
-	fileSize(0),
-	fileName(fileName)
-{
-}
-
 File::File(const Str & fileName) :
 	file(-1),
 	writable(false),
 	eofbit(false),
 	locked(false),
 	fileSize(0),
-	fileName(fileName.c_str(), fileName.length)
+	fileName(fileName)
 {
 }
 
@@ -192,7 +172,7 @@ long unsigned File::size() const
 	return size;
 }
 
-void File::rename(const char * name)
+void File::rename(const Str & name)
 {
 	if(0 <= file)
 		close();
@@ -201,17 +181,12 @@ void File::rename(const char * name)
 //	char buf[PATH_MAX];
 //	String cwd(char *getcwd(buf, PATH_MAX));
 	fileName.assign(name);
-	int fn = ::rename(oldFileName.c_str(), name);
+	int fn = ::rename(oldFileName.c_str(), fileName.c_str());
 	if(fn < 0){
 		int errNo = errno;
 		fileName = move_cast(oldFileName);
 		throw FileError(errNo, "Could not rename file % to %.", fileName, name);
 	}
-}
-
-void File::rename(const String & name)
-{
-	rename(name);
 }
 
 void File::resize(long unsigned size)
@@ -504,7 +479,7 @@ void File::write(const Str & data)
 	fileSize += written; // FIXME what if write is not appending, but overwriting
 }
 
-void File::writeAtPos(const String & data, long unsigned pos)
+void File::writeAtPos(const Str & data, long unsigned pos)
 {
 	if(file < 0 || !writable)
 		openForWrite();
@@ -515,7 +490,7 @@ void File::writeAtPos(const String & data, long unsigned pos)
 	write(data);
 }
 
-void File::append(const String & data)
+void File::append(const Str & data)
 {
 	if(file < 0 || !writable)
 		openForWrite();

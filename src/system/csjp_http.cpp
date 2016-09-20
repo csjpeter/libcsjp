@@ -12,39 +12,49 @@
 namespace csjp {
 
 HTTPRequest::HTTPRequest(
-		const String & method,
-		const String & uri,
-		const String & body,
-		const String & version) :
+		const Str & method,
+		const Str & uri,
+		const Str & body,
+		const Str & version) :
 	method(method),
 	uri(uri),
 	version(version),
 	body(body)
 {
-	requestLine.catf("% % HTTP/%",
-			method.length ? method.c_str() : "GET",
-			uri.length ? uri.c_str() : "/",
-			version.length ? version.c_str() : "1.0");
+	if(method.length)
+		requestLine.cat(method);
+	else
+		requestLine.cat("GET");
+
+	if(uri.length)
+		requestLine.cat(" ", uri);
+	else
+		requestLine.cat(" /");
+
+	if(version.length)
+		requestLine.cat(" HTTP/", version);
+	else
+		requestLine.cat(" HTTP/1.0");
 }
 
 HTTPRequest HTTPRequest::get(
-		const String & uri,
-		const String & version)
+		const Str & uri,
+		const Str & version)
 {
 	(void)uri;
 	(void)version;
-	return HTTPRequest(String("GET"), uri, String(""), version);
+	return HTTPRequest("GET", uri, "", version);
 }
 
 HTTPRequest HTTPRequest::post(
-		const String & body,
-		const String & uri,
-		const String & version)
+		const Str & body,
+		const Str & uri,
+		const Str & version)
 {
-	return HTTPRequest(String("POST"), uri, body, version);
+	return HTTPRequest(Str("POST"), uri, body, version);
 }
 
-HTTPRequest::operator String () const
+String HTTPRequest::toString() const
 {
 	String request;
 	request.catf("%\r\n", requestLine);
@@ -67,12 +77,9 @@ unsigned HTTPRequest::parse(const Str & data)
 		if(!data.findFirst(pos, "\r\n"))
 			return false;
 		requestLine <<= data.read(0, pos);
-		Array<Str> result(3);
-		if(!subStringByRegexp(requestLine, result,
-				"\\([^ ]*\\) \\([^ ]*\\) HTTP/\\(.*\\)$"))
-			throw HttpProtocolError(
-					"Invalid HTTP request line: %",
-					requestLine);
+		auto result = requestLine.regexpMatches("\\([^ ]*\\) \\([^ ]*\\) HTTP/\\(.*\\)$");
+		if(result.size() != 3)
+			throw HttpProtocolError("Invalid HTTP request line: %", requestLine);
 		method <<= result[0];
 		uri <<= result[1];
 		version <<= result[2];
@@ -125,8 +132,8 @@ unsigned HTTPRequest::parse(const Str & data)
 
 HTTPResponse::HTTPResponse(
 		HTTPStatusCode code,
-		const String & body,
-		const String & version
+		const Str & body,
+		const Str & version
 		) :
 	version(version),
 	body(body)
@@ -139,8 +146,8 @@ HTTPResponse::HTTPResponse(
 }
 
 HTTPResponse::HTTPResponse(
-		const String & body,
-		const String & version) :
+		const Str & body,
+		const Str & version) :
 	version(version),
 	body(body)
 {
@@ -152,7 +159,7 @@ HTTPResponse::HTTPResponse(
 			statusCode, reasonPhrase);
 }
 
-HTTPResponse::operator String () const
+String HTTPResponse::toString() const
 {
 	String response;
 	response.catf("%\r\n", statusLine);
@@ -175,12 +182,9 @@ unsigned HTTPResponse::parse(const Str & data)
 		if(!data.findFirst(pos, "\r\n"))
 			return false;
 		statusLine <<= data.read(0, pos);
-		Array<Str> result(3);
-		if(!subStringByRegexp(statusLine, result,
-				"HTTP/\\([^ ]*\\) \\([^ ]*\\) \\(.*\\)$"))
-			throw HttpProtocolError(
-					"Invalid HTTP status line: %",
-					statusLine);
+		auto result = statusLine.regexpMatches("HTTP/\\([^ ]*\\) \\([^ ]*\\) \\(.*\\)$");
+		if(result.size() != 3)
+			throw HttpProtocolError("Invalid HTTP status line: %", statusLine);
 		version <<= result[0];
 		statusCode <<= result[1];
 		reasonPhrase <<= result[2];
@@ -201,15 +205,12 @@ unsigned HTTPResponse::parse(const Str & data)
 				pos++;
 			} else {
 				if(!key.length)
-					throw HttpProtocolError(
-						"Invalid header line: %", str);
+					throw HttpProtocolError("Invalid header line: %", str);
 				pos = 0;
 			}
 			Str value(str.c_str() + pos, str.length - pos);
 			if(!value.startsWith(" ") && !value.startsWith("\t"))
-				throw HttpProtocolError(
-						"Invalid multiline header "
-						"line: %", str);
+				throw HttpProtocolError("Invalid multiline header line: %", str);
 			value.trim(" \t");
 			headers[key].value << value;
 		}

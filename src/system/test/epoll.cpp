@@ -170,14 +170,14 @@ void TestEPoll::receiveMsg()
 	epoll.add(servers[0]);
 
 	TESTSTEP("Client writes");
-	VERIFY(client.send(csjp::String("from client\n")));
+	VERIFY(client.send("from client\n"));
 
 	TESTSTEP("EPoll waits and server receives");
 	epoll.waitAndControl(10); // 0.01 sec
 	VERIFY(serverReceived == "from client\n");
 
 	TESTSTEP("Server writes");
-	VERIFY(servers[0].send(csjp::String("from server\n")));
+	VERIFY(servers[0].send("from server\n"));
 
 	TESTSTEP("EPoll waits");
 	epoll.waitAndControl(10); // 0.01 sec

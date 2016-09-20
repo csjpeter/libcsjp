@@ -42,7 +42,7 @@ private:
 public:
 	explicit Text(const char * utf8, size_t length);
 	explicit Text(const char * utf8);
-	explicit Text(const String &);
+	explicit Text(const Str &);
 
 	const Text& operator=(const char * utf8);
 	const Text& operator=(const String &);
@@ -52,8 +52,7 @@ public:
 	const Text& operator+=(const String &);
 
 	void assign(const char * utf8, size_t _length);
-	void assign(const char * utf8);
-	void assign(const String &);
+	void assign(const Str &);
 
 	void uniCharAt(UniChar & c, size_t pos) const;
 	UniChar uniCharAt(size_t pos) const

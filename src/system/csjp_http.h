@@ -32,7 +32,7 @@ public:
 	{
 		method = move_cast(temp.method);
 		uri = move_cast(temp.uri);
-		temp = move_cast(temp.version);
+		version = move_cast(temp.version);
 		headers = move_cast(temp.headers);
 		body = move_cast(temp.body);
 		requestLine = move_cast(temp.requestLine);
@@ -41,19 +41,19 @@ public:
 
 	HTTPRequest() {}
 
-	HTTPRequest(	const String & method,
-			const String & uri = String("/"),
-			const String & body = String(""),
-			const String & version = String("1.0"));
+	HTTPRequest(	const Str & method,
+			const Str & uri = "/",
+			const Str & body = "",
+			const Str & version = "1.0");
 
-	static HTTPRequest get(const String & uri,
-		const String & version = String("1.0"));
+	static HTTPRequest get(const Str & uri,
+		const Str & version = "1.0");
 
-	static HTTPRequest post(const String & body,
-		const String & uri = String("/"),
-		const String & version = String("1.0"));
+	static HTTPRequest post(const Str & body,
+		const Str & uri = "/",
+		const Str & version = "1.0");
 
-	operator String () const;
+	String toString() const;
 
 	unsigned parse(const Str & data);
 
@@ -203,7 +203,7 @@ public:
 	{}
 	const HTTPResponse & operator=(HTTPResponse && temp)
 	{
-		temp = move_cast(temp.version);
+		version = move_cast(temp.version);
 		headers = move_cast(temp.headers);
 		body = move_cast(temp.body);
 		statusCode = move_cast(temp.statusCode);
@@ -215,13 +215,13 @@ public:
 	HTTPResponse() {}
 
 	HTTPResponse(HTTPStatusCode statusCode,
-			const String & body = String(""),
-			const String & version = String("1.0"));
+			const Str & body = "",
+			const Str & version = "1.0");
 
-	HTTPResponse(const String & body,
-			const String & version = String("1.0"));
+	HTTPResponse(const Str & body,
+			const Str & version = "1.0");
 
-	operator String () const;
+	String toString() const;
 
 	unsigned parse(const Str & data);
 

@@ -8,7 +8,7 @@
 
 #include <netinet/in.h>
 #include <string>
-#include <csjp_str.h>
+#include <csjp_string.h>
 
 /**
  * Usefull info:
@@ -66,7 +66,7 @@ public:
 	}
 
 	String receive(size_t length);
-	bool send(const String & data); //returns false on EAGAIN or EWOULDBLOCK
+	bool send(const Str & data); //returns false on EAGAIN or EWOULDBLOCK
 
 	template <typename TypeReceive>
 	bool receive(TypeReceive & parser)

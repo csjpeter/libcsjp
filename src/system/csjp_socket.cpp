@@ -117,7 +117,7 @@ String Socket::receive(size_t length)
 					"string from socket.", length);
 	}
 
-	String ret(readBuffer.c_str(), length);
+	String ret(readBuffer.read(0, length));
 	readBuffer.chopFront(length);
 
 	return ret;
@@ -158,7 +158,7 @@ bool Socket::writeFromBuffer()
 	return 0 <= justWritten; // false if EAGAIN or EWOULDBLOCK happened
 }
 
-bool Socket::send(const String & data)
+bool Socket::send(const Str & data)
 {
 	if(file < 0)
 		throw InvalidState("Socket is closed.");

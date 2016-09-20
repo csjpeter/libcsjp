@@ -23,7 +23,7 @@ public:
 
 void TestJson::onlyValues()
 {
-	csjp::String data(
+	csjp::Str data(
 			"{ # comment\n"
 			"gyümölcs : alma, # comment\n"
 			" # comment\n"
@@ -57,7 +57,7 @@ void TestJson::onlyValues()
 
 void TestJson::onlyObjects()
 {
-	csjp::String data(
+	csjp::Str data(
 			"{ # comment\n"
 			"\"gyümölcs\" : {}, # comment \n"
 			"  # comment \n"
@@ -92,7 +92,7 @@ void TestJson::onlyObjects()
 
 void TestJson::valuesInObjects()
 {
-	csjp::String data(
+	csjp::Str data(
 			"{"
 			"\"hami-papi\" : \"fincsi\","
 			"\"gyümölcs\" : {"
@@ -137,7 +137,7 @@ void TestJson::valuesInObjects()
 
 void TestJson::multipleSources()
 {
-	csjp::String data(
+	csjp::Str data(
 			"{"
 			"\"hami-papi\" : \"fincsi\","
 			"\"gyümölcs\" : {"
