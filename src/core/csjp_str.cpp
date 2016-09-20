@@ -68,8 +68,8 @@ Str::Str(const char * str, size_t length) : AStr()
 Str::Str(const char * str) : AStr()
 {
 	if(str){
-		const char *c=str;
-		while(*c!=0)
+		const char * c = str;
+		while(*c != 0)
 			c++;
 		assign(str, c - str);
 	}

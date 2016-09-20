@@ -49,8 +49,7 @@ public:
 
 	explicit String() StringInitializer { }
 	explicit String(const String & orig) StringInitializer { assign(orig.data, orig.length);}
-	explicit String(const AStr & str) StringInitializer { assign(str); }
-	explicit String(const char * str) StringInitializer { assign(str); }
+	explicit String(const Str & str) StringInitializer { assign(str); }
 	virtual ~String() { if(data) free(data); }
 
 	String(String && temp);
@@ -81,51 +80,37 @@ public:
 	inline char& operator[](long long unsigned i){ return data[i]; }
 
 	int compare(const char * str, size_t _length) const { return AStr::compare(str, _length); }
-	int compare(const char * str) const { return AStr::compare(str); }
-	int compare(const AStr & str) const { return AStr::compare(str.data, str.len); }
+	int compare(const Str & str) const { return AStr::compare(str.data, str.len); }
 
 	bool isEqual(const char * str, size_t _length) const { return AStr::isEqual(str, _length); }
-	bool isEqual(const char * str) const { return AStr::isEqual(str); }
-	bool isEqual(const AStr & str) const { return isEqual(str.data, str.len); }
+	bool isEqual(const Str & str) const { return isEqual(str.data, str.len); }
 
 	bool findFirst(size_t &, const char *, size_t _length, size_t from, size_t until) const;
-	bool findFirst(size_t &, const char *, size_t from, size_t until) const;
-	bool findFirst(size_t &, const char *, size_t from = 0) const;
-	bool findFirst(size_t &, const String &, size_t from, size_t until) const;
-	bool findFirst(size_t &, const String &, size_t from = 0) const;
+	bool findFirst(size_t &, const Str &, size_t from, size_t until) const;
+	bool findFirst(size_t &, const Str &, size_t from = 0) const;
 	bool findFirst(size_t &, char, size_t from = 0) const;
 
 	bool findFirstOf(size_t &, const char *, size_t _length, size_t from, size_t until) const;
-	bool findFirstOf(size_t &, const char *, size_t from, size_t until) const;
-	bool findFirstOf(size_t &, const char *, size_t from = 0) const;
-	bool findFirstOf(size_t &, const String &, size_t from, size_t until) const;
-	bool findFirstOf(size_t &, const String &, size_t from = 0) const;
+	bool findFirstOf(size_t &, const Str &, size_t from, size_t until) const;
+	bool findFirstOf(size_t &, const Str &, size_t from = 0) const;
 
 	bool findFirstNotOf(size_t &, const char *, size_t _length, size_t from, size_t until)const;
-	bool findFirstNotOf(size_t &, const char *, size_t from, size_t until) const;
-	bool findFirstNotOf(size_t &, const char *, size_t from = 0) const;
-	bool findFirstNotOf(size_t &, const String &, size_t from, size_t until) const;
-	bool findFirstNotOf(size_t &, const String &, size_t from = 0) const;
+	bool findFirstNotOf(size_t &, const Str &, size_t from, size_t until) const;
+	bool findFirstNotOf(size_t &, const Str &, size_t from = 0) const;
 
 	bool findLast(size_t &, const char *, size_t _length, size_t until) const;
-	bool findLast(size_t &, const char *, size_t until) const;
-	bool findLast(size_t &, const char *) const;
-	bool findLast(size_t &, const String &, size_t until) const;
-	bool findLast(size_t &, const String &) const;
+	bool findLast(size_t &, const Str &, size_t until) const;
+	bool findLast(size_t &, const Str &) const;
 	bool findLast(size_t &, char, size_t until) const;
 	bool findLast(size_t &, char) const;
 
 	bool findLastOf(size_t &, const char *, size_t _length, size_t until) const;
-	bool findLastOf(size_t &, const char *, size_t until) const;
-	bool findLastOf(size_t &, const char *) const;
-	bool findLastOf(size_t &, const String &, size_t until) const;
-	bool findLastOf(size_t &, const String &) const;
+	bool findLastOf(size_t &, const Str &, size_t until) const;
+	bool findLastOf(size_t &, const Str &) const;
 
 	bool findLastNotOf(size_t &, const char *, size_t _length, size_t until) const;
-	bool findLastNotOf(size_t &, const char *, size_t until) const;
-	bool findLastNotOf(size_t &, const char *) const;
-	bool findLastNotOf(size_t &, const String &, size_t until) const;
-	bool findLastNotOf(size_t &, const String &) const;
+	bool findLastNotOf(size_t &, const Str &, size_t until) const;
+	bool findLastNotOf(size_t &, const Str &) const;
 
 	bool startsWith(const char *, size_t length) const;
 	bool startsWith(const char *) const;
@@ -133,12 +118,9 @@ public:
 	bool endsWith(const char *) const;
 
 	size_t count(const char *, size_t _length, size_t from, size_t until) const;
-	size_t count(const char *, size_t from, size_t until) const;
-	size_t count(const char *, size_t from = 0) const;
-	size_t count(const String & str, size_t from, size_t until) const;
-	size_t count(const String & str, size_t from = 0) const;
+	size_t count(const Str & str, size_t from, size_t until) const;
+	size_t count(const Str & str, size_t from = 0) const;
 
-	const String & operator=(const char * str) { assign(str); return *this; }
 	const String & operator=(char c) { chop(); append(c); return *this; }
 	const String & operator=(unsigned char c) { chop(); append(c); return *this; }
 	const String & operator=(unsigned u) { chop(); append(u); return *this; }
@@ -148,13 +130,12 @@ public:
 	const String & operator=(long int i) { chop(); append(i); return *this; }
 	const String & operator=(long long int i) { chop(); append(i); return *this; }
 	const String & operator=(const String & s) { assign(s); return *this; }
-	const String & operator=(const AStr & s) { assign(s); return *this; }
+	const String & operator=(const Str & s) { assign(s); return *this; }
 	const String & operator+=(const char * str){ append(str); return *this; }
-	const String & operator+=(const String &);
+	const String & operator+=(const Str & str) { append(str.data, str.len); return *this; }
 
 	void assign(const char *, size_t _length);
-	void assign(const char *);
-	void assign(const AStr &);
+	void assign(const Str &);
 
 	void fill(char, size_t);
 
@@ -163,13 +144,12 @@ public:
 
 	void prepend(char);
 	void prepend(const char *, size_t _length);
-	void prepend(const char *);
-	void prepend(const String &);
+	void prepend(const Str & str) { prepend(str.data, str.len); }
 
 	void append(const char *, size_t _length);
 	void append(const char *);
 	void append(const void * ptr) { appendPrintf("%p", ptr); }
-	void append(const AStr &);
+	void append(const Str & str) { append(str.c_str(), str.length); }
 	void append(bool b) { append( b ? "true" : "false"); }
 	void append(char);
 	void append(unsigned char);
@@ -200,14 +180,12 @@ public:
 	void catf(const char * fmt, const Arg & arg, const Args & ... args);
 
 	void insert(size_t pos, const char *, size_t _length);
-	void insert(size_t pos, const char *);
-	void insert(size_t pos, const String &);
+	void insert(size_t pos, const Str & str) { insert(pos, str.data, str.len); }
 
 	void erase(size_t from, size_t until);
 
 	void write(size_t pos, const char *, size_t _length);
-	void write(size_t pos, const char *);
-	void write(size_t pos, const String &);
+	void write(size_t pos, const Str & str) { write(pos, str.data, str.len); }
 
 	String read(size_t from, size_t until) const;
 
@@ -234,14 +212,11 @@ public:
 	void chop();
 
 	void trim(const char * toTrim, size_t _length);
-	void trim(const char * toTrim);
-	void trim(const String &);
+	void trim(const Str & str) { trim(str.data, str.len); }
 	void trimFront(const char * toTrim, size_t _length);
-	void trimFront(const char * toTrim);
-	void trimFront(const String &);
+	void trimFront(const Str & str) { trimFront(str.data, str.len); }
 	void trimBack(const char * toTrim, size_t _length);
-	void trimBack(const char * toTrim);
-	void trimBack(const String &);
+	void trimBack(const Str & str) { trimBack(str.data, str.len); }
 
 	Array<Str> split(const char * delimiters, bool avoidEmptyResults = true) const;
 	bool isRegexpMatch(const char * regexp);

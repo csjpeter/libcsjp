@@ -59,30 +59,12 @@ bool String::findFirst(size_t & pos, const char * str, size_t _length, size_t fr
 	return AStr::findFirst(pos, str, _length, from, until);
 }
 
-bool String::findFirst(size_t & pos, const char * str, size_t from, size_t until) const
-{
-	size_t _length = 0;
-	if(str)
-		_length = strlen(str);
-
-	return findFirst(pos, str, _length, from, until);
-}
-
-bool String::findFirst(size_t & pos, const char * str, size_t from) const
-{
-	size_t _length = 0;
-	if(str)
-		_length = strlen(str);
-
-	return findFirst(pos, str, _length, from, len);
-}
-
-bool String::findFirst(size_t & pos, const String & str, size_t from, size_t until) const
+bool String::findFirst(size_t & pos, const Str & str, size_t from, size_t until) const
 {
 	return findFirst(pos, str.data, str.len, from, until);
 }
 
-bool String::findFirst(size_t & pos, const String & str, size_t from) const
+bool String::findFirst(size_t & pos, const Str & str, size_t from) const
 {
 	return findFirst(pos, str.data, str.len, from, len);
 }
@@ -97,30 +79,12 @@ bool String::findFirstOf(size_t & pos, const char * str, size_t _length, size_t 
 	return AStr::findFirstOf(pos, str, _length, from, until);
 }
 
-bool String::findFirstOf(size_t & pos, const char * str, size_t from, size_t until) const
-{
-	size_t _length = 0;
-	if(str)
-		_length = strlen(str);
-
-	return findFirstOf(pos, str, _length, from, until);
-}
-
-bool String::findFirstOf(size_t & pos, const char * str, size_t from) const
-{
-	size_t _length = 0;
-	if(str)
-		_length = strlen(str);
-
-	return findFirstOf(pos, str, _length, from, len);
-}
-
-bool String::findFirstOf(size_t & pos, const String & str, size_t from, size_t until) const
+bool String::findFirstOf(size_t & pos, const Str & str, size_t from, size_t until) const
 {
 	return findFirstOf(pos, str.data, str.len, from, until);
 }
 
-bool String::findFirstOf(size_t & pos, const String & str, size_t from) const
+bool String::findFirstOf(size_t & pos, const Str & str, size_t from) const
 {
 	return findFirstOf(pos, str.data, str.len, from, len);
 }
@@ -130,30 +94,12 @@ bool String::findFirstNotOf(size_t & pos, const char * str, size_t _length, size
 	return AStr::findFirstNotOf(pos, str, _length, from, until);
 }
 
-bool String::findFirstNotOf(size_t & pos, const char * str, size_t from, size_t until) const
-{
-	size_t _length = 0;
-	if(str)
-		_length = strlen(str);
-
-	return findFirstNotOf(pos, str, _length, from, until);
-}
-
-bool String::findFirstNotOf(size_t & pos, const char * str, size_t from) const
-{
-	size_t _length = 0;
-	if(str)
-		_length = strlen(str);
-
-	return findFirstNotOf(pos, str, _length, from, len);
-}
-
-bool String::findFirstNotOf(size_t & pos, const String & str, size_t from, size_t until) const
+bool String::findFirstNotOf(size_t & pos, const Str & str, size_t from, size_t until) const
 {
 	return findFirstNotOf(pos, str.data, str.len, from, until);
 }
 
-bool String::findFirstNotOf(size_t & pos, const String & str, size_t from) const
+bool String::findFirstNotOf(size_t & pos, const Str & str, size_t from) const
 {
 	return findFirstNotOf(pos, str.data, str.len, from, len);
 }
@@ -163,30 +109,12 @@ bool String::findLast(size_t & pos, const char * str, size_t _length, size_t unt
 	return AStr::findLast(pos, str, _length, until);
 }
 
-bool String::findLast(size_t & pos, const char * str, size_t until) const
-{
-	size_t _length = 0;
-	if(str)
-		_length = strlen(str);
-
-	return findLast(pos, str, _length, until);
-}
-
-bool String::findLast(size_t & pos, const char * str) const
-{
-	size_t _length = 0;
-	if(str)
-		_length = strlen(str);
-
-	return findLast(pos, str, _length, len);
-}
-
-bool String::findLast(size_t & pos, const String & str, size_t until) const
+bool String::findLast(size_t & pos, const Str & str, size_t until) const
 {
 	return findLast(pos, str.data, str.len, until);
 }
 
-bool String::findLast(size_t & pos, const String & str) const
+bool String::findLast(size_t & pos, const Str & str) const
 {
 	return findLast(pos, str.data, str.len, len);
 }
@@ -206,30 +134,12 @@ bool String::findLastOf(size_t & pos, const char * str, size_t _length, size_t u
 	return AStr::findLastOf(pos, str, _length, until);
 }
 
-bool String::findLastOf(size_t & pos, const char * str, size_t until) const
-{
-	size_t _length = 0;
-	if(str)
-		_length = strlen(str);
-
-	return findLastOf(pos, str, _length, until);
-}
-
-bool String::findLastOf(size_t & pos, const char * str) const
-{
-	size_t _length = 0;
-	if(str)
-		_length = strlen(str);
-
-	return findLastOf(pos, str, _length, len);
-}
-
-bool String::findLastOf(size_t & pos, const String & str, size_t until) const
+bool String::findLastOf(size_t & pos, const Str & str, size_t until) const
 {
 	return findLastOf(pos, str.data, str.len, until);
 }
 
-bool String::findLastOf(size_t & pos, const String & str) const
+bool String::findLastOf(size_t & pos, const Str & str) const
 {
 	return findLastOf(pos, str.data, str.len, len);
 }
@@ -239,30 +149,12 @@ bool String::findLastNotOf(size_t & pos, const char * str, size_t _length, size_
 	return AStr::findLastNotOf(pos, str, _length, until);
 }
 
-bool String::findLastNotOf(size_t & pos, const char * str, size_t until) const
-{
-	size_t _length = 0;
-	if(str)
-		_length = strlen(str);
-
-	return findLastNotOf(pos, str, _length, until);
-}
-
-bool String::findLastNotOf(size_t & pos, const char * str) const
-{
-	size_t _length = 0;
-	if(str)
-		_length = strlen(str);
-
-	return findLastNotOf(pos, str, _length, len);
-}
-
-bool String::findLastNotOf(size_t & pos, const String & str, size_t until) const
+bool String::findLastNotOf(size_t & pos, const Str & str, size_t until) const
 {
 	return findLastNotOf(pos, str.data, str.len, until);
 }
 
-bool String::findLastNotOf(size_t & pos, const String & str) const
+bool String::findLastNotOf(size_t & pos, const Str & str) const
 {
 	return findLastNotOf(pos, str.data, str.len, len);
 }
@@ -302,38 +194,14 @@ size_t String::count(const char * str, size_t _length, size_t from, size_t until
 	return AStr::count(str, _length, from, until);
 }
 
-size_t String::count(const char * str, size_t from, size_t until) const
-{
-	size_t _length = 0;
-	if(str)
-		_length = strlen(str);
-
-	return count(str, _length, from, until);
-}
-
-size_t String::count(const char * str, size_t from) const
-{
-	size_t _length = 0;
-	if(str)
-		_length = strlen(str);
-
-	return count(str, _length, from, len);
-}
-
-size_t String::count(const String & str, size_t from, size_t until) const
+size_t String::count(const Str & str, size_t from, size_t until) const
 {
 	return count(str.data, str.len, from, until);
 }
 
-size_t String::count(const String & str, size_t from) const
+size_t String::count(const Str & str, size_t from) const
 {
 	return count(str.data, str.len, from, len);
-}
-
-const String & String::operator+=(const String & str)
-{
-	append(str);
-	return *this;
 }
 
 void String::assign(const char * str, size_t _length)
@@ -350,27 +218,12 @@ void String::assign(const char * str, size_t _length)
 	data[len] = 0;
 }
 
-void String::assign(const char * str)
+void String::assign(const Str & str)
 {
-	if(!str){
+	if(!str.data){
 		clear();
 		return;
 	}
-
-	size_t _length = strlen(str);
-
-	assign(str, _length);
-}
-
-void String::assign(const AStr & str)
-{
-	if(!str.length){
-		clear();
-		return;
-	}
-	ENSURE(str.data,  InvalidArgument);
-	ENSURE(str.length,  InvalidArgument);
-	ENSURE(str.len,  InvalidArgument);
 
 	assign(str.data, str.len);
 }
@@ -470,21 +323,6 @@ void String::prepend(const char * str, size_t _length)
 	memcpy(data, str, _length);
 }
 
-void String::prepend(const char * str)
-{
-	if(!str)
-		return;
-
-	size_t _length = strlen(str);
-
-	prepend(str, _length);
-}
-
-void String::prepend(const String & str)
-{
-	prepend(str.data, str.len);
-}
-
 void String::append(const char * str, size_t _length)
 {
 	ENSURE(str || !_length,  InvalidArgument);
@@ -509,11 +347,6 @@ void String::append(const char * str)
 	size_t _length = strlen(str);
 
 	append(str, _length);
-}
-
-void String::append(const AStr & str)
-{
-	append(str.c_str(), str.length);
 }
 
 void String::append(char c)
@@ -715,23 +548,6 @@ void String::insert(size_t pos, const char * str, size_t _length)
 	memcpy(data + pos, str, _length);
 }
 
-void String::insert(size_t pos, const char * str)
-{
-	ENSURE(pos <= len,  InvalidArgument);
-
-	if(!str)
-		return;
-
-	size_t _length = strlen(str);
-
-	insert(pos, str, _length);
-}
-
-void String::insert(size_t pos, const String & str)
-{
-	insert(pos, str.data, str.len);
-}
-
 void String::erase(size_t from, size_t until)
 {
 	ENSURE(until <= len,  InvalidArgument);
@@ -750,23 +566,6 @@ void String::write(size_t pos, const char * str, size_t _length)
 		return;
 
 	memcpy(data + pos, str, _length);
-}
-
-void String::write(size_t pos, const char * str)
-{
-	ENSURE(pos <= len,  InvalidArgument);
-
-	if(!str)
-		return;
-
-	size_t _length = strlen(str);
-
-	write(pos, str, _length);
-}
-
-void String::write(size_t pos, const String & str)
-{
-	write(pos, str.data, str.len);
 }
 
 String String::read(size_t from, size_t until) const
@@ -996,21 +795,6 @@ void String::trim(const char * str, size_t _length)
 		cutAt(0);
 }
 
-void String::trim(const char * str)
-{
-	if(!str)
-		return;
-
-	size_t _length = strlen(str);
-
-	trim(str, _length);
-}
-
-void String::trim(const String & str)
-{
-	trim(str.data, str.len);
-}
-
 void String::trimFront(const char * str, size_t _length)
 {
 	ENSURE(str || !_length,  InvalidArgument);
@@ -1026,21 +810,6 @@ void String::trimFront(const char * str, size_t _length)
 		cutAt(0);
 }
 
-void String::trimFront(const char * str)
-{
-	if(!str)
-		return;
-
-	size_t _length = strlen(str);
-
-	trimFront(str, _length);
-}
-
-void String::trimFront(const String & str)
-{
-	trimFront(str.data, str.len);
-}
-
 void String::trimBack(const char * str, size_t _length)
 {
 	ENSURE(str || !_length,  InvalidArgument);
@@ -1052,21 +821,6 @@ void String::trimBack(const char * str, size_t _length)
 
 	if(findLastNotOf(pos, str, _length, len))
 		cutAt(pos + 1);
-}
-
-void String::trimBack(const char * str)
-{
-	if(!str)
-		return;
-
-	size_t _length = strlen(str);
-
-	trimBack(str, _length);
-}
-
-void String::trimBack(const String & str)
-{
-	trimBack(str.data, str.len);
 }
 
 Array<Str> String::split(const char * delimiters, bool avoidEmptyResults) const

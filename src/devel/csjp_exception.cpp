@@ -344,6 +344,11 @@ const char * PrimeException::what() const throw()
 	return msg;
 }
 
+const char * PrimeException::lastMessage()
+{
+	return lastNode ? lastNode->msg : "";
+}
+
 static void print_backtrace()
 {
 #ifdef DESKTOP
@@ -388,11 +393,6 @@ static void print_backtrace()
 
 	free(strings);
 #endif
-}
-
-const char * PrimeException::lastMessage()
-{
-	return lastNode ? lastNode->msg : "";
 }
 
 static void segmentation_fault_signal_handler(int signalNumber)
