@@ -147,7 +147,7 @@ public:
 	void prepend(const Str & str) { prepend(str.data, str.len); }
 
 	void append(const char *, size_t _length);
-	void append(const char *);
+	void append(const char *); // FIXME remove, but causes infinite loop
 	void append(const void * ptr) { appendPrintf("%p", ptr); }
 	void append(const Str & str) { append(str.c_str(), str.length); }
 	void append(bool b) { append( b ? "true" : "false"); }
