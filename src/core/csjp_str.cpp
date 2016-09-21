@@ -565,10 +565,5 @@ bool operator<(const Str & a, const String & b)
 bool operator<(const String & a, const Str & b)
 	{ Str chunk(a); return chunk < b; }
 
-String & operator<<=(String & lhs, const Str & rhs)
-	{ lhs.assign(rhs.c_str(), rhs.length); return lhs; }
-String & operator<<(String & lhs, const Str & rhs)
-	{ lhs.append(rhs.c_str(), rhs.length); return lhs; }
-
 }
 

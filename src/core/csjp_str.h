@@ -92,6 +92,8 @@ public:
 	bool findLastNotOf(size_t &, const Str &, size_t until) const;
 	bool findLastNotOf(size_t &, const Str &) const;
 
+	bool contains(const Str & str) { size_t p; return findFirst(p, str); } // FIXME TESTME
+
 	bool startsWith(const char *, size_t length) const;
 	bool startsWith(const char *) const;
 	bool endsWith(const char *, size_t length) const;
@@ -136,9 +138,6 @@ inline bool operator<(const char * a, const Str & b) { return b.compare(a) == 1;
 
 bool operator<(const Str & a, const String & b);
 bool operator<(const String & a, const Str & b);
-
-String & operator<<=(String & lhs, const Str & rhs);
-String & operator<<(String & lhs, const Str & rhs);
 
 }
 

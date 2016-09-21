@@ -104,6 +104,7 @@ public:
 	}
 
 	operator const csjp::String & () const { return value; }
+	operator const csjp::Str () const { return csjp::Str(value); }
 
 private:
 	static Json fromString(const Str & data);

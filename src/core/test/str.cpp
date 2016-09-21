@@ -249,7 +249,7 @@ void TestStr::findFirst()
 #ifndef PERFMODE
 	EXC_VERIFY(str.findFirst(pos, nullStr), csjp::InvalidArgument);
 	VERIFY(pos == 100);
-	EXC_VERIFY(str.findFirst(pos, ""), csjp::InvalidArgument);
+	VERIFY(!str.findFirst(pos, ""));
 	VERIFY(pos == 100);
 	EXC_VERIFY(str.findFirst(pos, "ck", 50), csjp::InvalidArgument);
 	VERIFY(pos == 100);

@@ -25,6 +25,7 @@ public:
 	void findLast();
 	void findLastOf();
 	void findLastNotOf();
+	void contains();
 	void startsWith();
 	void endsWith();
 	void count();
@@ -87,12 +88,13 @@ void TestString::constructs()
 
 	VERIFY(copied == "default");
 	VERIFY(copied == first);
+/*
+	TESTSTEP("Construction by format string");
 
-	//TESTSTEP("Experiment");
-	//const char * p = copied;
-	//p[0] = 0;
-	//copied.length = 0;
-	//VERIFY(copied == "");
+	csjp::String catftest("Number: % is % as boolean", 45, true);
+
+	VERIFY(catftest == "Number: 45 is 0 as boolean");
+*/
 }
 
 void TestString::rangeForLoop()
@@ -185,7 +187,7 @@ void TestString::findFirst()
 #ifndef PERFMODE
 	EXC_VERIFY(str.findFirst(pos, nullStr), csjp::InvalidArgument);
 	VERIFY(pos == 100);
-	EXC_VERIFY(str.findFirst(pos, ""), csjp::InvalidArgument);
+	VERIFY(!str.findFirst(pos, ""));
 	VERIFY(pos == 100);
 	EXC_VERIFY(str.findFirst(pos, "ck", 50), csjp::InvalidArgument);
 	VERIFY(pos == 100);
@@ -354,6 +356,19 @@ void TestString::findLastNotOf()
 #endif
 	VERIFY(str.findLastNotOf(pos, "orka"));
 	VERIFY(pos == 7);
+}
+
+void TestString::contains()
+{
+	csjp::String str("maki majom");
+
+	VERIFY(!str.contains("im"));
+	VERIFY(str.contains("maj"));
+	VERIFY(!str.contains(""));
+
+	str.clear();
+	VERIFY(!str.contains("maj"));
+	VERIFY(!str.contains(""));
 }
 
 void TestString::startsWith()
@@ -1274,6 +1289,7 @@ TEST_INIT(String)
 	TEST_RUN(findLast);
 	TEST_RUN(findLastOf);
 	TEST_RUN(findLastNotOf);
+	TEST_RUN(contains);
 	TEST_RUN(startsWith);
 	TEST_RUN(endsWith);
 	TEST_RUN(count);

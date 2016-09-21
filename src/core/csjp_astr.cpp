@@ -81,7 +81,9 @@ bool AStr::findFirst(size_t & pos, const char * str, size_t _length, size_t from
 	ENSURE(until <= len,  InvalidArgument);
 	ENSURE(from <= until,  InvalidArgument);
 	ENSURE(str,  InvalidArgument);
-	ENSURE(_length,  InvalidArgument);
+
+	if(!_length)
+		return false;
 
 	if(until - from < _length)
 		return false;

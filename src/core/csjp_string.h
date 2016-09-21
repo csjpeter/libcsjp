@@ -50,6 +50,8 @@ public:
 	explicit String() StringInitializer { }
 	explicit String(const String & orig) StringInitializer { assign(orig.data, orig.length);}
 	explicit String(const Str & str) StringInitializer { assign(str); }
+	//template<typename... Args>
+	//explicit String(const char * fmt, const Args & ... args) { catf(fmt, args...); }
 	virtual ~String() { if(data) free(data); }
 
 	String(String && temp);
@@ -111,6 +113,8 @@ public:
 	bool findLastNotOf(size_t &, const char *, size_t _length, size_t until) const;
 	bool findLastNotOf(size_t &, const Str &, size_t until) const;
 	bool findLastNotOf(size_t &, const Str &) const;
+
+	bool contains(const Str & str) { size_t p; return findFirst(p, str); }
 
 	bool startsWith(const char *, size_t length) const;
 	bool startsWith(const char *) const;
@@ -261,8 +265,10 @@ inline String & operator<<(String & lhs, const double rhs) { lhs.append(rhs); re
 inline String & operator<<(String & lhs, const long double rhs) { lhs.append(rhs); return lhs; }
 inline String & operator<<(String & lhs, const UInt & rhs) { lhs << rhs.val; return lhs; }
 inline String & operator<<(String & lhs, const Double & rhs) { lhs << rhs.val; return lhs; }
+inline String & operator<<(String & lhs, const Str & rhs)
+					{ lhs.append(rhs.c_str(), rhs.length); return lhs; }
 
-inline String & operator<<=(String & lhs, const char * rhs) { lhs.chop(); lhs << rhs; return lhs; }
+//inline String & operator<<=(String & lhs, const char * rhs) { lhs.chop(); lhs << rhs; return lhs; }
 inline String & operator<<=(String & lhs, char rhs) { lhs.chop(); lhs << rhs; return lhs; }
 inline String & operator<<=(String & lhs, const unsigned rhs){ lhs.chop(); lhs << rhs; return lhs; }
 inline String & operator<<=(String & lhs, const long unsigned rhs){lhs.chop();lhs<<rhs; return lhs;}
@@ -278,6 +284,8 @@ inline String & operator<<=(String & lhs, const YNBool & rhs)
 					{ if(rhs.val) lhs <<= 'Y'; else lhs <<= 'N'; return lhs; }
 inline String & operator<<=(String & lhs, const UInt & rhs) { lhs.chop(); lhs << rhs; return lhs; }
 inline String & operator<<=(String & lhs, const Double & rhs){ lhs.chop(); lhs << rhs; return lhs; }
+inline String & operator<<=(String & lhs, const Str & rhs)
+					{ lhs.assign(rhs.c_str(), rhs.length); return lhs; }
 
 
 
