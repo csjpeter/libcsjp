@@ -45,7 +45,7 @@ struct YNBool
 			val = true;
 		return *this;
 	}
-	explicit operator bool() const { return val; }
+	operator bool() const { return val; }
 };
 
 inline bool operator==(const YNBool & lhs, const YNBool & rhs) { return lhs.val == rhs.val; }
@@ -66,7 +66,7 @@ struct Char
 	Char & operator=(char u) { val = u; return *this; }
 	Char & operator=(const char * s) { val <<= CString(s); return *this; }
 	Char operator++(int) { Char u(val); ++val; return u; }
-	explicit operator char() const { return val; }
+	operator char() const { return val; }
 };
 
 inline bool operator==(const Char & lhs, const Char & rhs) { return lhs.val == rhs.val; }
@@ -85,7 +85,7 @@ struct UInt
 	UInt & operator=(unsigned u) { val = u; return *this; }
 	UInt & operator=(const char * s) { val <<= CString(s); return *this; }
 	UInt operator++(int) { UInt u(val); ++val; return u; }
-	explicit operator unsigned() const { return val; }
+	operator unsigned() const { return val; }
 };
 
 inline bool operator==(const UInt & lhs, const UInt & rhs) { return lhs.val == rhs.val; }
@@ -108,7 +108,7 @@ struct Double
 	const Double & operator-=(const Double & rhs) { val -= rhs.val; return *this; }
 	const Double & operator-=(const double & rhs) { val -= rhs; return *this; }
 	const Double & operator/=(const Double & rhs) { val /= rhs.val; return *this; }
-	explicit operator unsigned() const { return val; }
+	operator unsigned() const { return val; }
 	Double & abs() { val = fabs(val); return *this; }
 	void nan() { val = NAN; }
 };
