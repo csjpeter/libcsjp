@@ -13,6 +13,8 @@
 
 namespace csjp {
 
+Json Json::empty;
+
 /* Parse error, other than the expected string was found for
  * the rule with the given language element. */
 #define PARSE_ERROR(expected, languageElement) \

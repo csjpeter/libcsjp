@@ -64,7 +64,7 @@ public:
 
 
 public:
-	explicit Json() { }
+	explicit Json() : type(Type::Null) {}
 	~Json() { }
 
 public:
