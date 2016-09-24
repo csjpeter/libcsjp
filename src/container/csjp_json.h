@@ -88,8 +88,9 @@ public:
 		try {
 			return properties.query(obj);
 		} catch (Exception &e) {
-			e.note("Missing key in json object: '%'", obj);
-			throw;
+			return empty;
+//			e.note("Missing key in json object: '%'", obj);
+//			throw;
 		}
 	}
 
@@ -119,6 +120,8 @@ public:
 	Type type;
 	String value;
 	OwnerContainer<Json> properties;
+private:
+	static Json empty;
 };
 
 inline bool operator==(const Json& a, const Json& b) { return a.isEqual(b); }
