@@ -112,7 +112,8 @@ bool isSocketListening(int file)
 
 Array<EPoll::Event> EPoll::wait(int timeout)
 {
-	int nfds = epoll_wait(file, events.ptr, events.size, timeout);
+	int nfds = 0;
+	TEMP_FAILURE_RETRY_RESULT(nfds, epoll_wait(file, events.ptr, events.size, timeout));
 	if(nfds == -1)
 		throw SocketError(errno, "epoll wait failure");
 
