@@ -28,7 +28,16 @@ void Signal::sigkillHandler(int signum, siginfo_t *info, void *context)
 	(void)context;
 
 	Signal::sigKillReceived = true;
-	LOG("Kill signal received.");
+	LOG("Kill signal (SIGKILL) received.");
+}
+
+void Signal::sigsegvHandler(int signum, siginfo_t *info, void *context)
+{
+	(void)signum;
+	(void)info;
+	(void)context;
+
+	LOG("Segmentation violation signal (SIGSEGV) received.");
 }
 
 void Signal::sigpipeHandler(int signum, siginfo_t *info, void *context)

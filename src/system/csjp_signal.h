@@ -27,6 +27,7 @@ class Signal {
 
 		static void sigtermHandler(int, siginfo_t *, void *);
 		static void sigkillHandler(int, siginfo_t *, void *);
+		static void sigsegvHandler(int, siginfo_t *, void *);
 		static void sigpipeHandler(int, siginfo_t *, void *);
 
 	public:
