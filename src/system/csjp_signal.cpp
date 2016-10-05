@@ -10,6 +10,7 @@
 namespace csjp {
 
 bool Signal::sigTermReceived = false;
+bool Signal::sigKillReceived = false;
 
 void Signal::sigtermHandler(int signum, siginfo_t *info, void *context)
 {
@@ -18,6 +19,16 @@ void Signal::sigtermHandler(int signum, siginfo_t *info, void *context)
 	(void)context;
 
 	Signal::sigTermReceived = true;
+}
+
+void Signal::sigkillHandler(int signum, siginfo_t *info, void *context)
+{
+	(void)signum;
+	(void)info;
+	(void)context;
+
+	Signal::sigKillReceived = true;
+	LOG("Kill signal received.");
 }
 
 void Signal::sigpipeHandler(int signum, siginfo_t *info, void *context)
