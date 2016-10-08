@@ -45,6 +45,10 @@ LINK_STATIC=ar cqs $@ $^
 
 TESTDIR=$(shell echo $$PWD)/tmp/@PRJNAME@@VERSION_API@/test/
 
+tmp/src/devel/test/%.opp: src/devel/test/%.cpp
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(COMPILE) -DTESTDIR=\"$(TESTDIR)\" -o $@ $<
+
 tmp/src/core/test/%.opp: src/core/test/%.cpp
 	@test -d $(dir $@) || mkdir -p $(dir $@)
 	$(COMPILE) -DTESTDIR=\"$(TESTDIR)\" -o $@ $<
@@ -98,6 +102,7 @@ tmp/src/%.opp: src/%.cpp
 #
 
 TEST_LIST=\
+	  devel-exception \
 	  container-array \
 	  container-pod_array \
 	  container-ref_array \
@@ -341,7 +346,7 @@ tmp/@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION@: \
 	@test -d $(dir $@) || mkdir -p $(dir $@)
 	$(LINK)
 
-COMPONENT_LIST = container core human system
+COMPONENT_LIST = devel container core human system
 define COMPONENT_TEST_template
 tmp/@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-$(1)-% : \
 		tmp/src/$(1)/test/%.opp \

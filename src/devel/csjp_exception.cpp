@@ -395,11 +395,13 @@ static void print_backtrace()
 #endif
 }
 
+char g_ExitCodeOnSegmentationViolation = 1;
+
 static void segmentation_fault_signal_handler(int signalNumber)
 {
 	fprintf(stderr, "Error: signal %d:\n", signalNumber);
 	print_backtrace();
-	exit(1);
+	exit(g_ExitCodeOnSegmentationViolation);
 }
 
 void set_segmentation_fault_signal_handler()
