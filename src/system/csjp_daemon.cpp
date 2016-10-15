@@ -62,14 +62,14 @@ void Daemon::daemonize(bool exitParent)
 
 	/* Close standard file descriptors, we dont want to trash into them */
 	// FIXME error handling?
-	close(STDIN_FILENO); stdin = NULL;
-	close(STDOUT_FILENO); stdout = NULL;
-	close(STDERR_FILENO); stderr = NULL;
+	close(STDIN_FILENO);
+	close(STDOUT_FILENO);
+	close(STDERR_FILENO);
 
 	// reopen on 0,1,2 file descriptors to avoid third party code caused crash
-	int stdIn = open("/dev/null", O_RDWR); (void)stdIn;
-	int stdOut = open("/dev/null", O_RDWR); (void)stdOut;
-	int stdErr = open("/dev/null", O_RDWR); (void)stdErr;
+	stdin = fopen("/dev/null", "r+");
+	stdout = fopen("/dev/null", "w+");
+	stderr = fopen("/dev/null", "w+");
 
 	umask(S_IRWXO | S_IRWXG); // Only owner shall have acces to daemon created files, etc
 
@@ -84,9 +84,6 @@ void Daemon::daemonize(bool exitParent)
 	//lockFile.lock();
 
 	LOG("Pid file is ready"); // Administrator can use the pid file from now on
-
-	if((chdir("/")) < 0)
-		throw SystemError("Failed to make root the current directory.");
 
 	pid_t sid = setsid();
 	if(sid < 0)

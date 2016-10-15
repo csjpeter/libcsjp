@@ -93,8 +93,8 @@ const char * logFileName()
 		if(0 <= stat(g_LogDir, &fileStat))
 			if(S_ISDIR(fileStat.st_mode)){
 				snprintf(g_LogFileName, sizeof(g_LogFileName),
-						"%s/%s%s.%d.log", g_LogDir,
-						g_BinaryName, g_LogFileNameSpecializer, getpid());
+						"%s/%s%s.log", g_LogDir,
+						g_BinaryName, g_LogFileNameSpecializer);
 				return g_LogFileName;
 			}
 		haveLogDir = false;
