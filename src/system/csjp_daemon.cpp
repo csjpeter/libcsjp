@@ -60,7 +60,7 @@ void Daemon::daemonize(bool exitParent)
 	}
 	pid = getpid();
 
-	/* Close standard file descriptors, we dont wnat to trash into them */
+	/* Close standard file descriptors, we dont want to trash into them */
 	// FIXME error handling?
 	close(STDIN_FILENO); stdin = NULL;
 	close(STDOUT_FILENO); stdout = NULL;

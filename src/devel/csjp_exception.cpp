@@ -373,7 +373,7 @@ static void print_backtrace()
 		char * closePos = strchr(strings[i], ')');
 		if(!openPos || !closePos || !offsetPos
 				|| openPos >= offsetPos || offsetPos >= closePos){
-			fprintf(stderr, "%s\n", strings[i]);
+			fprintf(stderr, "%s %p\n", strings[i], buffer[i]);
 			continue;
 		}
 		*openPos = 0; openPos++;
@@ -384,9 +384,11 @@ static void print_backtrace()
 		int status;
 		char * realName = abi::__cxa_demangle(mangledName, 0, 0, &status);
 		if(!realName || status)
-			fprintf(stderr, "%s(%s %s)%s\n", strings[i], openPos, offsetPos, closePos);
+			fprintf(stderr, "%s(%s %s)%s %p\n",
+					strings[i], openPos, offsetPos, closePos, buffer[i]);
 		else
-			fprintf(stderr, "%s(%s %s)%s\n", strings[i], realName, offsetPos, closePos);
+			fprintf(stderr, "%s(%s %s)%s %p\n",
+					strings[i], realName, offsetPos, closePos, buffer[i]);
 		free((void*)mangledName);
 		free(realName);
 	}
