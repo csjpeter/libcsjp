@@ -72,8 +72,7 @@ String HTTPRequest::toString() const
 
 unsigned HTTPRequest::parse(const Str & data)
 {
-	size_t readIn = 0;
-	if(!method.length){
+	if(!requestLine.length){
 		size_t pos;
 		if(!data.findFirst(pos, "\r\n"))
 			return 0;
@@ -84,7 +83,6 @@ unsigned HTTPRequest::parse(const Str & data)
 		method <<= result[0];
 		uri <<= result[1];
 		version <<= result[2];
-	        readIn += requestLine.length+2;
 	}
 
 	if(!headers.value.length){
@@ -114,19 +112,19 @@ unsigned HTTPRequest::parse(const Str & data)
 			value.trim(" \t");
 			headers[key].value << value;
 		}
-		readIn += headers.value.length+4;
 	}
 
 	if(!body.length){
+		size_t readIn = requestLine.length+2 + headers.value.length+4;
 		size_t bodyLength = 0;
 		bodyLength <<= headers["content-length"];
 		if(data.length < readIn + bodyLength)
 			return 0;
 		body <<= data.read(readIn, readIn + bodyLength);
-		readIn += bodyLength;
+		return readIn + bodyLength;
 	}
 
-	return readIn;
+	return 0;
 }
 
 
@@ -180,8 +178,7 @@ String HTTPResponse::toString() const
 
 unsigned HTTPResponse::parse(const Str & data)
 {
-	size_t readIn = 0;
-	if(!statusCode.length){
+	if(!statusLine.length){
 		size_t pos;
 		if(!data.findFirst(pos, "\r\n"))
 			return 0;
@@ -192,7 +189,6 @@ unsigned HTTPResponse::parse(const Str & data)
 		version <<= result[0];
 		statusCode <<= result[1];
 		reasonPhrase <<= result[2];
-	        readIn += statusLine.length+2;
 	}
 
 	if(!headers.value.length){
@@ -219,19 +215,19 @@ unsigned HTTPResponse::parse(const Str & data)
 			value.trim(" \t");
 			headers[key].value << value;
 		}
-		readIn += headers.value.length+4;
 	}
 
 	if(!body.length){
+		size_t readIn = statusLine.length+2 + headers.value.length+4;
 		size_t bodyLength = 0;
 		bodyLength <<= headers["content-length"];
 		if(data.length < readIn + bodyLength)
 			return 0;
 		body <<= data.read(readIn, readIn + bodyLength);
-		readIn += bodyLength;
+		return readIn + bodyLength;
 	}
 
-	return readIn;
+	return 0;
 }
 
 }

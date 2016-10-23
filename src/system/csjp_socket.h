@@ -71,12 +71,9 @@ public:
 	template <typename TypeReceive>
 	bool receive(TypeReceive & parser)
 	{
-		const Str input(readBuffer);
-		unsigned length = parser.parse(input);
-		if(!length)
-			return false;
-		readBuffer.chopFront(length);
-		return true;
+		unsigned processedBytes = parser.parse(readBuffer);
+		readBuffer.chopFront(processedBytes);
+		return processedBytes;
 	}
 
 protected:
