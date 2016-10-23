@@ -72,10 +72,11 @@ String HTTPRequest::toString() const
 
 unsigned HTTPRequest::parse(const Str & data)
 {
+	size_t readIn = 0;
 	if(!method.length){
 		size_t pos;
 		if(!data.findFirst(pos, "\r\n"))
-			return false;
+			return 0;
 		requestLine <<= data.read(0, pos);
 		auto result = requestLine.regexpMatches("\\([^ ]*\\) \\([^ ]*\\) HTTP/\\(.*\\)$");
 		if(result.size() != 3)
@@ -83,12 +84,13 @@ unsigned HTTPRequest::parse(const Str & data)
 		method <<= result[0];
 		uri <<= result[1];
 		version <<= result[2];
+	        readIn += requestLine.length+2;
 	}
 
 	if(!headers.value.length){
 		size_t pos;
 		if(!data.findFirst(pos, "\r\n\r\n", requestLine.length+2))
-			return false;
+			return 0;
 		headers.value <<= data.read(requestLine.length+2, pos);
 		Array<Str> array = headers.value.split("\r\n");
 		String key;
@@ -112,18 +114,19 @@ unsigned HTTPRequest::parse(const Str & data)
 			value.trim(" \t");
 			headers[key].value << value;
 		}
+		readIn += headers.value.length+4;
 	}
 
 	if(!body.length){
-		size_t readIn = requestLine.length+2 + headers.value.length+4;
 		size_t bodyLength = 0;
 		bodyLength <<= headers["content-length"];
 		if(data.length < readIn + bodyLength)
-			return false;
+			return 0;
 		body <<= data.read(readIn, readIn + bodyLength);
+		readIn += bodyLength;
 	}
 
-	return true;
+	return readIn;
 }
 
 
@@ -177,10 +180,11 @@ String HTTPResponse::toString() const
 
 unsigned HTTPResponse::parse(const Str & data)
 {
+	size_t readIn = 0;
 	if(!statusCode.length){
 		size_t pos;
 		if(!data.findFirst(pos, "\r\n"))
-			return false;
+			return 0;
 		statusLine <<= data.read(0, pos);
 		auto result = statusLine.regexpMatches("HTTP/\\([^ ]*\\) \\([^ ]*\\) \\(.*\\)$");
 		if(result.size() != 3)
@@ -188,12 +192,13 @@ unsigned HTTPResponse::parse(const Str & data)
 		version <<= result[0];
 		statusCode <<= result[1];
 		reasonPhrase <<= result[2];
+	        readIn += statusLine.length+2;
 	}
 
 	if(!headers.value.length){
 		size_t pos;
 		if(!data.findFirst(pos, "\r\n\r\n", statusLine.length+2))
-			return false;
+			return 0;
 		headers.value <<= data.read(statusLine.length+2, pos);
 		Array<Str> array = headers.value.split("\r\n");
 		String key;
@@ -214,18 +219,19 @@ unsigned HTTPResponse::parse(const Str & data)
 			value.trim(" \t");
 			headers[key].value << value;
 		}
+		readIn += headers.value.length+4;
 	}
 
 	if(!body.length){
-		size_t readIn = statusLine.length+2 + headers.value.length+4;
 		size_t bodyLength = 0;
 		bodyLength <<= headers["content-length"];
 		if(data.length < readIn + bodyLength)
-			return false;
+			return 0;
 		body <<= data.read(readIn, readIn + bodyLength);
+		readIn += bodyLength;
 	}
 
-	return true;
+	return readIn;
 }
 
 }

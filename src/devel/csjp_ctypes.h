@@ -92,8 +92,16 @@ inline bool operator==(const UInt & lhs, const UInt & rhs) { return lhs.val == r
 inline bool operator!=(const UInt & lhs, const UInt & rhs) { return lhs.val != rhs.val; }
 inline bool operator==(const UInt & lhs, unsigned rhs) { return lhs.val == rhs; }
 inline bool operator!=(const UInt & lhs, unsigned rhs) { return lhs.val != rhs; }
+inline bool operator==(const UInt & lhs, int rhs)
+		{ return 0 <= rhs && (lhs.val == (unsigned)rhs); }
+inline bool operator!=(const UInt & lhs, int rhs)
+		{ return rhs  < 0 || (lhs.val != (unsigned)rhs); }
 inline bool operator==(unsigned lhs, const UInt & rhs) { return lhs == rhs.val; }
 inline bool operator!=(unsigned lhs, const UInt & rhs) { return lhs != rhs.val; }
+inline bool operator==(int lhs, const UInt & rhs)
+		{ return 0 <= lhs && ((unsigned)lhs == rhs.val); }
+inline bool operator!=(int lhs, const UInt & rhs)
+		{ return lhs < 0 || ((unsigned)lhs != rhs.val); }
 inline bool operator<(const UInt & lhs, const UInt & rhs) { return lhs.val < rhs.val; }
 
 struct Double
