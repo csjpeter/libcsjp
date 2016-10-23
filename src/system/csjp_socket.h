@@ -73,7 +73,7 @@ public:
 	{
 		unsigned processedBytes = parser.parse(readBuffer);
 		readBuffer.chopFront(processedBytes);
-		return processedBytes;
+		return 0 < processedBytes;
 	}
 
 protected:
