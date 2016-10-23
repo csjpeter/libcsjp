@@ -57,6 +57,8 @@ public:
 
 	unsigned parse(const Str & data);
 
+	void clear();
+
 	const String & getRequestLine(){ return requestLine; }
 
 	String method;
@@ -224,6 +226,8 @@ public:
 	String toString() const;
 
 	unsigned parse(const Str & data);
+
+	void clear();
 
 	const String & status(){ return statusCode; }
 	const String & reason(){ return reasonPhrase; }

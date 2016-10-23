@@ -114,6 +114,7 @@ private:
 public:
 	void parse(const Str & data) { *this = Json::fromString(data); }
 	csjp::String toString() const { return toString(0); }
+	void clear() { type = Type::Null; value.clear(); properties.clear(); }
 
 public:
 	const String key;

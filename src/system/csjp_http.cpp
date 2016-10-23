@@ -127,6 +127,16 @@ unsigned HTTPRequest::parse(const Str & data)
 	return 0;
 }
 
+void HTTPRequest::clear()
+{
+	method.clear();
+	uri.clear();
+	version.clear();
+	headers.clear();
+	body.clear();
+	requestLine.clear();
+}
+
 
 
 
@@ -228,6 +238,16 @@ unsigned HTTPResponse::parse(const Str & data)
 	}
 
 	return 0;
+}
+
+void HTTPResponse::clear()
+{
+	version.clear();
+	headers.clear();
+	body.clear();
+	statusCode.clear();
+	reasonPhrase.clear();
+	statusLine.clear();
 }
 
 }
