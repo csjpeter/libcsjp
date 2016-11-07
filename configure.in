@@ -149,7 +149,7 @@ configure $@
 
 ! test ${DEBUG} = "no" || { CFLAGS="${CFLAGS} -O2" ; }
 
-CFLAGS="${CFLAGS} -Werror -Wall -Wextra -MMD -std=c++0x -D_ISOC99_SOURCE"
+CFLAGS="${CFLAGS} -Werror -Wall -Wextra -MMD -std=c++0x -D_ISOC99_SOURCE -Wno-misleading-indentation"
 # -pedantic-errors
 
 ! test "x${HOST_TOOLKIT}" = "x" || { HOST_TOOLKIT=${BUILD_TOOLKIT} ; }
