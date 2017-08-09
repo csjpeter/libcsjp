@@ -23,6 +23,7 @@ public:
 	const Str & operator=(Str && temp);
 
 	explicit Str();
+	explicit Str(const unsigned char * str, size_t length);
 	explicit Str(const char * str, size_t length);
 	Str(const char * str);
 	Str(const String & str);

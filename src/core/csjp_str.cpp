@@ -62,8 +62,17 @@ const Str & Str::operator=(const char * str)
 const Str & Str::operator=(const Str & chunk)
 	{ assign(chunk); return *this;}
 
+Str::Str(const unsigned char * str, size_t length)
+{
+	ENSURE(str || !length,  InvalidArgument);
+	assign((const char *)str, length);
+}
+
 Str::Str(const char * str, size_t length) : AStr()
-	{ ENSURE(str || !length,  InvalidArgument); assign(str, length); }
+{
+	ENSURE(str || !length,  InvalidArgument);
+	assign(str, length);
+}
 
 Str::Str(const char * str) : AStr()
 {

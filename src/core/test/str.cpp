@@ -58,7 +58,7 @@ void TestStr::constructs()
 		VERIFY(str == "nocsak");
 	}
 
-	csjp::Str str("nocsak");
+	csjp::Str str((unsigned char*)"nocsak", 6);
 
 	{
 		csjp::Str copy(str, 2, 4);
@@ -696,7 +696,8 @@ void TestStr::split()
 	VERIFY(res[5].length == 0);
 
 	TESTSTEP("Split new empty string");
-	csjp::Str str2(0, 0);
+	char * nullPtr = 0;
+	csjp::Str str2(nullPtr, 0);
 	NOEXC_VERIFY(res = str2.split(" ", false));
 	VERIFY(res.length == 1);
 	VERIFY(res[0].c_str() == str2.c_str());
@@ -749,7 +750,7 @@ void TestStr::split()
 	VERIFY(res[1].length == 4);
 
 	TESTSTEP("Split new empty string, avoiding empty result strings");
-	csjp::Str str3(0, 0);
+	csjp::Str str3(nullPtr, 0);
 	NOEXC_VERIFY(res = str3.split(" "));
 	VERIFY(res.length == 0);
 
