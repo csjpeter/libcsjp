@@ -65,7 +65,7 @@ public:
 	void extendCapacity(size_t); // reserves extra space for later usage
 	size_t capacity() const;
 	void setLength(size_t length);
-
+/*
 	const char& operator[](unsigned char i) const { return data[i]; }
 	inline char& operator[](unsigned char i){ return data[i]; }
 	const char& operator[](int i) const { return data[i]; }
@@ -80,7 +80,7 @@ public:
 	inline char& operator[](long unsigned i){ return data[i]; }
 	const char& operator[](long long unsigned i) const { return data[i]; }
 	inline char& operator[](long long unsigned i){ return data[i]; }
-
+*/
 	int compare(const char * str, size_t _length) const { return AStr::compare(str, _length); }
 	int compare(const Str & str) const { return AStr::compare(str.data, str.len); }
 
@@ -142,6 +142,7 @@ public:
 	void assign(const Str &);
 
 	void fill(char, size_t);
+	void fill(char);
 
 	void shiftForward(size_t from, size_t until, size_t offset);
 	void shiftBackward(size_t from, size_t until, size_t offset);
@@ -548,24 +549,27 @@ void String::catf(const char * fmt, const Arg & arg, const Args & ... args)
 	cat(args...);
 }
 
-inline int & operator<<=(int & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline long int & operator<<=(long int & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline long long int & operator<<=(long long int & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline unsigned & operator<<=(unsigned & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline long unsigned & operator<<=(long unsigned & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline long long unsigned & operator<<=(long long unsigned & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline float & operator<<=(float & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline double & operator<<=(double & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
-inline long double & operator<<=(long double & i, const String & str)
-	{ if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
+#define CSJP_C0 { if(!str.c_str()) i = 0; else i <<= CString(str.c_str()); return i; }
+#define CSJP_C1 { if(!str.c_str()) i = 0u; else i <<= CString(str.c_str()); return i; }
+#define CSJP_C2 { if(!str.c_str()) i = 0.0; else i <<= CString(str.c_str()); return i; }
+#define CSJP_C3 { if(!str.c_str()) i = '\0'; else i <<= CString(str.c_str()); return i; }
+#define CSJP_C4 { if(!str.c_str()) i = false; else i <<= CString(str.c_str()); return i; }
+
+inline char			& operator<<=(char & i,			const String & str) CSJP_C0
+inline unsigned char		& operator<<=(unsigned char & i,	const String & str) CSJP_C0
+inline int			& operator<<=(int & i,			const String & str) CSJP_C0
+inline long int			& operator<<=(long int & i,		const String & str) CSJP_C0
+inline long long int		& operator<<=(long long int & i,	const String & str) CSJP_C0
+inline unsigned			& operator<<=(unsigned & i,		const String & str) CSJP_C0
+inline long unsigned		& operator<<=(long unsigned & i,	const String & str) CSJP_C0
+inline long long unsigned	& operator<<=(long long unsigned & i,	const String & str) CSJP_C0
+inline float			& operator<<=(float & i,		const String & str) CSJP_C0
+inline double			& operator<<=(double & i,		const String & str) CSJP_C0
+inline long double		& operator<<=(long double & i,		const String & str) CSJP_C0
+inline UInt			& operator<<=(UInt & i,			const String & str) CSJP_C1
+inline Double			& operator<<=(Double & i,		const String & str) CSJP_C2
+inline Char			& operator<<=(Char & i,			const String & str) CSJP_C3
+inline YNBool			& operator<<=(YNBool & i,		const String & str) CSJP_C4
 
 /*}}}*/
 

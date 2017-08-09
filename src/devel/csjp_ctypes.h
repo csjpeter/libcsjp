@@ -20,18 +20,30 @@ public:
 	operator const char * () const { return ptr; }
 };
 
-inline bool operator==(const CString a, const char * b) { return !strcmp(a.ptr, b); }
-inline char & operator<<=(char & c, const CString str) { c = atoi(str); return c; }
-inline int & operator<<=(int & i, const CString str) { i = atoi(str); return i; }
-inline long int & operator<<=(long int & i, const CString str) { i = atol(str); return i; }
-inline long long int & operator<<=(long long int & i, const CString str){i = atoll(str); return i; }
-inline unsigned & operator<<=(unsigned & i, const CString str) { i = atol(str); return i; }
-inline long unsigned & operator<<=(long unsigned & i, const CString str){i = atoll(str); return i; }
-inline long long unsigned & operator<<=(long long unsigned & i, const CString str)
+inline bool			operator==(const CString a,		const char * b)
+								{ return !strcmp(a.ptr, b); }
+inline char &			operator<<=(char & c,			const CString str)
+								{ c = atoi(str); return c; }
+inline unsigned char &		operator<<=(unsigned char & c,		const CString str)
+								{ c = atoi(str); return c; }
+inline int &			operator<<=(int & i,			const CString str)
+								{ i = atoi(str); return i; }
+inline long int &		operator<<=(long int & i,		const CString str)
+								{ i = atol(str); return i; }
+inline long long int &		operator<<=(long long int & i,		const CString str)
 								{ i = atoll(str); return i; }
-inline float & operator<<=(float & i, const CString str) { i = atof(str); return i; }
-inline double & operator<<=(double & i, const CString str) { i = strtod(str, 0); return i; }
-inline long double & operator<<=(long double & i, const CString str){i = strtold(str, 0); return i;}
+inline unsigned &		operator<<=(unsigned & i,		const CString str)
+								{ i = atol(str); return i; }
+inline long unsigned &		operator<<=(long unsigned & i,		const CString str)
+								{ i = atoll(str); return i; }
+inline long long unsigned &	operator<<=(long long unsigned & i,	const CString str)
+								{ i = atoll(str); return i; }
+inline float &			operator<<=(float & i,			const CString str)
+								{ i = atof(str); return i; }
+inline double &			operator<<=(double & i,			const CString str)
+								{ i = strtod(str, 0); return i; }
+inline long double &		operator<<=(long double & i,		const CString str)
+								{ i = strtold(str, 0); return i; }
 
 struct YNBool
 {
@@ -76,6 +88,7 @@ inline bool operator!=(const Char & lhs, char rhs) { return lhs.val != rhs; }
 inline bool operator==(char lhs, const Char & rhs) { return lhs == rhs.val; }
 inline bool operator!=(char lhs, const Char & rhs) { return lhs != rhs.val; }
 inline bool operator<(const Char & lhs, const Char & rhs) { return lhs.val < rhs.val; }
+inline Char & operator<<=(Char & lhs, const CString & rhs) { lhs.val <<= rhs; return lhs; }
 
 struct UInt
 {
@@ -103,6 +116,7 @@ inline bool operator==(int lhs, const UInt & rhs)
 inline bool operator!=(int lhs, const UInt & rhs)
 		{ return lhs < 0 || ((unsigned)lhs != rhs.val); }
 inline bool operator<(const UInt & lhs, const UInt & rhs) { return lhs.val < rhs.val; }
+inline UInt & operator<<=(UInt & lhs, const CString & rhs) { lhs.val <<= rhs; return lhs; }
 
 struct Double
 {

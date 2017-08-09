@@ -36,7 +36,7 @@ public:
 	void assign(const char * str);
 	void assign(const Str & chunk);
 
-	const char& operator[](size_t i) const { return data[i];}
+	//const char& operator[](size_t i) const { return data[i];}
 	const Str & operator=(const char * str);
 	const Str & operator=(const Str & chunk);
 

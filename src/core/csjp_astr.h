@@ -30,6 +30,21 @@ public:
 	/** Terminating zero is not garanteed. */
 	const char * c_str() const { return data; }
 
+	const char& operator[](unsigned char i) const { return data[i]; }
+	inline char& operator[](unsigned char i){ return data[i]; }
+	const char& operator[](int i) const { return data[i]; }
+	inline char& operator[](int i){ return data[i]; }
+	const char& operator[](long int i) const { return data[i]; }
+	inline char& operator[](long int i){ return data[i]; }
+	const char& operator[](long long int i) const { return data[i]; }
+	inline char& operator[](long long int i){ return data[i]; }
+	const char& operator[](unsigned i) const { return data[i]; }
+	inline char& operator[](unsigned i){ return data[i]; }
+	const char& operator[](long unsigned i) const { return data[i]; }
+	inline char& operator[](long unsigned i){ return data[i]; }
+	const char& operator[](long long unsigned i) const { return data[i]; }
+	inline char& operator[](long long unsigned i){ return data[i]; }
+
 public:
 	int compare(const char * str, size_t _length) const;
 	int compare(const char * str) const;

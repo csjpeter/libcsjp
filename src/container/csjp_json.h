@@ -104,8 +104,23 @@ public:
 		return const_cast<Json &>(properties.query(obj));
 	}
 
-	operator const csjp::String & () const { return value; }
-	operator const csjp::Str () const { return csjp::Str(value); }
+	operator const csjp::String & ()	const { return value; }
+	operator const csjp::Str ()		const { return csjp::Str(value); }
+	operator char ()			const { char i;			i <<= value; return i; }
+	operator unsigned char ()		const { unsigned char i;	i <<= value; return i; }
+	operator int ()				const { int i;			i <<= value; return i; }
+	operator long int ()			const { long int i;		i <<= value; return i; }
+	operator long long int ()		const { long long int i;	i <<= value; return i; }
+	operator unsigned ()			const { unsigned i;		i <<= value; return i; }
+	operator long unsigned ()		const { long long unsigned i;	i <<= value; return i; }
+	operator long long unsigned ()		const { long long unsigned i;	i <<= value; return i; }
+	operator float ()			const { float i;		i <<= value; return i; }
+	operator double ()			const { double i;		i <<= value; return i; }
+	operator long double ()			const { long double i;		i <<= value; return i; }
+	operator const UInt ()			const { UInt i;			i <<= value; return i; }
+	operator const Double ()		const { Double i;		i <<= value; return i; }
+	operator const Char ()			const { Char i;			i <<= value; return i; }
+	operator const YNBool ()		const { YNBool i;		i <<= value; return i; }
 
 private:
 	static Json fromString(const Str & data);

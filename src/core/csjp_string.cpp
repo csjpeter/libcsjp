@@ -240,6 +240,11 @@ void String::fill(char _fill, size_t _length)
 	data[len] = 0;
 }
 
+void String::fill(char _fill)
+{
+	fill(_fill, len);
+}
+
 /**
  * Move a part of the string to a position before the original position.
  */
