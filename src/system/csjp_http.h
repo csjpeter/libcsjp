@@ -76,7 +76,7 @@ public:
 	enum class Enum;
 
 	HTTPStatusCode(HTTPStatusCode::Enum code) : code(code) {}
-	operator int () { return (int)code; }
+	operator int () const { return (int)code; }
 
 	Enum code;
 
@@ -129,7 +129,7 @@ public:
 		HTTPVersionNotSupported
 	};
 
-	inline const char * phrase()
+	inline const char * phrase() const
 	{
 		switch(code)
 		{
