@@ -498,6 +498,8 @@ String AStr::decodeBase64() const
 	return str;
 }
 
+/** Convert the string into space separated uppercase hexadecimal numbers.
+ */
 String AStr::toHexaString() const
 {
 	String hexaString;
