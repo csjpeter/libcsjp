@@ -236,6 +236,7 @@ public:
 
 	String encodeBase64() const { return AStr::encodeBase64(); }
 	String decodeBase64() const { return AStr::decodeBase64(); }
+	//String toHexaString() const { return AStr::toHexaString(); }
 };
 
 inline bool operator==(const String & a, const char * b) { return a.isEqual(b); }

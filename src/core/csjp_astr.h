@@ -65,6 +65,7 @@ public:
 	Array<Str> split(const char * delimiters, bool avoidEmptyResults) const;
 	String encodeBase64() const;
 	String decodeBase64() const;
+	String toHexaString() const;
 };
 
 }

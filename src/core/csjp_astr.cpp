@@ -498,4 +498,13 @@ String AStr::decodeBase64() const
 	return str;
 }
 
+String AStr::toHexaString() const
+{
+	String hexaString;
+	for (size_t i = 0; i < length; i++)
+		hexaString.appendPrintf("%02hhX ", (unsigned char)(data[i]));
+	return hexaString;
 }
+
+} // namespace
+
