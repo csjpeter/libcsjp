@@ -45,13 +45,6 @@ namespace csjp {
  */
 class File
 {
-#define FileInitializer : \
-		file(NULL), \
-		writable(false), \
-		eofbit(false), \
-		locked(false), \
-		fileSize(0), \
-		fileName()
 public:
 	static String readAll(const Str & fileName) { File f(fileName); return f.readAll();}
 
