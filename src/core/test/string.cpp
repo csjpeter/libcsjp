@@ -88,6 +88,14 @@ void TestString::constructs()
 
 	VERIFY(copied == "default");
 	VERIFY(copied == first);
+
+	TESTSTEP("Construction by AStr string");
+
+	csjp::Str str("str string");
+	csjp::AStr & astr = str;
+	csjp::String second(astr);
+
+	VERIFY(second == "str string");
 /*
 	TESTSTEP("Construction by format string");
 

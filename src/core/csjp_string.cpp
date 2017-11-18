@@ -218,6 +218,16 @@ void String::assign(const char * str, size_t _length)
 	data[len] = 0;
 }
 
+void String::assign(const AStr & astr)
+{
+	if(!astr.data){
+		clear();
+		return;
+	}
+
+	assign(astr.data, astr.len);
+}
+
 void String::assign(const Str & str)
 {
 	if(!str.data){

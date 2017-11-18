@@ -50,6 +50,7 @@ public:
 	explicit String() StringInitializer { }
 	explicit String(const String & orig) StringInitializer { assign(orig.data, orig.length);}
 	explicit String(const Str & str) StringInitializer { assign(str); }
+	explicit String(const AStr & astr) StringInitializer { assign(astr); }
 	//template<typename... Args>
 	//explicit String(const char * fmt, const Args & ... args) { catf(fmt, args...); }
 	virtual ~String() { if(data) free(data); }
@@ -140,6 +141,7 @@ public:
 
 	void assign(const char *, size_t _length);
 	void assign(const Str &);
+	void assign(const AStr &);
 
 	void fill(char, size_t);
 	void fill(char);
