@@ -121,6 +121,12 @@ public:
 	};
 };
 
+inline String &	operator<<(String & lhs, const EPoll::Event & rhs)
+		{ lhs += EPoll::eventName(rhs.code); return lhs; }
+
+inline String &	operator<<(String & lhs, const EPoll::ControlEvent & rhs)
+		{ lhs += EPoll::controlEventName(rhs.code); return lhs; }
+
 }
 
 #endif
