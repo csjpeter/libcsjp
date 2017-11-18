@@ -66,7 +66,8 @@ public:
 	}
 
 	String receive(size_t length);
-	bool send(const Str & data); //returns false on EAGAIN or EWOULDBLOCK
+	bool send(const Str & data); // returns false on EAGAIN or EWOULDBLOCK
+				     // EPoll takes care of this in the background
 
 	template <typename TypeReceive>
 	bool receive(TypeReceive & parser)
