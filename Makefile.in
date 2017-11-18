@@ -65,6 +65,10 @@ tmp/src/system/test/%.opp: src/system/test/%.cpp
 	@test -d $(dir $@) || mkdir -p $(dir $@)
 	$(COMPILE) -DTESTDIR=\"$(TESTDIR)\" -o $@ $<
 
+tmp/src/tools/%.opp: src/tools/%.cpp
+	@test -d $(dir $@) || mkdir -p $(dir $@)
+	$(COMPILE) -o $@ $<
+
 tmp/src/%.opp: src/%.cpp
 	@test -d $(dir $@) || mkdir -p $(dir $@)
 	$(COMPILE) -o $@ $<
@@ -246,7 +250,8 @@ build-arch: \
 	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container_speed \
 	$(TEST_BINARIES) \
 	$(TEST_BINARIES_DBG) \
-	$(TEST_BINARIES_MAN_PAGES)
+	$(TEST_BINARIES_MAN_PAGES) \
+	@TCROOT@@PREFIX@bin/@PRJNAME@@VERSION_API@-nc
 
 build-indep: \
 	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-speed.gnuplot \
