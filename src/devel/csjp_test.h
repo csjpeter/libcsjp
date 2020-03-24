@@ -35,7 +35,7 @@
 
 /* Excepts true return value. */
 #define VERIFY(call)		if(!(call)) \
-					throw csjp::TestFailure("Verifiy failed: " #call \
+					throw csjp::TestFailure("Verify failed: " #call \
 						"\nat line " STRING(__LINE__) " in file " __FILE__);
 
 /* Excepts the given exception to be thrown. */

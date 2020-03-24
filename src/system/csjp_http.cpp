@@ -63,7 +63,7 @@ String HTTPRequest::toString() const
 			continue;
 		String k(h.key);
 		k.lower();
-		request.catf("%: %\r\n", k, h.value);
+		request.catf("%: %\r\n", k, h.value());
 	}
 	request.catf("content-length: %\r\n", body.length);
 	request.catf("\r\n%", body);
@@ -85,12 +85,12 @@ unsigned HTTPRequest::parse(const Str & data)
 		version <<= result[2];
 	}
 
-	if(!headers.value.length){
+	if(!headers.value().length){
 		size_t pos;
 		if(!data.findFirst(pos, "\r\n\r\n", requestLine.length+2))
 			return 0;
-		headers.value <<= data.read(requestLine.length+2, pos);
-		Array<Str> array = headers.value.split("\r\n");
+		headers <<= data.read(requestLine.length+2, pos);
+		Array<Str> array = headers.value().split("\r\n");
 		String key;
 		for(auto & str : array){
 			if(str.findFirst(pos, ":")){
@@ -110,12 +110,12 @@ unsigned HTTPRequest::parse(const Str & data)
 						"Invalid multiline header "
 						"line: %", str);
 			value.trim(" \t");
-			headers[key].value << value;
+			headers[key] << value;
 		}
 	}
 
 	if(!body.length){
-		size_t readIn = requestLine.length+2 + headers.value.length+4;
+		size_t readIn = requestLine.length+2 + headers.value().length+4;
 		size_t bodyLength = 0;
 		bodyLength <<= headers["content-length"];
 		if(data.length < readIn + bodyLength)
@@ -179,7 +179,7 @@ String HTTPResponse::toString() const
 			continue;
 		String k(h.key);
 		k.lower();
-		response.catf("%: %\r\n", k, h.value);
+		response.catf("%: %\r\n", k, h.value());
 	}
 	response.catf("content-length: %\r\n", body.length);
 	response.catf("\r\n%", body);
@@ -201,12 +201,12 @@ unsigned HTTPResponse::parse(const Str & data)
 		reasonPhrase <<= result[2];
 	}
 
-	if(!headers.value.length){
+	if(!headers.value().length){
 		size_t pos;
 		if(!data.findFirst(pos, "\r\n\r\n", statusLine.length+2))
 			return 0;
-		headers.value <<= data.read(statusLine.length+2, pos);
-		Array<Str> array = headers.value.split("\r\n");
+		headers <<= data.read(statusLine.length+2, pos);
+		Array<Str> array = headers.value().split("\r\n");
 		String key;
 		for(auto & str : array){
 			if(str.findFirst(pos, ":")){
@@ -223,12 +223,12 @@ unsigned HTTPResponse::parse(const Str & data)
 			if(!value.startsWith(" ") && !value.startsWith("\t"))
 				throw HttpProtocolError("Invalid multiline header line: %", str);
 			value.trim(" \t");
-			headers[key].value << value;
+			headers[key] << value;
 		}
 	}
 
 	if(!body.length){
-		size_t readIn = statusLine.length+2 + headers.value.length+4;
+		size_t readIn = statusLine.length+2 + headers.value().length+4;
 		size_t bodyLength = 0;
 		bodyLength <<= headers["content-length"];
 		if(data.length < readIn + bodyLength)

@@ -4,6 +4,7 @@
  */
 
 #undef DEBUG
+#define DEBUG
 
 #include <csjp_signal.h>
 #include <csjp_server.h>
@@ -34,9 +35,12 @@ public:
 		VERIFY(request.uri == "/");
 		DBG("request version: %", request.version);
 		VERIFY(request.version == "1.0");
-		DBG("request headers: %", request.headers.value);
-		VERIFY(request.headers.value == "content-length: 4");
-		VERIFY(request.headers.properties.size() == 1);
+		DBG("request headers: %", request.headers);
+		VERIFY(request.headers == "content-length: 4");
+		//DBG("request.headers.type: %", request.headers.type);
+		//VERIFY(request.headers.type == Json::Type::Object);
+		DBG("request.headers.size(): %", request.headers.size());
+		VERIFY(request.headers.size() == 1);
 		VERIFY(request.headers["content-length"] == "4");
 		DBG("request body: %", request.body);
 		VERIFY(request.body == "body");
@@ -108,9 +112,9 @@ public:
 		VERIFY(response.reason() == "OK");
 		DBG("response version: %", response.version);
 		VERIFY(response.version == "1.0");
-		DBG("response headers: %", response.headers.value);
-		VERIFY(response.headers.value == "content-length: 6");
-		VERIFY(response.headers.properties.size() == 1);
+		DBG("response headers: %", response.headers);
+		VERIFY(response.headers == "content-length: 6");
+		VERIFY(response.headers.size() == 1);
 		VERIFY(response.headers["content-length"] == "6");
 		DBG("response body: %", response.body);
 		VERIFY(response.body == "answer");
@@ -217,7 +221,7 @@ void TestHTTP::multiLineHeaders()
 		csjp::HTTPRequest request("POST");
 
 		request.headers["multiline-test-header-key"] =
-			"multiline-test-\n\r\theader-value";
+			"multiline-test-\r\n\theader-value";
 
 		DBG("Whole request:\n%", request);
 
@@ -225,8 +229,8 @@ void TestHTTP::multiLineHeaders()
 		request2.parse(request.toString());
 
 		DBG("Parsed request header: %",
-				request2.headers["multiline-test-header-key"].value);
-		VERIFY(request2.headers["multiline-test-header-key"].value ==
+				request2.headers["multiline-test-header-key"]);
+		VERIFY(request2.headers["multiline-test-header-key"] ==
 				"multiline-test-header-value");
 	}
 
@@ -243,8 +247,8 @@ void TestHTTP::multiLineHeaders()
 		request2.parse(request.toString());
 
 		DBG("Parsed request header: %",
-				request2.headers["multiline-test-header-key"].value);
-		VERIFY(request2.headers["multiline-test-header-key"].value ==
+				request2.headers["multiline-test-header-key"]);
+		VERIFY(request2.headers["multiline-test-header-key"] ==
 				"multiline-test-header-value");
 	}
 
@@ -276,8 +280,8 @@ void TestHTTP::multiLineHeaders()
 		response2.parse(response.toString());
 
 		DBG("Parsed response header: %",
-				response2.headers["multiline-test-header-key"].value);
-		VERIFY(response2.headers["multiline-test-header-key"].value ==
+				response2.headers["multiline-test-header-key"]);
+		VERIFY(response2.headers["multiline-test-header-key"] ==
 				"multiline-test-header-value");
 	}
 
@@ -294,8 +298,8 @@ void TestHTTP::multiLineHeaders()
 		response2.parse(response.toString());
 
 		DBG("Parsed response header: %",
-				response2.headers["multiline-test-header-key"].value);
-		VERIFY(response2.headers["multiline-test-header-key"].value ==
+				response2.headers["multiline-test-header-key"]);
+		VERIFY(response2.headers["multiline-test-header-key"] ==
 				"multiline-test-header-value");
 	}
 

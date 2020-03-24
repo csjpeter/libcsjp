@@ -377,7 +377,7 @@ public:
 	{
 		ENSURE(root != NULL, ObjectNotFound);
 
-		BinTree< PrimaryBox<DataType> > *node = root->query(t);
+		BinTree< PrimaryBox<DataType> > *node = root->template query<DataType>(t);
 		node->data->custom->remove(custom);
 		node->remove(root);
 		delete node->data->custom;
@@ -392,7 +392,7 @@ public:
 	{
 		ENSURE(root != NULL, ObjectNotFound);
 
-		BinTree< PrimaryBox<DataType> > *node = root->query<TypeRemove>(tr);
+		BinTree< PrimaryBox<DataType> > *node = root->template query<TypeRemove>(tr);
 		node->data->custom->remove(custom);
 		node->remove(root);
 		delete node->data->custom;
@@ -459,7 +459,7 @@ public:
 	{
 		ENSURE(root != NULL, ObjectNotFound);
 
-		return *(root->query<DataType>(t)->data->data);
+		return *(root->template query<DataType>(t)->data->data);
 	}/*}}}*/
 
 	/**
@@ -470,7 +470,7 @@ public:
 	{
 		ENSURE(root != NULL, ObjectNotFound);
 
-		return *(root->query<TypeQuery>(tq)->data->data);
+		return *(root->template query<TypeQuery>(tq)->data->data);
 	}/*}}}*/
 
 	/**
@@ -497,7 +497,7 @@ public:
 	{
 		ENSURE(root != NULL, ObjectNotFound);
 
-		BinTree< PrimaryBox<DataType> > *iter = root->query<TypeIndex>(ti);
+		BinTree< PrimaryBox<DataType> > *iter = root->template query<TypeIndex>(ti);
 
 		return iter->data->custom->index();
 	}/*}}}*/

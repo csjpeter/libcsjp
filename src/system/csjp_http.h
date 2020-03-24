@@ -242,6 +242,17 @@ private:
 	String statusLine;
 };
 
+inline String &	operator<<(csjp::String & lhs, const csjp::HTTPResponse & rhs)
+		{ lhs += rhs.toString(); return lhs; }
+inline String &	operator<<(csjp::String & lhs, const csjp::HTTPRequest & rhs)
+		{ lhs += rhs.toString(); return lhs; }
+
+inline String &	operator<<=(csjp::String & lhs, const csjp::HTTPResponse & rhs)
+		{ lhs = rhs.toString(); return lhs; }
+inline String &	operator<<=(csjp::String & lhs, const csjp::HTTPRequest & rhs)
+		{ lhs = rhs.toString(); return lhs; }
+inline String &	operator<<=(csjp::String & lhs, const csjp::HTTPStatusCode & rhs)
+		{ lhs <<= (int)(rhs.code); return lhs; }
 
 
 }

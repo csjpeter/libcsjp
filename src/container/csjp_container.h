@@ -104,7 +104,7 @@ public:
 	{
 		ENSURE(root != NULL, IndexOutOfRange);
 
-		BinTree<DataType> *node = root->query<TypeRemove>(tr);
+		BinTree<DataType> *node = root->template query<TypeRemove>(tr);
 		node->remove(root);
 		delete node;
 	}/*}}}*/
@@ -165,7 +165,7 @@ public:
 	{
 		ENSURE(root != NULL, ObjectNotFound);
 
-		return *(root->query<DataType>(t)->data);
+		return *(root->template query<DataType>(t)->data);
 	}/*}}}*/
 
 	/**
@@ -176,7 +176,7 @@ public:
 	{
 		ENSURE(root != NULL, ObjectNotFound);
 
-		return *(root->query<TypeQuery>(tq)->data);
+		return *(root->template query<TypeQuery>(tq)->data);
 	}/*}}}*/
 
 	/**
@@ -205,7 +205,7 @@ public:
 
 		BinTree<DataType> *iter = root;
 
-		iter = root->query<TypeIndex>(ti);
+		iter = root->template query<TypeIndex>(ti);
 
 		return iter->index();
 	}/*}}}*/

@@ -8,6 +8,7 @@
 
 #include <unicode/unistr.h>
 #include <unicode/ustring.h>
+#include <unicode/stringoptions.h>
 
 #include <csjp_carray.h>
 #include "csjp_text.h"

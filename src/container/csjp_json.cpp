@@ -7,6 +7,7 @@
 
 #include <csjp_object.h>
 #include <csjp_string.h>
+#include <csjp_ref_array.h>
 //#include <csjp_sorter_reference_container.h>
 
 #include "csjp_json.h"
@@ -53,10 +54,12 @@ private:
 	bool readFreeString(String & token); /* string without quotation and ecaped characters */
 	bool readString(String & token);
 	bool readNumber(String & token);
-	bool readValue(String & token, Json::Type & type);
+	bool readValue(const String & key);
 	bool readPair(bool must = false);
 	bool readMembers(bool must = false);
-	bool readObject();
+	bool readElements(bool must = false);
+	bool readObject(const String & key);
+	bool readArray(const String & key);
 
 private:
 	RefArray<Json> objectStack;
@@ -66,7 +69,6 @@ private:
 	size_t pos; /* Parser position */
 	size_t lineNum; /* For human readable error messages. */
 	size_t linePos; /* Position where current line starts, for human readable error messages. */
-	String key;
 };
 
 
@@ -352,40 +354,55 @@ bool JsonParser::readNumber(String & token)
 	}
 }
 
-bool JsonParser::readValue(String & token, Json::Type & type)
+bool JsonParser::readValue(const String & key)
 {
-	if(readNumber(token)){
+	String value;
+	Json::Type type = Json::Type::Object;
+
+	if(readNumber(value)){
 		type = Json::Type::Number;
-		return true;
-	}
+	} else
 	if(readKeyword("true")){
 		type = Json::Type::Boolean;
-		token = "true";
-		return true;
-	}
+		value = "true";
+	} else
 	if(readKeyword("false")){
 		type = Json::Type::Boolean;
-		token = "false";
-		return true;
-	}
+		value = "false";
+	} else
 	if(readKeyword("null")){
 		type = Json::Type::Null;
-		token = "";
-		return true;
-	}
-	if(readString(token)){
+	} else
+	if(readString(value)){
 		type = Json::Type::String;
+	}
+
+	if(type != Json::Type::Object){ // If a value is recognised above
+		if(objectStack.last() == Json::Type::Array){
+			DBG("Inserting value '%'", value);
+			auto newIdx = objectStack.last().size();
+			Json & json = objectStack.last()[newIdx];
+			json = move_cast(value);
+			json <<= type;
+		} else {
+			DBG("Inserting key '%', value '%'", key, value);
+			Json & json = objectStack.last()[key];
+			json = move_cast(value);
+			json <<= type;
+		}
 		return true;
 	}
-	if(readObject())
+
+	if(readObject(key))
+		return true;
+	if(readArray(key))
 		return true;
 	return false;
 }
 
 bool JsonParser::readPair(bool must)
 {
-	String value;
-	Json::Type type;
+	String key;
 
 	if(!readString(key)){
 		if(must) {
@@ -397,22 +414,16 @@ bool JsonParser::readPair(bool must)
 	if(!readCharacter(':'))
 		PARSE_ERROR(":", "pair");
 	skipWhiteSpace();
-	if(!readValue(value, type))
+	if(!readValue(key))
 		PARSE_ERROR("language element value", "pair");
-
-	if(key.length){
-		DBG("Inserting key '%', value '%'", key, value);
-		auto & json = objectStack.last()[key];
-		json = move_cast(value);
-		json.type = type;
-		key.clear();
-	}
 
 	return true;
 }
 
 bool JsonParser::readMembers(bool must)
 {
+	DBG("Enter to read array members");
+
 	if(!readPair(must))
 		return false;
 	skipWhiteSpace();
@@ -423,25 +434,26 @@ bool JsonParser::readMembers(bool must)
 	return true;
 }
 
-bool JsonParser::readObject()
+bool JsonParser::readObject(const String & key)
 {
 	if(!readCharacter('{'))
 		return false;
 
 	DBG("New object '%'", key);
-	ENSURE(key.length || objectStack.empty(), ParseError);
 	if(objectStack.empty()){
 		ENSURE(key.length == 0, ParseError);
 		objectStack.add(target);
-		target.type = Json::Type::Object;
+		target <<= Json::Type::Object;
 	} else {
-		ENSURE(key.length, ParseError);
-		Object<Json> obj(new Json(key));
-		Json & json = *(obj.ptr);
-		json.type = Json::Type::Object;
-		objectStack.last().properties.add(obj.ptr);
-		objectStack.add(json);
-		key.clear();
+		if(objectStack.last() == Json::Type::Array){
+			Json & json = objectStack.last()[objectStack.last().size()];
+			json <<= Json::Type::Object;
+			objectStack.add(json);
+		} else {
+			Json & json = objectStack.last()[key];
+			json <<= Json::Type::Object;
+			objectStack.add(json);
+		}
 	}
 
 	skipWhiteSpace();
@@ -452,6 +464,66 @@ bool JsonParser::readObject()
 
 	if(!readCharacter('}'))
 		PARSE_ERROR("}", "object");
+
+	return true;
+}
+
+bool JsonParser::readElements(bool must)
+{
+	DBG("Enter to read array elements");
+	String key;
+
+	if(!readValue(key)){
+		if(!must){
+			DBG("Leave from read array elements 0");
+			return true;
+		}
+		throw ParseError("Expecting string, object or array "
+				"at linepos %:% position % while "
+				"reading array element in json code: %",
+				lineNum, pos - linePos + 1,
+				pos + 1, data);
+	}
+	skipWhiteSpace();
+	if(readCharacter(',')){
+		skipWhiteSpace();
+		bool ret = readElements(true);
+		DBG("Leave from read array elements 1");
+		return ret;
+	}
+	DBG("Leave from read array elements 2");
+	return true;
+}
+
+bool JsonParser::readArray(const String & key)
+{
+	if(!readCharacter('['))
+		return false;
+
+	DBG("New array '%'", key);
+	if(objectStack.empty()){
+		objectStack.add(target);
+		target <<= Json::Type::Array;
+	} else {
+		if(objectStack.last() == Json::Type::Array){
+			Json & json = objectStack.last()[objectStack.last().size()];
+			json <<= Json::Type::Array;
+			objectStack.add(json);
+		} else {
+			Json & json = objectStack.last()[key];
+			json <<= Json::Type::Array;
+			objectStack.add(json);
+		}
+	}
+
+	skipWhiteSpace();
+	if(readElements())
+		skipWhiteSpace();
+
+	objectStack.removeAt(objectStack.size()-1);
+
+	if(!readCharacter(']'))
+		PARSE_ERROR("]", "array");
 
 	return true;
 }
@@ -473,52 +545,75 @@ JsonParser::~JsonParser()
 
 void JsonParser::parse()
 {
+	String key;
 	DBG("Parsing:\n%", data);
-	if(readObject())
+	if(readObject(key))
+		return;
+	if(readArray(key))
 		return;
 
 	PARSE_ERROR("{", "object");
 }
 
-String Json::toString(int depth) const
+String Json::toString(int depth, bool withKey) const
 {
 	size_t i, s;
 	bool coma = false;
 	String data;
 
-	if(depth){
 #ifndef PERFMODE
+	if(depth){
 		data << "\n";
 		for(size_t i = 0, s = depth; i < s; i++) data << "\t";
+	}
 #endif
+	if(withKey){
 		data << "\"" << key << "\" : ";
 	}
 
-	if(value.length != 0){
-		data << "\"" << value << "\"";
-		return data;
-	}
-
-	data << '{';
-	
-	for(i = 0, s = properties.size(); i < s; i++){
-		if(coma){
-			data << ", ";
-			coma = false;
+	if(type == Json::Type::Array){
+		data << '[';
+		for(i = 0, s = array.size(); i < s; i++){
+			if(coma){
+				data << ", ";
+				coma = false;
+			}
+			depth++;
+			data << array[i].toString(depth, false); /* recurse */
+			depth--;
+			coma = true;
 		}
-		depth++;
-		data << properties.queryAt(i).toString(depth); /* recurse */
-		depth--;
-		coma = true;
-	}
 
 #ifndef PERFMODE
-	if(properties.size()){
-		data << "\n";
-		for(size_t i = 0, s = depth; i < s; i++) data << "\t";
-	}
+		if(array.size()){
+			data << "\n";
+			for(size_t i = 0, s = depth; i < s; i++) data << "\t";
+		}
 #endif
-	data << "}";
+		data << ']';
+	} else if(type == Json::Type::Object){
+		data << '{';
+		for(i = 0, s = properties.size(); i < s; i++){
+			if(coma){
+				data << ", ";
+				coma = false;
+			}
+			depth++;
+			data << properties.queryAt(i).toString(depth); /* recurse */
+			depth--;
+			coma = true;
+		}
+
+#ifndef PERFMODE
+		if(properties.size()){
+			data << "\n";
+			for(size_t i = 0, s = depth; i < s; i++) data << "\t";
+		}
+#endif
+		data << '}';
+	} else {
+		data << "\"" << value() << "\"";
+	}
 
 	return data;
 }

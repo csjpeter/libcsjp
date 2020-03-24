@@ -19,6 +19,7 @@ public:
 	void valuesInObjects();
 	void multipleSources();
 	void parseItself();
+	void array();
 };
 
 void TestJson::onlyValues()
@@ -33,13 +34,12 @@ void TestJson::onlyValues()
 
 	TESTSTEP("Parse data into csjp::Json");
 	NOEXC_VERIFY(ot.parse(data));
-	VERIFY(ot.key == "");
-	VERIFY(ot.properties.size() == 2);
-	VERIFY(ot.properties.has("gyümölcs"));
-	VERIFY(ot["gyümölcs"].type == csjp::Json::Type::String);
+	VERIFY(ot.size() == 2);
+	//VERIFY(ot.has("gyümölcs"));
+	VERIFY(ot["gyümölcs"] == csjp::Json::Type::String);
 	VERIFY(ot["gyümölcs"] == "alma");
-	VERIFY(ot.properties.has("zöldség"));
-	VERIFY(ot["zöldség"].type == csjp::Json::Type::String);
+	//VERIFY(ot.has("zöldség"));
+	VERIFY(ot["zöldség"] == csjp::Json::Type::String);
 	VERIFY(ot["zöldség"] == "répa");
 
 	csjp::String str;
@@ -67,16 +67,13 @@ void TestJson::onlyObjects()
 
 	TESTSTEP("Parse data into csjp::Json");
 	NOEXC_VERIFY(ot.parse(data));
-	VERIFY(ot.key == "");
-	VERIFY(ot.properties.size() == 2);
-	VERIFY(ot.properties.has("gyümölcs"));
-	VERIFY(ot["gyümölcs"].key == "gyümölcs");
-	VERIFY(ot["gyümölcs"].type == csjp::Json::Type::Object);
-	VERIFY(ot["gyümölcs"].properties.size() == 0);
-	VERIFY(ot.properties.has("zöldség"));
-	VERIFY(ot["zöldség"].key == "zöldség");
-	VERIFY(ot["zöldség"].type == csjp::Json::Type::Object);
-	VERIFY(ot["zöldség"].properties.size() == 0);
+	VERIFY(ot.size() == 2);
+	//VERIFY(ot.has("gyümölcs"));
+	VERIFY(ot["gyümölcs"] == csjp::Json::Type::Object);
+	VERIFY(ot["gyümölcs"].size() == 0);
+	//VERIFY(ot.has("zöldség"));
+	VERIFY(ot["zöldség"] == csjp::Json::Type::Object);
+	VERIFY(ot["zöldség"].size() == 0);
 
 	csjp::String str;
 	csjp::Json ot2;
@@ -108,19 +105,16 @@ void TestJson::valuesInObjects()
 
 	TESTSTEP("Parse csjp::Json into csjp::String");
 	NOEXC_VERIFY(ot.parse(data));
-	VERIFY(ot.key == "");
-	VERIFY(ot.properties.size() == 4);
+	VERIFY(ot.size() == 4);
 	VERIFY(ot["hami-papi"] == "fincsi");
-	VERIFY(ot.properties.has("gyümölcs"));
-	VERIFY(ot["gyümölcs"].key == "gyümölcs");
-	VERIFY(ot["gyümölcs"].properties.size() == 1);
+	//VERIFY(ot.has("gyümölcs"));
+	VERIFY(ot["gyümölcs"] == csjp::Json::Type::Object);
+	VERIFY(ot["gyümölcs"].size() == 1);
 	VERIFY(ot["gyümölcs"]["alma"] == "arany");
-	VERIFY(ot.properties.has("zöldség"));
-	VERIFY(ot["zöldség"].key == "zöldség");
-	VERIFY(ot["zöldség"].properties.size() == 0);
-	VERIFY(ot.properties.has("hús"));
-	VERIFY(ot["hús"].key == "hús");
-	VERIFY(ot["hús"].properties.size() == 1);
+	//VERIFY(ot.has("zöldség"));
+	VERIFY(ot["zöldség"].size() == 0);
+	//VERIFY(ot.has("hús"));
+	VERIFY(ot["hús"].size() == 1);
 	VERIFY(ot["hús"]["kolbász"] == "paraszt");
 
 	csjp::String str;
@@ -169,11 +163,66 @@ void TestJson::multipleSources()
 	VERIFY(ot == ot2);
 }
 
+void TestJson::array()
+{
+	csjp::Str data(
+			"[ # comment\n"
+			"	gyümölcs, # comment\n"
+			" # comment\n"
+			"	zöldség,\n"
+			"	[\n"
+			"		gomba\n"
+			"	],\n"
+			"	{\n"
+			"		kulcs : fűszer,\n"
+			"		tömb : [\n"
+			"			bonyolult\n"
+			"		]\n"
+			"	}\n"
+			"]");
+	csjp::Json ot;
+
+	TESTSTEP("Parse data into csjp::Json");
+	NOEXC_VERIFY(ot.parse(data));
+	//VERIFY(ot.key == "");
+	VERIFY(ot == csjp::Json::Type::Array);
+	VERIFY(ot.size() == 4);
+	VERIFY(ot[0] == "gyümölcs");
+	VERIFY(ot[1] == "zöldség");
+	VERIFY(ot[0] == csjp::Json::Type::String);
+	VERIFY(ot[1] == csjp::Json::Type::String);
+
+	VERIFY(ot[2] == csjp::Json::Type::Array);
+	VERIFY(ot[2].size() == 1);
+	VERIFY(ot[2][0] == csjp::Json::Type::String);
+	VERIFY(ot[2][0] == "gomba");
+
+	VERIFY(ot[3] == csjp::Json::Type::Object);
+	VERIFY(ot[3].size() == 2);
+	VERIFY(ot[3]["kulcs"] == csjp::Json::Type::String);
+	VERIFY(ot[3]["kulcs"] == "fűszer");
+	VERIFY(ot[3]["tömb"] == csjp::Json::Type::Array);
+	VERIFY(ot[3]["tömb"].size() == 1);
+	VERIFY(ot[3]["tömb"][0] == "bonyolult");
+
+	csjp::String str;
+
+	TESTSTEP("Export csjp::Json into csjp::String");
+	NOEXC_VERIFY(str = ot.toString());
+
+	csjp::Json ot2;
+
+	TESTSTEP("Parse new csjp::String back into csjp::Json");
+	NOEXC_VERIFY(ot2.parse(str));
+	VERIFY(ot == ot2);
+}
+
 TEST_INIT(Json)
 
 	TEST_RUN(onlyValues);
 	TEST_RUN(onlyObjects);
 	TEST_RUN(valuesInObjects);
 	TEST_RUN(multipleSources);
+	TEST_RUN(array);
 
 TEST_FINISH(Json)
