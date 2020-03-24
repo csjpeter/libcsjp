@@ -1,6 +1,6 @@
 /*
  * Author: Csaszar, Peter <csjpeter@gmail.com>
- * Copyright (C) 2012-2015 Csaszar, Peter
+ * Copyright (C) 2012-2020 Csaszar, Peter
  */
 
 #include <string.h>

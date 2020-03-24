@@ -1,6 +1,6 @@
 /*
  * Author: Csaszar, Peter <csjpeter@gmail.com>
- * Copyright (C) 2012-2015 Csaszar, Peter
+ * Copyright (C) 2012-2020 Csaszar, Peter
  */
 
 #ifndef CSJP_JSON_PARSER_H
@@ -35,7 +35,28 @@ public:
 		properties(orig.properties),
 		array(orig.array)
 	{}
-	const Json & operator=(const Json & orig) = delete;
+	const Json & operator=(const Json & orig)
+	{
+		if(orig.type == Json::Type::Array) {
+		//	type = orig.type;
+		//	array = orig.array;
+		//	properties.clear();
+		//	val.clear();
+		}
+		else if(orig.type == Json::Type::Object) {
+		//	type = orig.type;
+		//	properties = orig.properties;
+		//	array.clear();
+		//	val.clear();
+		}
+		else {
+			type = orig.type;
+			val = orig.val;
+			array.clear();
+			properties.clear();
+		}
+		return *this;
+	}
 
 	Json(Json && temp) :
 		type(temp.type),
@@ -195,8 +216,21 @@ public:
 	}
 
 	void appendValue(const csjp::Str & v)		{ val << v; }
+	void appendValue(const char * v)		{ val << v; }
+	void appendValue(const char v)			{ val << v; }
 
 	bool isEqual(const Json::Type b) const	{ return type == b; }
+
+	template<typename Arg>
+	void cat(const Arg & arg) { val << arg; }
+	template<typename Arg, typename... Args>
+	void cat(const Arg & arg, const Args & ... args) { val << arg; cat(args...); }
+
+	void catf(const char * fmt) { appendValue(fmt); }
+	template<typename Arg>
+	void catf(const char * fmt, const Arg & arg);
+	template<typename Arg, typename... Args>
+	void catf(const char * fmt, const Arg & arg, const Args & ... args);
 
 public:
 	String key;
@@ -271,6 +305,40 @@ inline Json & operator<<=(Json & lhs, const Double rhs)		{ lhs.setValue(rhs); re
 inline Json & operator<<=(Json & lhs, const Json::Type rhs)	{ lhs.setValue(rhs); return lhs; }
 
 inline Json & operator<<(Json & lhs, const csjp::Str & rhs)	{ lhs.appendValue(rhs); return lhs; }
+
+template<typename Arg> void Json::catf(const char * fmt, const Arg & arg)
+{
+	while(*fmt != 0){
+		if(*fmt == '%'){
+			fmt++;
+			if(*fmt != '%'){
+				this->val << arg;
+				appendValue(fmt);
+				return;
+			}
+		}
+		appendValue(*fmt);
+		fmt++;
+	}
+	this->val << arg;
+}
+template<typename Arg, typename... Args>
+void Json::catf(const char * fmt, const Arg & arg, const Args & ... args)
+{
+	while(*fmt != 0){
+		if(*fmt == '%'){
+			fmt++;
+			if(*fmt != '%'){
+				this->val << arg;
+				catf(fmt, args...);
+				return;
+			}
+		}
+		appendValue(*fmt);
+		fmt++;
+	}
+	cat(args...);
+}
 
 }
 
