@@ -201,7 +201,7 @@ public:
 		body(move_cast(temp.body)),
 		statusCode(move_cast(temp.statusCode)),
 		reasonPhrase(move_cast(temp.reasonPhrase)),
-		statusLine(move_cast(statusLine))
+		statusLine(move_cast(temp.statusLine))
 	{}
 	const HTTPResponse & operator=(HTTPResponse && temp)
 	{
@@ -210,7 +210,7 @@ public:
 		body = move_cast(temp.body);
 		statusCode = move_cast(temp.statusCode);
 		reasonPhrase = move_cast(temp.reasonPhrase);
-		statusLine = move_cast(statusLine);
+		statusLine = move_cast(temp.statusLine);
 		return *this;
 	}
 

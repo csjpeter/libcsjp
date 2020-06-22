@@ -5,6 +5,9 @@
 
 #include "csjp_http.h"
 
+#undef DEBUG
+//#define DEBUG
+
 /* TODO
  * - HTTP 1.1 continue, keep-alive, chunked transfer support
  */
@@ -70,8 +73,18 @@ String HTTPRequest::toString() const
 	return request;
 }
 
+/**
+ * For now we only parse the full request.
+ * If any bytes missing even from the body,
+ * the parser will report 0 processed bytes.
+ */
 unsigned HTTPRequest::parse(const Str & data)
 {
+	DBG("HTTPRequest parser available length: %", data.length);
+	if (data.length < 512) {
+		DBG("HTTPRequest parser available data: %", data);
+	}
+
 	if(!requestLine.length){
 		size_t pos;
 		if(!data.findFirst(pos, "\r\n"))

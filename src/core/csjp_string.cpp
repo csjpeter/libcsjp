@@ -49,7 +49,7 @@ void String::setLength(size_t length)
 	if(size <= length)
 		throw InvalidArgument(
 				"String capacity is %, requested length to set is %.",
-				size-1, length);
+				size ? size-1 : 0, length);
 	len = length;
 }
 
@@ -451,9 +451,9 @@ void String::append(long double n, unsigned precision)
 		append("inf");
 		return;
 	}
-	if(fpclassify(n) != FP_NORMAL){
-		throw InvalidArgument("Invalid double number");
-	}
+	//if(fpclassify(n) != FP_NORMAL){
+	//	throw InvalidArgument("Invalid double number");
+	//}
 	//printf("n: %Lf\n", n);
 	bool negative = n < 0.0;
 	n = fabsl(n);
@@ -599,10 +599,12 @@ String String::read(size_t from, size_t until) const
 void String::replace(const char * what, size_t whatLength, const char * to, size_t toLength, size_t from, size_t until, size_t maxNumOfRepl)
 {
 	ENSURE(what,  InvalidArgument);
-	ENSURE(from < until,  InvalidArgument);
+	ENSURE(from <= until,  InvalidArgument);
 	ENSURE(until <= len,  InvalidArgument);
 	ENSURE(to || !toLength,  InvalidArgument);
 
+	if (from == until)
+		return;
 	if(until - from < whatLength)
 		return;
 	if(!to)
@@ -908,6 +910,20 @@ void String::upper()
 	for(char * iter = start; iter < end; iter++)
 		if('a' <= *iter && *iter <= 'z')
 			*iter -= diff;
+}
+
+String String::toLower() const
+{
+	String result(*this);
+	result.lower();
+	return result;
+}
+
+String String::toUpper() const
+{
+	String result(*this);
+	result.upper();
+	return result;
 }
 
 bool String::isRegexpMatch(const char * regexp)

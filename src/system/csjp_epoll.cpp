@@ -217,7 +217,8 @@ Array<EPoll::ControlEvent> EPoll::controlError(Socket & socket)
 	return list;
 }
 
-Array<EPoll::ControlEvent> EPoll::waitAndControl(int timeout)
+Array<EPoll::ControlEvent> EPoll::waitAndControl(
+		int timeout, enum ControlMode mode)
 {
 	Array<EPoll::ControlEvent> list;
 	for(auto event : wait(timeout)){
@@ -228,12 +229,18 @@ Array<EPoll::ControlEvent> EPoll::waitAndControl(int timeout)
 			switch(event.code)
 			{
 			case csjp::EPoll::EventCode::IncomingConnection :
+				if ( ! (mode | ControlMode::Read) )
+					break;
 				event.socket.dataReceived();
 				break;
 			case csjp::EPoll::EventCode::DataIn :
+				if ( ! (mode | ControlMode::Read) )
+					break;
 				list.join(controlDataIn(event.socket));
 				break;
 			case csjp::EPoll::EventCode::DataOut :
+				if ( ! (mode | ControlMode::Write) )
+					break;
 				list.join(controlDataOut(event.socket));
 				break;
 			case csjp::EPoll::EventCode::ReadHangup :

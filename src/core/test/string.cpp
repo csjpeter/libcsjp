@@ -945,12 +945,19 @@ void TestString::replace()
 	EXC_VERIFY(str.replace(nullStr, "kukutyin"), csjp::InvalidArgument);
 	EXC_VERIFY(str.replace("cukorka", "kukutyin", 50), csjp::InvalidArgument);
 	EXC_VERIFY(str.replace("cukorka", "kukac", 10, 20), csjp::InvalidArgument);
-	EXC_VERIFY(str.replace("cukorka", "kukac", 5, 5), csjp::InvalidArgument);
-	EXC_VERIFY(str.replace("cukor", nullStr, 5, 5), csjp::InvalidArgument);
 #endif
 	NOEXC_VERIFY(str.replace("\0", 1, " ", 1));
 	VERIFY(str.length == 13);
 	VERIFY(str == "Medve cukorka");
+
+	NOEXC_VERIFY(str.replace("cukorka", "kukac", 5, 5));
+	VERIFY(str.length == 13);
+	VERIFY(str == "Medve cukorka");
+
+	NOEXC_VERIFY(str.replace("cukor", nullStr, 5, 5));
+	VERIFY(str.length == 13);
+	VERIFY(str == "Medve cukorka");
+
 	NOEXC_VERIFY(str.replace("cukor", "kukac"));
 	VERIFY(str == "Medve kukacka");
 	NOEXC_VERIFY(str.replace("k", "p", 7, str.length, 1));

@@ -3,10 +3,8 @@
  * Copyright (C) 2010 Csaszar, Peter
  */
 
-#ifndef BINTREE_H
-#define BINTREE_H
-
-#include <csjp_object.h>
+#ifndef VALUE_BINTREE_H
+#define VALUE_BINTREE_H
 
 #include <csjp_string.h>
 
@@ -14,7 +12,7 @@ namespace csjp {
 
 /** Idea:
  *
- * Each BinTree represents a node and a subtree with its descendants.
+ * Each ValueBinTree represents a node and a subtree with its descendants.
  * This class is an order statistic tree and thus each node has a
  * field containing the size of the subtree represented by the node.
  * For some more information on the basic theories see
@@ -34,25 +32,14 @@ namespace csjp {
  *   or better safety.
  */
 
-#ifndef PERFMODE
-#ifdef DEBUG
 template <typename DataType>
-class BinTreeToCStrIface
+class ValueBinTree
 {
 public:
-	virtual void toCStr(char res[256], const DataType &data) const = 0;
-};
-#endif
-#endif
+	explicit ValueBinTree(const ValueBinTree<DataType> &) = delete;
+	ValueBinTree<DataType>& operator=(const ValueBinTree<DataType> &) = delete;
 
-template <typename DataType>
-class BinTree
-{
-public:
-	explicit BinTree(const BinTree<DataType> &) = delete;
-	BinTree<DataType>& operator=(const BinTree<DataType> &) = delete;
-
-	BinTree(const BinTree<DataType> && temp) :
+	ValueBinTree(const ValueBinTree<DataType> && temp) :
 		parent(temp.parent),
 		left(temp.left),
 		right(temp.right),
@@ -66,7 +53,7 @@ public:
 		temp.data = 0;
 	}
 
-	BinTree<DataType>& operator=(BinTree<DataType> && temp)
+	ValueBinTree<DataType>& operator=(ValueBinTree<DataType> && temp)
 	{
 		parent = temp.parent;
 		left = temp.left;
@@ -84,16 +71,16 @@ public:
 	}
 
 public:
-	BinTree *parent;
-	BinTree *left;
-	BinTree *right;
+	ValueBinTree *parent;
+	ValueBinTree *left;
+	ValueBinTree *right;
 	unsigned size; /* size of this subtree (>=1) */
-	DataType *data;
+	DataType data;
 
 	/**
 	 * Runtime:		constant	<br/>
 	 */
-	explicit BinTree() : /*{{{*/
+	explicit ValueBinTree() : /*{{{*/
 		parent(NULL),
 		left(NULL),
 		right(NULL),
@@ -103,40 +90,52 @@ public:
 	}/*}}}*/
 
 	/**
+	 * Runtime:		constant	<br/>
+	 */
+	explicit ValueBinTree(DataType & t) : /*{{{*/
+		parent(NULL),
+		left(NULL),
+		right(NULL),
+		size(1),
+		data(t)
+	{
+	}/*}}}*/
+
+	/**
 	 * Runtime:		constant				<br/>
 	 */
-	virtual ~BinTree() { clear(); }
+	virtual ~ValueBinTree() { clear(); }
 
 	/**
 	 * Runtime:		O(log n)	<br/>
 	 */
-	const BinTree<DataType>* first() const  /*{{{*/
+	const ValueBinTree<DataType>* first() const  /*{{{*/
 	{
-		const BinTree<DataType> *node = this;
+		const ValueBinTree<DataType> *node = this;
 		while(node->left != NULL)
 			node = node->left;
 		return node;
 	}
-	BinTree<DataType>* first()
+	ValueBinTree<DataType>* first()
 	{
-		return const_cast<BinTree<DataType> *>(
-				const_cast<const BinTree<DataType> *>(this)->first());
+		return const_cast<ValueBinTree<DataType> *>(
+				const_cast<const ValueBinTree<DataType> *>(this)->first());
 	}/*}}}*/
 
 	/**
 	 * Runtime:		O(log n)	<br/>
 	 */
-	const BinTree<DataType>* last() const   /*{{{*/
+	const ValueBinTree<DataType>* last() const   /*{{{*/
 	{
-		const BinTree<DataType> *node = this;
+		const ValueBinTree<DataType> *node = this;
 		while(node->right != NULL)
 			node = node->right;
 		return node;
 	}
-	BinTree<DataType>* last()
+	ValueBinTree<DataType>* last()
 	{
-		return const_cast<BinTree<DataType> *>(
-				const_cast<const BinTree<DataType> *>(this)->last());
+		return const_cast<ValueBinTree<DataType> *>(
+				const_cast<const ValueBinTree<DataType> *>(this)->last());
 	}/*}}}*/
 
 	/**
@@ -144,23 +143,23 @@ public:
 	 * Runtime (n call from first to last):	O(n)		<br/>
 	 * Postcondition:			can be NULL	<br/>
 	 */
-	const BinTree<DataType>* prev() const   /*{{{*/
+	const ValueBinTree<DataType>* prev() const   /*{{{*/
 	{
 		if(left != NULL)
 			return left->last();
 
-		const BinTree<DataType> *node = this;
-		const BinTree<DataType> *prev = parent;
+		const ValueBinTree<DataType> *node = this;
+		const ValueBinTree<DataType> *prev = parent;
 		while(prev != NULL && node == prev->left){
 			node = prev;
 			prev = prev->parent;
 		}
 		return prev;
 	}
-	BinTree<DataType>* prev()
+	ValueBinTree<DataType>* prev()
 	{
-		return const_cast<BinTree<DataType> *>(
-				const_cast<const BinTree<DataType> *>(this)->prev());
+		return const_cast<ValueBinTree<DataType> *>(
+				const_cast<const ValueBinTree<DataType> *>(this)->prev());
 	}/*}}}*/
 
 	/**
@@ -168,23 +167,23 @@ public:
 	 * Runtime (n call from first to last):	O(n)		<br/>
 	 * Postcondition:			can be NULL	<br/>
 	 */
-	const BinTree<DataType>* next() const   /*{{{*/
+	const ValueBinTree<DataType>* next() const   /*{{{*/
 	{
 		if(right != NULL)
 			return right->first();
 
-		const BinTree<DataType> *node = this;
-		const BinTree<DataType> *next = node->parent;
+		const ValueBinTree<DataType> *node = this;
+		const ValueBinTree<DataType> *next = node->parent;
 		while(next != NULL && node == next->right){
 			node = next;
 			next = next->parent;
 		}
 		return next;
 	}
-	BinTree<DataType>* next()
+	ValueBinTree<DataType>* next()
 	{
-		return const_cast<BinTree<DataType> *>(
-				const_cast<const BinTree<DataType> *>(this)->next());
+		return const_cast<ValueBinTree<DataType> *>(
+				const_cast<const ValueBinTree<DataType> *>(this)->next());
 	}/*}}}*/
 
 	/**
@@ -193,23 +192,23 @@ public:
 	 * Runtime:		constant	<br/>
 	 * Precondition:	has left child	<br/>
 	 */
-	void rotateRight(BinTree<DataType> *&root)   /*{{{*/
+	void rotateRight(ValueBinTree<DataType> *&root)   /*{{{*/
 	{
 		//DBG("Rotate right on node %", toCStr());
 
 		/* 'b' is left child of 'a' */
-		BinTree<DataType> *a = this;
-		BinTree<DataType> *b = a->left;
+		ValueBinTree<DataType> *a = this;
+		ValueBinTree<DataType> *b = a->left;
 
 		ENSURE(b != NULL, LogicError);
 
 		/* child trees of 'a' and 'b' */
-		BinTree<DataType> *ar = a->right;
-		BinTree<DataType> *bl = b->left;
-		BinTree<DataType> *br = b->right;
+		ValueBinTree<DataType> *ar = a->right;
+		ValueBinTree<DataType> *bl = b->left;
+		ValueBinTree<DataType> *br = b->right;
 
 		/* the new parent of 'b' is the old parent of 'a' */
-		BinTree<DataType> *p = a->parent;
+		ValueBinTree<DataType> *p = a->parent;
 
 		/* rotation */
 
@@ -249,23 +248,23 @@ public:
 	 * Runtime:		constant	<br/>
 	 * Precondition:	has right child	<br/>
 	 */
-	void rotateLeft(BinTree<DataType> *&root)  /*{{{*/
+	void rotateLeft(ValueBinTree<DataType> *&root)  /*{{{*/
 	{
 		//DBG("Rotate left on node %", toCStr());
 
 		/* 'b' is right child of 'a' */
-		BinTree<DataType> *a = this;
-		BinTree<DataType> *b = a->right;
+		ValueBinTree<DataType> *a = this;
+		ValueBinTree<DataType> *b = a->right;
 
 		ENSURE(b != NULL, LogicError);
 
 		/* child trees of 'a' and 'b' */
-		BinTree<DataType> *al = a->left;
-		BinTree<DataType> *bl = b->left;
-		BinTree<DataType> *br = b->right;
+		ValueBinTree<DataType> *al = a->left;
+		ValueBinTree<DataType> *bl = b->left;
+		ValueBinTree<DataType> *br = b->right;
 
 		/* the new parent of 'b' is the old parent of 'a' */
-		BinTree<DataType> *p = a->parent;
+		ValueBinTree<DataType> *p = a->parent;
 
 		/* rotation */
 
@@ -304,22 +303,22 @@ public:
 	 *
 	 * Runtime:		O(log(n))	<br/>
 	 */
-	void balancing(BinTree<DataType> *&root)   /*{{{*/
+	void balancing(ValueBinTree<DataType> *&root)   /*{{{*/
 	{
 		//DBG("Balancing");
 		//root->treeValidity();
 
-		BinTree<DataType> *iter;
+		ValueBinTree<DataType> *iter;
 
 		/* Lets check for violations */
 		for(iter = this; iter != NULL; iter = iter->parent){
 			//DBG("balance check on %", iter->toCStr());
-			BinTree<DataType> *left = iter->left;
-			BinTree<DataType> *right = iter->right;
+			ValueBinTree<DataType> *left = iter->left;
+			ValueBinTree<DataType> *right = iter->right;
 			unsigned left_size = left ? left->size : 0;
 			unsigned right_size = right ? right->size : 0;
 
-			//DBG("BinTree: %, Left_size: %, Right_size: %",
+			//DBG("ValueBinTree: %, Left_size: %, Right_size: %",
 			//		iter->toCStr(), left_size, right_size);
 
 			if(left_size * 2 + 1 < right_size){
@@ -372,9 +371,9 @@ public:
 	/**
 	 * Runtime:		O(log(n))	<br/>
 	 */
-	void insert(BinTree<DataType>*& root)  /*{{{*/
+	void insert(ValueBinTree<DataType>*& root)  /*{{{*/
 	{
-		BinTree<DataType> *iter;
+		ValueBinTree<DataType> *iter;
 
 		/* trivial case */
 		if(root == NULL){
@@ -391,7 +390,7 @@ public:
 		for(iter = root, parent = NULL; iter != NULL; ){
 			parent = iter;
 			parent->size++;
-			if(*data < *(iter->data))
+			if(data < (iter->data))
 				iter = iter->left;
 			else
 				iter = iter->right;
@@ -400,7 +399,7 @@ public:
 		/* insert the new node */
 		ENSURE(parent != NULL, LogicError);
 
-		if(*data < *parent->data)
+		if(data < parent->data)
 			parent->left = this;
 		else
 			parent->right = this;
@@ -414,9 +413,9 @@ public:
 	/**
 	 * Runtime:		guess O(log(n))	<br/>
 	 */
-	BinTree<DataType>* remove(BinTree<DataType> *&root)  /*{{{*/
+	ValueBinTree<DataType>* remove(ValueBinTree<DataType> *&root)  /*{{{*/
 	{
-		BinTree<DataType> *repl;
+		ValueBinTree<DataType> *repl;
 
 		/* find a replacement */
 //		DBG("Find replacement for % - %", data, data ? toCStr() : 0);
@@ -449,7 +448,7 @@ public:
 			repl->left = left;
 			repl->size = size;
 		} else { /* one less size for all ancestors */
-			BinTree<DataType> *parentIter = parent;
+			ValueBinTree<DataType> *parentIter = parent;
 			while(parentIter != NULL){
 				parentIter->size -= 1;
 				parentIter = parentIter->parent;
@@ -500,12 +499,12 @@ public:
 	template <class TypeHas>
 	bool has(const TypeHas &th) const  /*{{{*/
 	{
-		const BinTree<DataType> *iter = this;
+		const ValueBinTree<DataType> *iter = this;
 
 		while(iter != NULL){
-			if(th < *iter->data)
+			if(th < iter->data)
 				iter = iter->left;
-			else if(*iter->data < th)
+			else if(iter->data < th)
 				iter = iter->right;
 			else {
 				return true;
@@ -520,7 +519,7 @@ public:
 	 */
 	unsigned index() const   /*{{{*/
 	{
-		const BinTree<DataType> *iter = this;
+		const ValueBinTree<DataType> *iter = this;
 
 		unsigned i = iter->left ? iter->left->size : 0;
 
@@ -540,11 +539,11 @@ public:
 	 * Runtime:		O(log n)	<br/>
 	 * Precondition:	n < size()	<br/>
 	 */
-	BinTree<DataType>* queryAt(unsigned n) /*{{{*/
+	ValueBinTree<DataType>* queryAt(unsigned n) /*{{{*/
 	{
 		ENSURE(n < size, IndexOutOfRange);
 
-		BinTree<DataType> *iter = this;
+		ValueBinTree<DataType> *iter = this;
 		unsigned i = n;
 
 		for(;;){
@@ -572,14 +571,14 @@ public:
 	 * Runtime:		O(log(n))				<br/>
 	 */
 	template <typename TypeQuery>
-	const BinTree<DataType>* query(const TypeQuery &tq) const /*{{{*/
+	const ValueBinTree<DataType>* query(const TypeQuery &tq) const /*{{{*/
 	{
-		const BinTree<DataType> *iter = this;
+		const ValueBinTree<DataType> *iter = this;
 
 		while(iter != NULL){
-			if(tq < *iter->data)
+			if(tq < iter->data)
 				iter = iter->left;
-			else if(*iter->data < tq)
+			else if(iter->data < tq)
 				iter = iter->right;
 			else
 				return iter;
@@ -588,28 +587,28 @@ public:
 		throw ObjectNotFound(EXCLI);
 	}
 	template <typename TypeQuery>
-	BinTree<DataType>* query(const TypeQuery &tq)
+	ValueBinTree<DataType>* query(const TypeQuery &tq)
 	{
-		return const_cast<BinTree<DataType> *>(
-				const_cast<const BinTree<DataType> *>(this)->query(tq));
+		return const_cast<ValueBinTree<DataType> *>(
+				const_cast<const ValueBinTree<DataType> *>(this)->query(tq));
 	}/*}}}*/
 
 	/**
 	 * Runtime:		O(n)					<br/>
 	 */
-	bool isEqual(const BinTree<DataType> &tree) const   /*{{{*/
+	bool isEqual(const ValueBinTree<DataType> &tree) const   /*{{{*/
 	{
 		if(size != tree.size)
 			return false;
 
 		bool ret = true;
 
-		const BinTree<DataType> *iter;
-		const BinTree<DataType> *iter2;
+		const ValueBinTree<DataType> *iter;
+		const ValueBinTree<DataType> *iter2;
 		for(iter = first(), iter2 = tree.first();
 				iter != NULL;
 				iter = iter->next(), iter2 = iter2->next()){
-			if(*(iter->data) != *(iter2->data)){
+			if((iter->data) != (iter2->data)){
 				ret = false;
 				break;
 			}
@@ -642,9 +641,9 @@ public:
 
 		/* node is localy ordered (with against it's children */
 		if(left)
-			ENSURE(*left->data < *data, InvariantFailure);
+			ENSURE(left->data < data, InvariantFailure);
 		if(right)
-			ENSURE(*data < *right->data, InvariantFailure);
+			ENSURE(data < right->data, InvariantFailure);
 
 		/* parent and child are pointing to eachother */
 		if(parent)
@@ -655,7 +654,7 @@ public:
 			ENSURE(right->parent == this, InvariantFailure);
 
 		/* node is found by it's data's ordering via has() check */
-		ENSURE(has(*(data)), InvariantFailure);
+		ENSURE(has(data), InvariantFailure);
 
 		(void) left_size;
 		(void) right_size;
@@ -680,32 +679,24 @@ public:
 	/**
 	 * Runtime:		constant	<br/>
 	 */
-	const char * toCStr(const BinTreeToCStrIface<DataType> *toCStrDelegate = NULL) const /*{{{*/
+	const char * toCStr() const /*{{{*/
 	{
 		static char res[256];
-		if(toCStrDelegate){
-			toCStrDelegate->toCStr(res, *data);
-		} else {
-			snprintf(res, 256, "%", *((unsigned*)data));
-			//snprintf(res, 256, "data at %p in tree %p", data, this);
-		}
+		snprintf(res, 256, "%u", (unsigned)data);
 		return res;
 	}/* }}} */
 	/**
 	 * Runtime:		constant	<br/>
 	 */
-	void toCStr(char res[256], const BinTreeToCStrIface<DataType> *toCStrDelegate = NULL) const /*{{{*/
+	void toCStr(char res[256]) const /*{{{*/
 	{
-		if(toCStrDelegate)
-			return toCStrDelegate->toCStr(res, *data);
-		snprintf(res, 256, "%", *((unsigned*)data));
-		//snprintf(res, 256, "data at %p in tree %p", data, this);
+		snprintf(res, 256, "%u", (unsigned)data);
 	}/* }}} */
 
 	/**
 	 * Runtime:		linear, O(n)		<br/>
 	 */
-	void dump(const BinTreeToCStrIface<DataType> *toCStrDelegate = NULL) const /*{{{*/
+	void dump() const /*{{{*/
 	{
 		static char indent[64] = {0};
 		static unsigned i = 0;
@@ -716,20 +707,20 @@ public:
 			FATAL("You either have more than 2^% GBytes memory, "
 					"or the tree is not balanced.", sizeof(indent) - 30);
 
-		toCStr(res, toCStrDelegate);
+		toCStr(res);
 		DBG("size: % value: % %", size, res, indent);
 
 		if(left != NULL){
 			indent[i] = '-'; i++; indent[i] = 0;
 			//direction = (char*)"Left";
-			left->dump(toCStrDelegate);
+			left->dump();
 			i--; indent[i] = 0;
 		}
 
 		if(right != NULL){
 			indent[i] = '+'; i++; indent[i] = 0;
 			//direction = (char*)"Right";
-			right->dump(toCStrDelegate);
+			right->dump();
 			i--; indent[i] = 0;
 		}
 
@@ -744,7 +735,7 @@ public:
  * Runtime:		O(n)					<br/>
  */
 template <typename DataType> bool operator==(/*{{{*/
-		const BinTree<DataType> &a, const BinTree<DataType> &b)
+		const ValueBinTree<DataType> &a, const ValueBinTree<DataType> &b)
 {
 	return a.isEqual(b);
 }/*}}}*/
@@ -753,7 +744,7 @@ template <typename DataType> bool operator==(/*{{{*/
  * Runtime:		O(n)					<br/>
  */
 template <typename DataType> bool operator!=(/*{{{*/
-		const BinTree<DataType> &a, const BinTree<DataType> &b)
+		const ValueBinTree<DataType> &a, const ValueBinTree<DataType> &b)
 {
 	return !a.isEqual(b);
 }/*}}}*/

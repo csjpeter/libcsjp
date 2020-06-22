@@ -13,6 +13,18 @@
 #include <csjp_defines.h>
 #include <csjp_ctypes.h>
 
+/*
+ *  Error safety (commonly known as exception safety) :
+ *
+ *   - noerror/safe : There is absolutely no risk.
+ *   - strong : The operation either succeeds, or has no effect at all.
+ *   - weak : Operation might have unfinished changes, but no resource leak,
+ *     nor failing invariant.
+ *
+ *   For any of the cases, all the used/called functions shall have same
+ *   or better safety.
+ */
+
 namespace csjp {
 
 struct NotesNode;

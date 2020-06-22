@@ -53,7 +53,8 @@ function config ()
 
 #		--cflags=\\\"-fno-candidate-functions\\\" \
 
-	exec_in_dir build-for-${DIST} ./configure || exit $?
+	exec_in_dir build-for-${DIST} ./configure --debug || exit $?
+	#exec_in_dir build-for-${DIST} ./configure || exit $?
 }
 
 function release ()
@@ -113,7 +114,7 @@ case "${CMD}" in
 	;;
 	(check)
 		shift
-		config ${DISTRIB_CODENAME} --debug || exit $?
+		config ${DISTRIB_CODENAME} || exit $?
 		exec_in_dir build-for-${DISTRIB_CODENAME} make -j${JOBS} $@ \
 			|| exit $?
 		exec_in_dir build-for-${DISTRIB_CODENAME} make check $@ \
@@ -121,12 +122,12 @@ case "${CMD}" in
 	;;
 	(code)
 		shift
-		config ${DISTRIB_CODENAME} --debug || exit $?
+		config ${DISTRIB_CODENAME} || exit $?
 		exec_in_dir build-for-${DISTRIB_CODENAME} make -j1 $@ \
 			|| exit $?
 	;;
 	(*)
-		config ${DISTRIB_CODENAME} --debug || exit $?
+		config ${DISTRIB_CODENAME} || exit $?
 		exec_in_dir build-for-${DISTRIB_CODENAME} make -j${JOBS} $@ \
 			|| exit $?
 	;;

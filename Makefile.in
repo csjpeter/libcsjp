@@ -81,25 +81,25 @@ tmp/src/%.opp: src/%.cpp
 		tmp/@TCROOT@@PREFIX@lib/%
 	@test -d $(dir $@) || mkdir -p $(dir $@)
 	cp $^ $@
-	$(STRIP) --remove-section=.comment --remove-section=.note --strip-unneeded $@
+	#$(STRIP) --remove-section=.comment --remove-section=.note --strip-unneeded $@
 
 @TCROOT@@PREFIX@lib/debug/@PREFIX@lib/%: \
 		tmp/@TCROOT@@PREFIX@lib/%
 	@test -d $(dir $@) || mkdir -p $(dir $@)
-	$(OBJCOPY) --only-keep-debug $^ $@
-
-#$(OBJCOPY) --add-gnu-debuglink=@TCROOT@@PREFIX@lib/debug/@PREFIX@lib/@PRJNAME@.so.@VERSION@ $@
+	#$(OBJCOPY) --only-keep-debug $^ $@
+	$(OBJCOPY) --add-gnu-debuglink=@TCROOT@@PREFIX@lib/debug/@PREFIX@lib/@PRJNAME@.so.@VERSION@ $^ $@
 
 @TCROOT@@PREFIX@bin/% : \
 		tmp/@TCROOT@@PREFIX@bin/%
 	@test -d $(dir $@) || mkdir -p $(dir $@)
 	cp $^ $@
-	$(STRIP) --remove-section=.comment --remove-section=.note --strip-debug $@
+	#$(STRIP) --remove-section=.comment --remove-section=.note --strip-debug $@
 
 @TCROOT@@PREFIX@lib/debug/@PREFIX@bin/% : \
 		tmp/@TCROOT@@PREFIX@bin/%
 	@test -d $(dir $@) || mkdir -p $(dir $@)
-	$(OBJCOPY) --only-keep-debug $^ $@
+	#$(OBJCOPY) --only-keep-debug $^ $@
+	$(OBJCOPY) --add-gnu-debuglink=@TCROOT@@PREFIX@lib/debug/@PREFIX@lib/@PRJNAME@.so.@VERSION@ $^ $@
 
 #
 # build goals
@@ -133,7 +133,8 @@ ifneq (,$(findstring system,@CONFIG@))
 		   system-server \
 		   system-client \
 		   system-epoll \
-		   system-http
+		   system-http \
+		   system-websocket
 endif
 
 define TEST_template
@@ -245,13 +246,13 @@ build-arch: \
 	@TCROOT@@PREFIX@lib/@PRJNAME@@VERSION_API@.a \
 	@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION@ \
 	@TCROOT@@PREFIX@lib/@PRJNAME@.so.@VERSION_API@ \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@lib/@PRJNAME@.so.@VERSION@ \
 	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container_speed \
-	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container_speed \
 	$(TEST_BINARIES) \
-	$(TEST_BINARIES_DBG) \
 	$(TEST_BINARIES_MAN_PAGES) \
-	@TCROOT@@PREFIX@bin/@PRJNAME@@VERSION_API@-nc
+	@TCROOT@@PREFIX@bin/@PRJNAME@@VERSION_API@-nc \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@lib/@PRJNAME@.so.@VERSION@ \
+	@TCROOT@@PREFIX@lib/debug/@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-container_speed \
+	$(TEST_BINARIES_DBG)
 
 build-indep: \
 	@TCROOT@@PREFIX@bin/test-@PRJNAME@@VERSION_API@-container-speed.gnuplot \

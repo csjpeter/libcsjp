@@ -81,7 +81,7 @@ function configure ()
 				CONFIG="${CONFIG} system"
 			;;
 			(--debug)
-				CFLAGS="${CFLAGS} -fno-builtin -O0 -g3 -ggdb3 -DDEBUG"
+				CFLAGS="${CFLAGS} -fno-builtin -Og -g3 -ggdb3 -DDEBUG"
 				DEBUG=yes
 			;;
 			(--desktop)
@@ -147,7 +147,8 @@ configure --prefix=usr
 configure @PRECONFIGURATION@
 configure $@
 
-! test ${DEBUG} = "no" || { CFLAGS="${CFLAGS} -O2" ; }
+! test ${DEBUG} = "no" || { CFLAGS="${CFLAGS} -Og -g3 -ggdb3" ; }
+#! test ${DEBUG} = "no" || { CFLAGS="${CFLAGS} -O2 -g3 -ggdb3" ; }
 
 CFLAGS="${CFLAGS} -Werror -Wall -Wextra -MMD -std=c++0x -D_ISOC99_SOURCE -Wno-misleading-indentation"
 # -pedantic-errors

@@ -27,6 +27,7 @@
 namespace csjp {
 
 class EPoll;
+class DupSocket;
 class Socket
 {
 public:
@@ -65,6 +66,8 @@ public:
 		return *this;
 	}
 
+	Socket duplicate() const;
+
 	String receive(size_t length);
 	bool send(const Str & data); // returns false on EAGAIN or EWOULDBLOCK
 				     // EPoll takes care of this in the background
@@ -86,8 +89,11 @@ private:
 	bool readToBuffer(); // returns false on EAGAIN or EWOULDBLOCK
 	bool writeFromBuffer(); // returns false on EAGAIN or EWOULDBLOCK
 
+public:
 	virtual void dataReceived() {} // place for child's business logic
 	virtual void readyToSend() {} // place for child's business logic
+public:
+	int fd() const { return file; }
 
 protected:
 	mutable int file;
@@ -108,6 +114,7 @@ public:
 	const size_t & totalBytesSent;
 
 	friend EPoll;
+	friend DupSocket;
 };
 
 DECL_EXCEPTION(Exception, SocketError);

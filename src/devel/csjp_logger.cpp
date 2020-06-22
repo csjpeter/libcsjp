@@ -5,6 +5,8 @@
 
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/syscall.h>
 
 #include <unistd.h>
 
@@ -14,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <signal.h>
 
 #ifdef FCLOG
 #include <fclog.h>
@@ -129,8 +132,11 @@ void msgLogger(FILE * stdfile, const char * string, size_t length)
 
 		double c = (double)(clock())/(double)(CLOCKS_PER_SEC);
 
-		snprintf(header, sizeof(header), "%14s %12s %7.3f %5d",
-				date_stamp, time_stamp, c, getpid());
+		pid_t tid = syscall(SYS_gettid);
+		//syscall(SYS_tgkill, getpid(), tid, SIGHUP);
+
+		snprintf(header, sizeof(header), "%14s %12s %7.3f %5d %5d",
+				date_stamp, time_stamp, c, getpid(), tid);
 	}
 
 	const char * fmt = "%s %s ";

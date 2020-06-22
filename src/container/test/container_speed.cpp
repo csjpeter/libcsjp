@@ -64,18 +64,25 @@ public:
 			"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 			"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 			;*/
+		heapData = malloc(8192);
 	}
 	Data(const Data & orig) : data(orig.data)
 	{
 		//str.assign(orig.str);
 		memcpy(cstr, orig.cstr, sizeof(cstr));
+		heapData = malloc(8192);
 	}
 	Data(Data && temp) : data(temp.data)
 	{
 		//str = move_cast(temp.str);
 		memcpy(cstr, temp.cstr, sizeof(cstr));
+		heapData = temp.heapData;
+		temp.heapData = 0;
 	}
-	~Data(){}
+	~Data()
+	{
+		free(heapData);
+	}
 	bool isEqual(const Data &d) const
 	{
 		return (data == d.data)
@@ -88,6 +95,7 @@ public:
 		data = d.data;
 		memcpy(cstr, d.cstr, sizeof(cstr));
 		//str.assign(d.str);
+		heapData = malloc(8192);
 		return *this;
 	}
 	const Data & operator=(Data && temp)
@@ -95,6 +103,8 @@ public:
 		data = temp.data;
 		memcpy(cstr, temp.cstr, sizeof(cstr));
 		//str = move_cast(temp.str);
+		heapData = temp.heapData;
+		temp.heapData = 0;
 		return *this;
 	}
 	bool isEqual(const unsigned int &c) const
@@ -102,7 +112,8 @@ public:
 		return data == c;
 	}
 	unsigned data;
-	char cstr[1];
+	char cstr[512];
+	void * heapData;
 	//csjp::String str;
 };
 /*

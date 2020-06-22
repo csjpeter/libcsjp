@@ -39,6 +39,20 @@ Socket::~Socket()
 		close();
 }
 
+Socket Socket::duplicate() const
+{
+	Socket dupSocket;
+
+	do {
+		dupSocket.file = ::dup(file);
+		if (dupSocket.file == -1 && errno != EINTR)
+			throw SocketError(errno,
+					"Could not duplicate file descriptor.");
+	} while(errno == EINTR);
+
+	return move_cast(dupSocket);
+}
+
 void Socket::close(bool throws) const
 {
 	if(file < 0)
@@ -52,7 +66,7 @@ void Socket::close(bool throws) const
 		if(errno != ENOTCONN && errno != ENOTSOCK){
 			SocketError e(errno, "Could not shutdown socket.");
 			if(throws)
-				throw (SocketError &&)e;
+				throw move_cast(e);
 
 			e.note("Absorbing (not throwing) exception in "
 					"socket close.");

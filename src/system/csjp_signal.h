@@ -26,12 +26,15 @@ class Signal {
 		~Signal();
 
 		static void sigtermHandler(int, siginfo_t *, void *);
+		static void sigintHandler(int, siginfo_t *, void *);
 		static void sigkillHandler(int, siginfo_t *, void *);
 		static void sigpipeHandler(int, siginfo_t *, void *);
 
 	public:
 		static bool sigTermReceived;
+		static bool sigIntReceived;
 		static bool sigKillReceived;
+		static bool sigPipeReceived;
 
 	private:
 		const int signum;

@@ -31,7 +31,7 @@ public:
 
 	explicit Json(const Json & orig) :
 		type(Type::Null),
-		val(orig.val),
+		string(orig.string),
 		properties(orig.properties),
 		array(orig.array)
 	{}
@@ -41,17 +41,17 @@ public:
 		//	type = orig.type;
 		//	array = orig.array;
 		//	properties.clear();
-		//	val.clear();
+		//	string.clear();
 		}
 		else if(orig.type == Json::Type::Object) {
 		//	type = orig.type;
 		//	properties = orig.properties;
 		//	array.clear();
-		//	val.clear();
+		//	string.clear();
 		}
 		else {
 			type = orig.type;
-			val = orig.val;
+			string = orig.string;
 			array.clear();
 			properties.clear();
 		}
@@ -60,7 +60,7 @@ public:
 
 	Json(Json && temp) :
 		type(temp.type),
-		val(move_cast(temp.val)),
+		string(move_cast(temp.string)),
 		properties(move_cast(temp.properties)),
 		array(move_cast(temp.array))
 	{}
@@ -68,33 +68,33 @@ public:
 	const Json & operator=(Json && temp)
 	{
 		type = move_cast(temp.type);
-		val = move_cast(temp.val);
+		string = move_cast(temp.string);
 		properties = move_cast(temp.properties);
 		array = move_cast(temp.array);
 		return *this;
 	}
 	const Json & operator=(String && temp)
 	{
-		val = move_cast(temp);
+		string = move_cast(temp);
 		type = Json::Type::String;
 		return *this;
 	}
 	const Json & operator=(const Str & str)
 	{
-		val = str;
+		string = str;
 		type = Json::Type::String;
 		return *this;
 	}
 
 
 public:
-	explicit Json() : type(Type::Null) {}
+	explicit Json(Type type = Type::Null) : type(type) {}
 	~Json() { }
 
 public:
 	bool isEqual(const Json& i) const{
 		if(type != i.type) return false;
-		if(val != i.val) return false;
+		if(string != i.string) return false;
 		if(properties != i.properties) return false;
 		if(array != i.array) return false;
 		return true;
@@ -138,7 +138,7 @@ public:
 	{
 		if(type == Json::Type::Array) { return array.has(obj); }
 		else if(type == Json::Type::Object) { return properties.has(obj); }
-		else { return val.contains(obj); }
+		else { return string.contains(obj); }
 	}
 	template <typename Type>
 	const Json & operator[](const Type & obj) const
@@ -163,23 +163,23 @@ public:
 
 	/* To be usable as basic datatypes without explicit conversion. */
 
-	operator const csjp::String & ()const { return val; }
-	operator const csjp::Str ()	const { return csjp::Str(val); }
-	operator char ()		const { char i;			i <<= val; return i; }
-	operator unsigned char ()	const { unsigned char i;	i <<= val; return i; }
-	operator int ()			const { int i;			i <<= val; return i; }
-	operator long int ()		const { long int i;		i <<= val; return i; }
-	operator long long int ()	const { long long int i;	i <<= val; return i; }
-	operator unsigned ()		const { unsigned i;		i <<= val; return i; }
-	operator long unsigned ()	const { long long unsigned i;	i <<= val; return i; }
-	operator long long unsigned ()	const { long long unsigned i;	i <<= val; return i; }
-	operator float ()		const { float i;		i <<= val; return i; }
-	operator double ()		const { double i;		i <<= val; return i; }
-	operator long double ()		const { long double i;		i <<= val; return i; }
-	operator const UInt ()		const { UInt i;			i <<= val; return i; }
-	operator const Double ()	const { Double i;		i <<= val; return i; }
-	operator const Char ()		const { Char i;			i <<= val; return i; }
-	operator const YNBool ()	const { YNBool i;		i <<= val; return i; }
+	operator const csjp::String & ()const { return string; }
+	operator const csjp::Str ()	const { return csjp::Str(string); }
+	operator char ()		const { char i;			i <<= string; return i; }
+	operator unsigned char ()	const { unsigned char i;	i <<= string; return i; }
+	operator int ()			const { int i;			i <<= string; return i; }
+	operator long int ()		const { long int i;		i <<= string; return i; }
+	operator long long int ()	const { long long int i;	i <<= string; return i; }
+	operator unsigned ()		const { unsigned i;		i <<= string; return i; }
+	operator long unsigned ()	const { long long unsigned i;	i <<= string; return i; }
+	operator long long unsigned ()	const { long long unsigned i;	i <<= string; return i; }
+	operator float ()		const { float i;		i <<= string; return i; }
+	operator double ()		const { double i;		i <<= string; return i; }
+	operator long double ()		const { long double i;		i <<= string; return i; }
+	operator const UInt ()		const { UInt i;			i <<= string; return i; }
+	operator const Double ()	const { Double i;		i <<= string; return i; }
+	operator const Char ()		const { Char i;			i <<= string; return i; }
+	operator const YNBool ()	const { YNBool i;		i <<= string; return i; }
 
 private:
 	static Json fromString(const Str & data);
@@ -188,43 +188,43 @@ private:
 public:
 	void parse(const Str & data) { *this = Json::fromString(data); }
 	csjp::String toString() const { return toString(0, false); }
-	void clear() { type = Type::Null; val.clear(); properties.clear(); array.clear(); }
+	void clear() { type = Type::Null; string.clear(); properties.clear(); array.clear(); }
 	size_t size() { if(type == Json::Type::Array) return array.length;
 			if(type == Json::Type::Object) return properties.size();
-			return val.length;
+			return string.length;
 	}
 
-	const String & value() const { return val; }
+	const String & value() const { return string; }
 
-	void setValue(const csjp::Str & v)		{ val = v; }
-	void setValue(const unsigned v)			{ val.cutAt(0); val << v; }
-	void setValue(const long unsigned v)		{ val.cutAt(0); val << v; }
-	void setValue(const long long unsigned v)	{ val.cutAt(0); val << v; }
-	void setValue(const int v)			{ val.cutAt(0); val << v; }
-	void setValue(const long int v)			{ val.cutAt(0); val << v; }
-	void setValue(const long long int v)		{ val.cutAt(0); val << v; }
-	void setValue(const float v)			{ val.cutAt(0); val << v; }
-	void setValue(const double v)			{ val.cutAt(0); val << v; }
-	void setValue(const long double v)		{ val.cutAt(0); val << v; }
-	void setValue(const UInt v)			{ val.cutAt(0); val << v.val; }
-	void setValue(const Double v)			{ val.cutAt(0); val << v.val; }
+	void setValue(const csjp::Str & v)		{ string = v; }
+	void setValue(const unsigned v)			{ string.cutAt(0); string << v; }
+	void setValue(const long unsigned v)		{ string.cutAt(0); string << v; }
+	void setValue(const long long unsigned v)	{ string.cutAt(0); string << v; }
+	void setValue(const int v)			{ string.cutAt(0); string << v; }
+	void setValue(const long int v)			{ string.cutAt(0); string << v; }
+	void setValue(const long long int v)		{ string.cutAt(0); string << v; }
+	void setValue(const float v)			{ string.cutAt(0); string << v; }
+	void setValue(const double v)			{ string.cutAt(0); string << v; }
+	void setValue(const long double v)		{ string.cutAt(0); string << v; }
+	void setValue(const UInt v)			{ string.cutAt(0); string << v.val; }
+	void setValue(const Double v)			{ string.cutAt(0); string << v.val; }
 
 	void setValue(const Json::Type v)		{ type = v;
-			if(type == Json::Type::Array) { properties.clear(); val.clear(); }
-			else if(type == Json::Type::Object) { array.clear(); val.clear(); }
+			if(type == Json::Type::Array) { properties.clear(); string.clear(); }
+			else if(type == Json::Type::Object) { array.clear(); string.clear(); }
 			else { properties.clear(); array.clear(); }
 	}
 
-	void appendValue(const csjp::Str & v)		{ val << v; }
-	void appendValue(const char * v)		{ val << v; }
-	void appendValue(const char v)			{ val << v; }
+	void appendValue(const csjp::Str & v)		{ string << v; }
+	void appendValue(const char * v)		{ string << v; }
+	void appendValue(const char v)			{ string << v; }
 
 	bool isEqual(const Json::Type b) const	{ return type == b; }
 
 	template<typename Arg>
-	void cat(const Arg & arg) { val << arg; }
+	void cat(const Arg & arg) { string << arg; }
 	template<typename Arg, typename... Args>
-	void cat(const Arg & arg, const Args & ... args) { val << arg; cat(args...); }
+	void cat(const Arg & arg, const Args & ... args) { string << arg; cat(args...); }
 
 	void catf(const char * fmt) { appendValue(fmt); }
 	template<typename Arg>
@@ -235,9 +235,7 @@ public:
 public:
 	String key;
 	Type type;
-private:
-	String val;
-public:
+	String string;
 	OwnerContainer<Json> properties;
 	Array<Json> array;
 private:
@@ -273,6 +271,8 @@ inline long int & operator<<=(long int & lhs, const Json & rhs)
 		{ lhs <<= rhs.value(); return lhs; }
 inline long long int & operator<<=(long long int & lhs, const Json & rhs)
 		{ lhs <<= rhs.value(); return lhs; }
+inline char & operator<<=(char & lhs, const Json & rhs)
+		{ lhs <<= rhs.value(); return lhs; }
 inline unsigned & operator<<=(unsigned & lhs, const Json & rhs)
 		{ lhs <<= rhs.value(); return lhs; }
 inline long unsigned & operator<<=(long unsigned & lhs, const Json & rhs)
@@ -291,6 +291,7 @@ inline Double & operator<<=(Double & lhs, const Json & rhs)
 		{ lhs.val <<= rhs; return lhs; }
 
 inline Json & operator<<=(Json & lhs, const csjp::Str & rhs)	{ lhs.setValue(rhs); return lhs; }
+inline Json & operator<<=(Json & lhs, const char rhs)		{ lhs.setValue(rhs); return lhs; }
 inline Json & operator<<=(Json & lhs, const unsigned rhs)	{ lhs.setValue(rhs); return lhs; }
 inline Json & operator<<=(Json & lhs, const long unsigned rhs)	{ lhs.setValue(rhs); return lhs; }
 inline Json & operator<<=(Json & lhs, const long long unsigned rhs){lhs.setValue(rhs);return lhs;}
@@ -312,7 +313,7 @@ template<typename Arg> void Json::catf(const char * fmt, const Arg & arg)
 		if(*fmt == '%'){
 			fmt++;
 			if(*fmt != '%'){
-				this->val << arg;
+				this->string << arg;
 				appendValue(fmt);
 				return;
 			}
@@ -320,7 +321,7 @@ template<typename Arg> void Json::catf(const char * fmt, const Arg & arg)
 		appendValue(*fmt);
 		fmt++;
 	}
-	this->val << arg;
+	this->string << arg;
 }
 template<typename Arg, typename... Args>
 void Json::catf(const char * fmt, const Arg & arg, const Args & ... args)
@@ -329,7 +330,7 @@ void Json::catf(const char * fmt, const Arg & arg, const Args & ... args)
 		if(*fmt == '%'){
 			fmt++;
 			if(*fmt != '%'){
-				this->val << arg;
+				this->string << arg;
 				catf(fmt, args...);
 				return;
 			}

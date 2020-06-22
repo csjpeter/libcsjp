@@ -37,11 +37,23 @@ public:
 	void noMoreDataIsPending(Socket & socket);
 	void remove(Socket &);
 
+public:
+	enum ControlMode {
+		Listen    = 1,
+		Read      = 2,
+		Write     = 4,
+		ListenReadWrite = 7,
+		ListenRead = 3,
+		ReadWrite = 6,
+	};
+
 	Array<EPoll::Event> wait(int timeout = 0);
 	Array<EPoll::ControlEvent> controlDataIn(Socket & socket);
 	Array<EPoll::ControlEvent> controlDataOut(Socket & socket);
 	Array<EPoll::ControlEvent> controlError(Socket & socket);
-	Array<EPoll::ControlEvent> waitAndControl(int timeout = 0);
+	Array<EPoll::ControlEvent> waitAndControl(
+			int timeout = 0,
+			enum ControlMode mode = ControlMode::ListenReadWrite);
 
 private:
 	CArray<struct epoll_event> events;

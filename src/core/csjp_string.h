@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <stdint.h>
 
 #include <csjp_str.h>
 
@@ -115,7 +116,7 @@ public:
 	bool findLastNotOf(size_t &, const Str &, size_t until) const;
 	bool findLastNotOf(size_t &, const Str &) const;
 
-	bool contains(const Str & str) { size_t p; return findFirst(p, str); }
+	bool contains(const Str & str) const { size_t p; return findFirst(p, str); }
 
 	bool startsWith(const char *, size_t length) const;
 	bool startsWith(const char *) const;
@@ -156,6 +157,7 @@ public:
 	void append(const char *, size_t _length);
 	void append(const char *); // FIXME remove, but causes infinite loop
 	void append(const void * ptr) { appendPrintf("%p", ptr); }
+	void append(const AStr & astr) { append(astr.c_str(), astr.length); }
 	void append(const Str & str) { append(str.c_str(), str.length); }
 	void append(bool b) { append( b ? "true" : "false"); }
 	void append(char);
@@ -235,6 +237,9 @@ public:
 
 	void lower();
 	void upper();
+
+	String toLower() const;
+	String toUpper() const;
 
 	String encodeBase64() const { return AStr::encodeBase64(); }
 	String decodeBase64() const { return AStr::decodeBase64(); }
@@ -506,7 +511,9 @@ inline String::String(String && temp) : size(temp.size)
 }
 inline const String & String::operator=(String && temp)
 {
-	data= temp.data;
+	free(data);
+
+	data = temp.data;
 	len = temp.len;
 	size = temp.size;
 

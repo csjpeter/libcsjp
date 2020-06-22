@@ -69,10 +69,11 @@ public:
 	}
 	const Array & operator=(Array<DataType> && temp)
 	{
+		clear();
 		if(val)
 			free(val);
 
-		val= temp.val;
+		val = temp.val;
 		len = temp.len;
 		cap = temp.cap;
 

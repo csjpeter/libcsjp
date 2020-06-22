@@ -10,7 +10,9 @@
 namespace csjp {
 
 bool Signal::sigTermReceived = false;
+bool Signal::sigIntReceived = false;
 bool Signal::sigKillReceived = false;
+bool Signal::sigPipeReceived = false;
 
 void Signal::sigtermHandler(int signum, siginfo_t *info, void *context)
 {
@@ -19,6 +21,17 @@ void Signal::sigtermHandler(int signum, siginfo_t *info, void *context)
 	(void)context;
 
 	Signal::sigTermReceived = true;
+	LOG("Terminate signal (SIGTERM) received.");
+}
+
+void Signal::sigintHandler(int signum, siginfo_t *info, void *context)
+{
+	(void)signum;
+	(void)info;
+	(void)context;
+
+	Signal::sigIntReceived = true;
+	LOG("Interrupt signal (SIGINT) received.");
 }
 
 void Signal::sigkillHandler(int signum, siginfo_t *info, void *context)
@@ -36,6 +49,9 @@ void Signal::sigpipeHandler(int signum, siginfo_t *info, void *context)
 	(void)signum;
 	(void)info;
 	(void)context;
+
+	Signal::sigPipeReceived = true;
+	LOG("Pipe signal (SIGPIPE) received.");
 }
 
 Signal::Signal(int signum, SignalHandlerFunction func) :

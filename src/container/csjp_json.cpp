@@ -612,7 +612,10 @@ String Json::toString(int depth, bool withKey) const
 #endif
 		data << '}';
 	} else {
-		data << "\"" << value() << "\"";
+		String escapedValue(value());
+		escapedValue.replace("\\", "\\\\");
+		escapedValue.replace("\"", "\\\"");
+		data << "\"" << escapedValue << "\"";
 	}
 
 	return data;

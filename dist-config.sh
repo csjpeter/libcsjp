@@ -140,7 +140,7 @@ test "x${HOST_DIST}" = "x${TARGET_DIST}" && {
 	./generator.${PACKAGING}.sh debian/rules.cross.in > ${DIST_DIR}/debian/rules.in || exit $?
 }
 chmod u+x ${DIST_DIR}/debian/rules.in || exit $?
-echo "5" > ${DIST_DIR}/debian/compat || exit $?
+echo "9" > ${DIST_DIR}/debian/compat || exit $?
 
 test -d ${DIST_DIR}/debian/source || { mkdir -p ${DIST_DIR}/debian/source || exit $? ; }
 echo "1.0" > ${DIST_DIR}/debian/source/format || exit $?
