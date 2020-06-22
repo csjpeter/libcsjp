@@ -89,11 +89,8 @@ private:
 	bool readToBuffer(); // returns false on EAGAIN or EWOULDBLOCK
 	bool writeFromBuffer(); // returns false on EAGAIN or EWOULDBLOCK
 
-public:
 	virtual void dataReceived() {} // place for child's business logic
 	virtual void readyToSend() {} // place for child's business logic
-public:
-	int fd() const { return file; }
 
 protected:
 	mutable int file;
