@@ -9,7 +9,7 @@
 #include <csjp_signal.h>
 #include <csjp_server.h>
 #include <csjp_client.h>
-#include <csjp_epoll.h>
+#include <csjp_epoll_control.h>
 #include <csjp_owner_container.h>
 #include <csjp_http.h>
 #include <csjp_test.h>
@@ -107,7 +107,7 @@ public:
 		DBG("response status line: %", response.getStatusLine());
 		VERIFY(response.getStatusLine() == "HTTP/1.0 200 OK");
 		DBG("response status code: %", response.status());
-		VERIFY(response.status() == "200");
+		VERIFY(response.status() == csjp::HTTPStatusCode::Enum::OK);
 		DBG("response reason phrase: %", response.reason());
 		VERIFY(response.reason() == "OK");
 		DBG("response version: %", response.version);
@@ -166,7 +166,7 @@ void TestHTTP::requestResponseOverSocket()
 {
 	TESTSTEP("SigPipe handler, EPoll, listening, connecting with client");
 	csjp::Signal pipeSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
-	csjp::EPoll epoll(5);
+	csjp::EPollControl epoll(5);
 	HTTPListener listener("127.0.0.1", 30303);
 	epoll.add(listener);
 	HTTPClient client("127.0.0.1", 30303);
@@ -181,11 +181,11 @@ void TestHTTP::requestResponseOverSocket()
 	for(auto event : epoll.waitAndControl(10)){ // 0.01 sec
 		DBG("ControlEvent received: %", event.name());
 		switch(event.code){
-		case csjp::EPoll::ControlEventCode::ClosedByPeer:
+		case csjp::EPollControl::ControlEventCode::ClosedByPeer:
 			break;
-		case csjp::EPoll::ControlEventCode::ClosedByHost:
+		case csjp::EPollControl::ControlEventCode::ClosedByHost:
 			break;
-		case csjp::EPoll::ControlEventCode::Exception:
+		case csjp::EPollControl::ControlEventCode::Exception:
 			EXCEPTION(event.exception);
 			throw;
 			break;
@@ -198,11 +198,11 @@ void TestHTTP::requestResponseOverSocket()
 		for(auto event : epoll.waitAndControl(10)){ // 0.01 sec
 			DBG("ControlEvent received: %", event.name());
 			switch(event.code){
-			case csjp::EPoll::ControlEventCode::ClosedByPeer:
+			case csjp::EPollControl::ControlEventCode::ClosedByPeer:
 				break;
-			case csjp::EPoll::ControlEventCode::ClosedByHost:
+			case csjp::EPollControl::ControlEventCode::ClosedByHost:
 				break;
-			case csjp::EPoll::ControlEventCode::Exception:
+			case csjp::EPollControl::ControlEventCode::Exception:
 				EXCEPTION(event.exception);
 				throw;
 				break;

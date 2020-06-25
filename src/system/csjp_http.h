@@ -76,6 +76,14 @@ public:
 	enum class Enum;
 
 	HTTPStatusCode(HTTPStatusCode::Enum code) : code(code) {}
+	HTTPStatusCode(AStr & astr) : code(HTTPStatusCode::Enum::OK)
+	{
+		String str(astr);
+		unsigned u;
+		u <<= str;
+		code = (HTTPStatusCode::Enum)u;
+	}
+	HTTPStatusCode() : code(HTTPStatusCode::Enum::OK) {}
 	operator int () const { return (int)code; }
 
 	Enum code;
@@ -229,23 +237,29 @@ public:
 
 	void clear();
 
-	const String & status(){ return statusCode; }
+	HTTPStatusCode status(){ return statusCode; }
 	const String & reason(){ return reasonPhrase; }
 	const String & getStatusLine(){ return statusLine; }
 
 	String version;
 	Json headers;
 	String body;
+
 private:
-	String statusCode;
+	HTTPStatusCode statusCode;
 	String reasonPhrase;
 	String statusLine;
 };
+
+inline bool operator==(const HTTPStatusCode & lhs, const HTTPStatusCode::Enum & rhs)
+		{ return lhs.code == rhs; }
 
 inline String &	operator<<(csjp::String & lhs, const csjp::HTTPResponse & rhs)
 		{ lhs += rhs.toString(); return lhs; }
 inline String &	operator<<(csjp::String & lhs, const csjp::HTTPRequest & rhs)
 		{ lhs += rhs.toString(); return lhs; }
+inline String &	operator<<(csjp::String & lhs, const csjp::HTTPStatusCode & rhs)
+		{ lhs << (int)(rhs.code); return lhs; }
 
 inline String &	operator<<=(csjp::String & lhs, const csjp::HTTPResponse & rhs)
 		{ lhs = rhs.toString(); return lhs; }

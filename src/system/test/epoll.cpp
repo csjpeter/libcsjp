@@ -9,7 +9,7 @@
 #include <csjp_signal.h>
 #include <csjp_server.h>
 #include <csjp_client.h>
-#include <csjp_epoll.h>
+#include <csjp_epoll_control.h>
 #include <csjp_owner_container.h>
 
 class SocketServer;
@@ -145,7 +145,7 @@ public:
 
 void TestEPoll::create()
 {
-	csjp::EPoll epoll(1);
+	csjp::EPollControl epoll(1);
 }
 
 void TestEPoll::receiveMsg()
@@ -154,7 +154,7 @@ void TestEPoll::receiveMsg()
 	csjp::Signal pipeSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
 
 	TESTSTEP("Creating EPoll");
-	csjp::EPoll epoll(5);
+	csjp::EPollControl epoll(5);
 
 	TESTSTEP("Listening");
 	SocketListener listener("127.0.0.1", 30303);
@@ -188,7 +188,7 @@ void TestEPoll::receiveMsg()
 
 	TESTSTEP("Server experiences closed by peer state");
 	for(auto event : epoll.waitAndControl(10)){ // 0.01 sec
-		if(event.code == csjp::EPoll::ControlEventCode::ClosedByPeer)
+		if(event.code == csjp::EPollControl::ControlEventCode::ClosedByPeer)
 			servers.removeAt(0);
 	}
 	VERIFY(!servers.length);
@@ -202,7 +202,7 @@ void TestEPoll::flood()
 	csjp::Signal pipeSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
 
 	TESTSTEP("Creating EPoll, listening, connecting with client");
-	csjp::EPoll epoll(5);
+	csjp::EPollControl epoll(5);
 	SocketFloodListener listener("127.0.0.1", 30303);
 	epoll.add(listener);
 	SocketFloodClient client("127.0.0.1", 30303);
@@ -220,7 +220,7 @@ void TestEPoll::flood()
 	for(auto event : epoll.waitAndControl(10)){ // 0.01 sec
 		DBG("ControlEvent received: %", event.name());
 		switch(event.code){
-		case csjp::EPoll::ControlEventCode::ClosedByHost:
+		case csjp::EPollControl::ControlEventCode::ClosedByHost:
 			NOEXC_VERIFY(floodServers.query(event.socket));
 			VERIFY(&floodServers[0] == &event.socket);
 			floodServers.remove(event.socket);
@@ -236,10 +236,10 @@ void TestEPoll::flood()
 	for(auto event : epoll.waitAndControl(10)){ // 0.01 sec
 		DBG("ControlEvent received: %", event.name());
 		switch(event.code){
-		case csjp::EPoll::ControlEventCode::ClosedByPeer:
+		case csjp::EPollControl::ControlEventCode::ClosedByPeer:
 			client.close();
 			break;
-		case csjp::EPoll::ControlEventCode::Exception:
+		case csjp::EPollControl::ControlEventCode::Exception:
 			//VERIFY(false);
 			EXCEPTION(event.exception);
 			break;

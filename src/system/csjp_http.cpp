@@ -160,9 +160,9 @@ HTTPResponse::HTTPResponse(
 		const Str & version
 		) :
 	version(version),
-	body(body)
+	body(body),
+	statusCode(code)
 {
-	statusCode <<= code;
 	reasonPhrase <<= code.phrase();
 	statusLine.catf("HTTP/% % %",
 			version.length ? version.c_str() : "1.0",
@@ -175,9 +175,8 @@ HTTPResponse::HTTPResponse(
 	version(version),
 	body(body)
 {
-	HTTPStatusCode code = HTTPStatusCode::Enum::OK;
-	statusCode <<= code;
-	reasonPhrase <<= code.phrase();
+	statusCode = HTTPStatusCode::Enum::OK;
+	reasonPhrase <<= statusCode.phrase();
 	statusLine.catf("HTTP/% % %",
 			version.length ? version.c_str() : "1.0",
 			statusCode, reasonPhrase);
@@ -210,7 +209,7 @@ unsigned HTTPResponse::parse(const Str & data)
 		if(result.size() != 3)
 			throw HttpProtocolError("Invalid HTTP status line: %", statusLine);
 		version <<= result[0];
-		statusCode <<= result[1];
+		statusCode = HTTPStatusCode(result[1]);
 		reasonPhrase <<= result[2];
 	}
 
@@ -258,7 +257,7 @@ void HTTPResponse::clear()
 	version.clear();
 	headers.clear();
 	body.clear();
-	statusCode.clear();
+	//statusCode.clear();
 	reasonPhrase.clear();
 	statusLine.clear();
 }

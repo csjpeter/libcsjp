@@ -39,20 +39,6 @@ Socket::~Socket()
 		close();
 }
 
-Socket Socket::duplicate() const
-{
-	Socket dupSocket;
-
-	do {
-		dupSocket.file = ::dup(file);
-		if (dupSocket.file == -1 && errno != EINTR)
-			throw SocketError(errno,
-					"Could not duplicate file descriptor.");
-	} while(errno == EINTR);
-
-	return move_cast(dupSocket);
-}
-
 void Socket::close(bool throws) const
 {
 	if(file < 0)
@@ -94,7 +80,7 @@ void Socket::close(bool throws) const
 bool Socket::readToBuffer()
 {
 	if(file < 0)
-		throw InvalidState("Socket is closed.");
+		throw SocketClosed("Can not read on closed Socket.");
 
 	char buffer[64*1024];
 	ssize_t readIn = 0;
@@ -122,7 +108,7 @@ bool Socket::readToBuffer()
 String Socket::receive(size_t length)
 {
 	if(file < 0)
-		throw InvalidState("Socket is closed.");
+		throw SocketClosed("Can not receive on closed Socket.");
 
 	if(readBuffer.length < length){
 		readToBuffer();
@@ -140,7 +126,7 @@ String Socket::receive(size_t length)
 bool Socket::writeFromBuffer()
 {
 	if(file < 0)
-		throw InvalidState("Socket is closed.");
+		throw SocketClosed("Can not write on closed Socket.");
 
 	long unsigned written = 0;
 	int justWritten = 0;
@@ -175,11 +161,23 @@ bool Socket::writeFromBuffer()
 bool Socket::send(const Str & data)
 {
 	if(file < 0)
-		throw InvalidState("Socket is closed.");
+		throw SocketClosed("Can not send on closed Socket.");
 
 	writeBuffer.append(data);
 
 	return writeFromBuffer();
+}
+
+void Socket::checkForError()
+{
+	int errNo = 0;
+	socklen_t len = sizeof(errNo);
+
+	if(getsockopt(file, SOL_SOCKET, SO_ERROR, &errNo, &len) < 0)
+		throw SocketError(errno, "Failed to get socket error.");
+
+	if(errNo != 0 && errNo != EPIPE && errNo != ECONNRESET)
+		throw SocketError(errNo, "Last socket error.");
 }
 
 

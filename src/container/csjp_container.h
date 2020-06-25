@@ -180,6 +180,17 @@ public:
 	}/*}}}*/
 
 	/**
+	 * Runtime:		O(log(n))				<br/>
+	 */
+	template <typename TypeQuery>
+	DataType& query(const TypeQuery &tq) /*{{{*/
+	{
+		ENSURE(root != NULL, ObjectNotFound);
+
+		return *(root->template query<TypeQuery>(tq)->data);
+	}/*}}}*/
+
+	/**
 	 * Runtime:		constant	<br/>
 	 */
 	bool empty() const/*{{{*/

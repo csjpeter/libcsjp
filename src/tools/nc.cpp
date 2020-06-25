@@ -13,7 +13,7 @@
 #include <csjp_signal.h>
 #include <csjp_server.h>
 #include <csjp_client.h>
-#include <csjp_epoll.h>
+#include <csjp_epoll_control.h>
 
 //#include <csjp_epoll.h>
 //#include <csjp_owner_container.h>
@@ -94,7 +94,7 @@ class NCListener : public csjp::Listener
 public:
         NCListener(const char * ip, unsigned port,
                         csjp::OwnerContainer<NCServer> & businessServers,
-                        csjp::EPoll & epoll,
+                        csjp::EPollControl & epoll,
                         unsigned incomingConnectionQueueLength = 0) :
                 csjp::Listener(ip, port, incomingConnectionQueueLength),
                 businessServers(businessServers),
@@ -113,7 +113,7 @@ public:
 
 private:
         csjp::OwnerContainer<NCServer> & businessServers;
-        csjp::EPoll & epoll;
+        csjp::EPollControl & epoll;
 };
 
 
@@ -194,7 +194,7 @@ int main(int argc, char* args[])
 		LOG("Setting up listener socket");
 
 		csjp::OwnerContainer<NCServer> businessServers;
-		csjp::EPoll epoll(5);
+		csjp::EPollControl epoll(5);
 		csjp::Signal pipeSignal(SIGPIPE, csjp::Signal::sigpipeHandler);
 		NCListener listener(ip, port, businessServers, epoll);
 		epoll.add(listener);
@@ -207,11 +207,11 @@ int main(int argc, char* args[])
 			for(auto event : epoll.waitAndControl(1)){
 				DBG("ControlEvent received: %", event);
 				switch(event.code){
-					case csjp::EPoll::ControlEventCode::Exception:
+					case csjp::EPollControl::ControlEventCode::Exception:
 						FATAL(event.exception.what());
 						//EXCEPTION(event.exception);
-					case csjp::EPoll::ControlEventCode::ClosedByPeer:
-					case csjp::EPoll::ControlEventCode::ClosedByHost:
+					case csjp::EPollControl::ControlEventCode::ClosedByPeer:
+					case csjp::EPollControl::ControlEventCode::ClosedByHost:
 						businessServers.remove(event.socket);
 						closedBypeer = true;
 						break;
