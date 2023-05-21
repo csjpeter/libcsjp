@@ -45,6 +45,12 @@ public:
 		data = ' ';
 	}
 
+	Char& operator=(const Char & c)
+	{
+		data = c.data;
+		return *this;
+	}
+
 	Char(unsigned char c)
 	{
 		constructions++;

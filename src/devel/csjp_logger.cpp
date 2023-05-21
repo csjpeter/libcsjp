@@ -34,7 +34,7 @@ static void dateStamp(char res[16])
 
 static void timeStamp(char res[16])
 {
-	char timeStr[16] = {0};
+	char timeStr[8] = {0};
 	timeval unixTime;
 
 	gettimeofday(&unixTime, NULL);
@@ -44,13 +44,13 @@ static void timeStamp(char res[16])
 
 	localtime_r(&t, &_tm);
 	strftime(timeStr, sizeof(timeStr), "%H:%M:%S", &_tm);
-	snprintf(res, 16, "%8s:%03d", timeStr, unixMillisecs);
+	snprintf(res, 16, "%s:%03d", timeStr, unixMillisecs);
 }
 
-static char g_LogDir[256] = {0};
+static char g_LogDir[128] = {0};
 static char g_LogFileName[512] = {0};
-static char g_LogFileNameSpecializer[128] = {0};
-static char g_BinaryName[128] = "unknown";
+static char g_LogFileNameSpecializer[64] = {0};
+static char g_BinaryName[64] = "unknown";
 bool verboseMode = false;
 bool haveLogDir = true;
 
