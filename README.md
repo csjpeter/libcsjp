@@ -7,6 +7,9 @@ I heavily rely on exceptions with RAII technique and ownership based resource ma
 
 The scripts ubuntu.sh, mxe.sh, android.sh can be used.
 
+Run ./ubuntu.sh to compile or 
+run ./ubuntu.sh check to run tests.
+
 If you are using ubuntu or debian, you might need to install the following packages:
 
  - git g++ apt-file libicu-dev graphviz doxygen devscripts filepp pkg-config build-essential:native
