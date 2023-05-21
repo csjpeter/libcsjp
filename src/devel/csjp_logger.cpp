@@ -44,7 +44,7 @@ static void timeStamp(char res[16])
 
 	localtime_r(&t, &_tm);
 	strftime(timeStr, sizeof(timeStr), "%H:%M:%S", &_tm);
-	snprintf(res, 16, "%s:%03d", timeStr, unixMillisecs);
+	snprintf(res, 16, "%8s:%03d", timeStr, unixMillisecs);
 }
 
 static char g_LogDir[256] = {0};

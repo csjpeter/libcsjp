@@ -18,7 +18,7 @@ namespace csjp {
 class TextPrivate
 {
 public:
-	UnicodeString val;
+	icu::UnicodeString val;
 	size_t len;
 	String utf8;
 	bool dirtyUtf8;
@@ -137,7 +137,8 @@ void Text::assign(const char * utf8, size_t _length)
 {
 	ENSURE(utf8 || !_length, InvalidArgument);
 
-	priv->val = UnicodeString::fromUTF8(StringPiece(utf8, _length));
+	priv->val = icu::UnicodeString::fromUTF8(
+			icu_66::StringPiece(utf8, _length));
 
 	if(priv->val.isBogus())
 		throw ParseError("Could not assign bad utf8 sequence to Text object.");
